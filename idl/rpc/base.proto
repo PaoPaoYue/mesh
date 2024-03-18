@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package rpc.base;
+
+option java_package = "com.github.paopaoyue.mesh.rpc.proto";
+option java_outer_classname = "Base";
+
+message TraceInfo {
+  string traceId = 1;
+  string service = 11;
+  string host = 12;
+  string ip = 13;
+  int32 port = 14;
+  int64 startTime = 51;
+}
+
+message ReqBase {
+  string requestId = 1;
+  TraceInfo traceInfo = 5;
+}
+
+message RespBase {
+  string requestId = 1;
+  TraceInfo traceInfo = 5;
+  int32 code = 10;
+  string message = 11;
+}
