@@ -1,4 +1,7 @@
 package com.github.paopaoyue.mesh.rpc.service;
 
-public interface ISystemServiceHandler {
+import com.github.paopaoyue.mesh.rpc.proto.System;
+
+public interface ISystemHandler {
+    public System.PingResponse ping(System.PingRequest request);
 }

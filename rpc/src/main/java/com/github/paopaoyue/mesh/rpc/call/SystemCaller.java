@@ -1,4 +1,5 @@
 package com.github.paopaoyue.mesh.rpc.call;
 
-public class SystemServiceCaller {
+public class SystemCaller implements ISystemCaller {
+
 }

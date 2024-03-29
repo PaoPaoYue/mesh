@@ -1,27 +1,23 @@
 syntax = "proto3";
 
-package rpc.base;
+package rpc;
 
 option java_package = "com.github.paopaoyue.mesh.rpc.proto";
 option java_outer_classname = "Base";
 
-message TraceInfo {
-  string traceId = 1;
-  string service = 11;
-  string host = 12;
-  string ip = 13;
-  int32 port = 14;
-  int64 startTime = 51;
-}
-
-message ReqBase {
-  string requestId = 1;
-  TraceInfo traceInfo = 5;
-}
 
 message RespBase {
-  string requestId = 1;
-  TraceInfo traceInfo = 5;
-  int32 code = 10;
-  string message = 11;
+  int32 code = 1;
+  string message = 2;
+}
+
+enum StatusCode {
+  OK = 0;
+
+  NETWORK_ERROR = 201;
+  SERVICE_UNAVAILABLE = 202;
+  GATEWAY_TIMEOUT = 203;
+
+  INTERNAL_SERVER_ERROR = 90001;
+  INVALID_PARAM_ERROR = 90002;
 }

@@ -1,20 +1,22 @@
 syntax = "proto3";
 
-package rpc.framework;
+package rpc;
 
 import "rpc/base.proto";
 
 option java_package = "com.github.paopaoyue.mesh.rpc.proto";
-option java_outer_classname = "Framework";
+option java_outer_classname = "System";
 
 message PingRequest {
   string message = 1;
-
-  base.ReqBase base = 255;
 }
 
 message PingResponse {
   string message = 1;
 
-  base.RespBase base = 255;
+  RespBase base = 255;
+}
+
+service SystemService {
+  rpc Ping(PingRequest) returns(PingResponse);
 }

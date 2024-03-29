@@ -1,4 +1,4 @@
-package com.github.paopaoyue.mesh.rpc.core.client;
+package com.github.paopaoyue.mesh.rpc.call;
 
 public class CallOption {
 }

@@ -24,78 +24,38 @@ public final class Base {
     registerAllExtensions(
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
-  public interface TraceInfoOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:rpc.base.TraceInfo)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <code>string traceId = 1;</code>
-     * @return The traceId.
-     */
-    java.lang.String getTraceId();
-    /**
-     * <code>string traceId = 1;</code>
-     * @return The bytes for traceId.
-     */
-    com.google.protobuf.ByteString
-        getTraceIdBytes();
-
-    /**
-     * <code>string service = 11;</code>
-     * @return The service.
-     */
-    java.lang.String getService();
-    /**
-     * <code>string service = 11;</code>
-     * @return The bytes for service.
-     */
-    com.google.protobuf.ByteString
-        getServiceBytes();
-
-    /**
-     * <code>string host = 12;</code>
-     * @return The host.
-     */
-    java.lang.String getHost();
-    /**
-     * <code>string host = 12;</code>
-     * @return The bytes for host.
-     */
-    com.google.protobuf.ByteString
-        getHostBytes();
-
-    /**
-     * <code>string ip = 13;</code>
-     * @return The ip.
-     */
-    java.lang.String getIp();
-    /**
-     * <code>string ip = 13;</code>
-     * @return The bytes for ip.
-     */
-    com.google.protobuf.ByteString
-        getIpBytes();
-
-    /**
-     * <code>int32 port = 14;</code>
-     * @return The port.
-     */
-    int getPort();
-
-    /**
-     * <code>int64 startTime = 51;</code>
-     * @return The startTime.
-     */
-    long getStartTime();
-  }
   /**
-   * Protobuf type {@code rpc.base.TraceInfo}
+   * Protobuf enum {@code rpc.StatusCode}
    */
-  public static final class TraceInfo extends
-      com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:rpc.base.TraceInfo)
-      TraceInfoOrBuilder {
-  private static final long serialVersionUID = 0L;
+  public enum StatusCode
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>OK = 0;</code>
+     */
+    OK(0),
+    /**
+     * <code>NETWORK_ERROR = 201;</code>
+     */
+    NETWORK_ERROR(201),
+    /**
+     * <code>SERVICE_UNAVAILABLE = 202;</code>
+     */
+    SERVICE_UNAVAILABLE(202),
+    /**
+     * <code>GATEWAY_TIMEOUT = 203;</code>
+     */
+    GATEWAY_TIMEOUT(203),
+    /**
+     * <code>INTERNAL_SERVER_ERROR = 90001;</code>
+     */
+    INTERNAL_SERVER_ERROR(90001),
+    /**
+     * <code>INVALID_PARAM_ERROR = 90002;</code>
+     */
+    INVALID_PARAM_ERROR(90002),
+    UNRECOGNIZED(-1),
+    ;
+
     static {
       com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
         com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
@@ -103,1799 +63,148 @@ public final class Base {
         /* minor= */ 26,
         /* patch= */ 0,
         /* suffix= */ "",
-        TraceInfo.class.getName());
+        StatusCode.class.getName());
     }
-    // Use TraceInfo.newBuilder() to construct.
-    private TraceInfo(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
-      super(builder);
-    }
-    private TraceInfo() {
-      traceId_ = "";
-      service_ = "";
-      host_ = "";
-      ip_ = "";
+    /**
+     * <code>OK = 0;</code>
+     */
+    public static final int OK_VALUE = 0;
+    /**
+     * <code>NETWORK_ERROR = 201;</code>
+     */
+    public static final int NETWORK_ERROR_VALUE = 201;
+    /**
+     * <code>SERVICE_UNAVAILABLE = 202;</code>
+     */
+    public static final int SERVICE_UNAVAILABLE_VALUE = 202;
+    /**
+     * <code>GATEWAY_TIMEOUT = 203;</code>
+     */
+    public static final int GATEWAY_TIMEOUT_VALUE = 203;
+    /**
+     * <code>INTERNAL_SERVER_ERROR = 90001;</code>
+     */
+    public static final int INTERNAL_SERVER_ERROR_VALUE = 90001;
+    /**
+     * <code>INVALID_PARAM_ERROR = 90002;</code>
+     */
+    public static final int INVALID_PARAM_ERROR_VALUE = 90002;
+
+
+    public final int getNumber() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalArgumentException(
+            "Can't get the number of an unknown enum value.");
+      }
+      return value;
     }
 
-    public static final com.google.protobuf.Descriptors.Descriptor
+    /**
+     * @param value The numeric wire value of the corresponding enum entry.
+     * @return The enum associated with the given numeric wire value.
+     * @deprecated Use {@link #forNumber(int)} instead.
+     */
+    @java.lang.Deprecated
+    public static StatusCode valueOf(int value) {
+      return forNumber(value);
+    }
+
+    /**
+     * @param value The numeric wire value of the corresponding enum entry.
+     * @return The enum associated with the given numeric wire value.
+     */
+    public static StatusCode forNumber(int value) {
+      switch (value) {
+        case 0: return OK;
+        case 201: return NETWORK_ERROR;
+        case 202: return SERVICE_UNAVAILABLE;
+        case 203: return GATEWAY_TIMEOUT;
+        case 90001: return INTERNAL_SERVER_ERROR;
+        case 90002: return INVALID_PARAM_ERROR;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<StatusCode>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        StatusCode> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<StatusCode>() {
+            public StatusCode findValueByNumber(int number) {
+              return StatusCode.forNumber(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalStateException(
+            "Can't get the descriptor of an unrecognized enum value.");
+      }
+      return getDescriptor().getValues().get(ordinal());
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
-      return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_base_TraceInfo_descriptor;
+      return com.github.paopaoyue.mesh.rpc.proto.Base.getDescriptor().getEnumTypes().get(0);
     }
 
-    @java.lang.Override
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_base_TraceInfo_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.class, com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.Builder.class);
-    }
-
-    public static final int TRACEID_FIELD_NUMBER = 1;
-    @SuppressWarnings("serial")
-    private volatile java.lang.Object traceId_ = "";
-    /**
-     * <code>string traceId = 1;</code>
-     * @return The traceId.
-     */
-    @java.lang.Override
-    public java.lang.String getTraceId() {
-      java.lang.Object ref = traceId_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        traceId_ = s;
-        return s;
-      }
-    }
-    /**
-     * <code>string traceId = 1;</code>
-     * @return The bytes for traceId.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getTraceIdBytes() {
-      java.lang.Object ref = traceId_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        traceId_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int SERVICE_FIELD_NUMBER = 11;
-    @SuppressWarnings("serial")
-    private volatile java.lang.Object service_ = "";
-    /**
-     * <code>string service = 11;</code>
-     * @return The service.
-     */
-    @java.lang.Override
-    public java.lang.String getService() {
-      java.lang.Object ref = service_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        service_ = s;
-        return s;
-      }
-    }
-    /**
-     * <code>string service = 11;</code>
-     * @return The bytes for service.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getServiceBytes() {
-      java.lang.Object ref = service_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        service_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int HOST_FIELD_NUMBER = 12;
-    @SuppressWarnings("serial")
-    private volatile java.lang.Object host_ = "";
-    /**
-     * <code>string host = 12;</code>
-     * @return The host.
-     */
-    @java.lang.Override
-    public java.lang.String getHost() {
-      java.lang.Object ref = host_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        host_ = s;
-        return s;
-      }
-    }
-    /**
-     * <code>string host = 12;</code>
-     * @return The bytes for host.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getHostBytes() {
-      java.lang.Object ref = host_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        host_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int IP_FIELD_NUMBER = 13;
-    @SuppressWarnings("serial")
-    private volatile java.lang.Object ip_ = "";
-    /**
-     * <code>string ip = 13;</code>
-     * @return The ip.
-     */
-    @java.lang.Override
-    public java.lang.String getIp() {
-      java.lang.Object ref = ip_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        ip_ = s;
-        return s;
-      }
-    }
-    /**
-     * <code>string ip = 13;</code>
-     * @return The bytes for ip.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getIpBytes() {
-      java.lang.Object ref = ip_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        ip_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int PORT_FIELD_NUMBER = 14;
-    private int port_ = 0;
-    /**
-     * <code>int32 port = 14;</code>
-     * @return The port.
-     */
-    @java.lang.Override
-    public int getPort() {
-      return port_;
-    }
-
-    public static final int STARTTIME_FIELD_NUMBER = 51;
-    private long startTime_ = 0L;
-    /**
-     * <code>int64 startTime = 51;</code>
-     * @return The startTime.
-     */
-    @java.lang.Override
-    public long getStartTime() {
-      return startTime_;
-    }
-
-    private byte memoizedIsInitialized = -1;
-    @java.lang.Override
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    @java.lang.Override
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(traceId_)) {
-        com.google.protobuf.GeneratedMessage.writeString(output, 1, traceId_);
-      }
-      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(service_)) {
-        com.google.protobuf.GeneratedMessage.writeString(output, 11, service_);
-      }
-      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(host_)) {
-        com.google.protobuf.GeneratedMessage.writeString(output, 12, host_);
-      }
-      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(ip_)) {
-        com.google.protobuf.GeneratedMessage.writeString(output, 13, ip_);
-      }
-      if (port_ != 0) {
-        output.writeInt32(14, port_);
-      }
-      if (startTime_ != 0L) {
-        output.writeInt64(51, startTime_);
-      }
-      getUnknownFields().writeTo(output);
-    }
-
-    @java.lang.Override
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(traceId_)) {
-        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, traceId_);
-      }
-      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(service_)) {
-        size += com.google.protobuf.GeneratedMessage.computeStringSize(11, service_);
-      }
-      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(host_)) {
-        size += com.google.protobuf.GeneratedMessage.computeStringSize(12, host_);
-      }
-      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(ip_)) {
-        size += com.google.protobuf.GeneratedMessage.computeStringSize(13, ip_);
-      }
-      if (port_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(14, port_);
-      }
-      if (startTime_ != 0L) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(51, startTime_);
-      }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSize = size;
-      return size;
-    }
-
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo)) {
-        return super.equals(obj);
-      }
-      com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo other = (com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo) obj;
-
-      if (!getTraceId()
-          .equals(other.getTraceId())) return false;
-      if (!getService()
-          .equals(other.getService())) return false;
-      if (!getHost()
-          .equals(other.getHost())) return false;
-      if (!getIp()
-          .equals(other.getIp())) return false;
-      if (getPort()
-          != other.getPort()) return false;
-      if (getStartTime()
-          != other.getStartTime()) return false;
-      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
-      return true;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + TRACEID_FIELD_NUMBER;
-      hash = (53 * hash) + getTraceId().hashCode();
-      hash = (37 * hash) + SERVICE_FIELD_NUMBER;
-      hash = (53 * hash) + getService().hashCode();
-      hash = (37 * hash) + HOST_FIELD_NUMBER;
-      hash = (53 * hash) + getHost().hashCode();
-      hash = (37 * hash) + IP_FIELD_NUMBER;
-      hash = (53 * hash) + getIp().hashCode();
-      hash = (37 * hash) + PORT_FIELD_NUMBER;
-      hash = (53 * hash) + getPort();
-      hash = (37 * hash) + STARTTIME_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-          getStartTime());
-      hash = (29 * hash) + getUnknownFields().hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseWithIOException(PARSER, input);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseWithIOException(PARSER, input);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    @java.lang.Override
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    @java.lang.Override
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * Protobuf type {@code rpc.base.TraceInfo}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:rpc.base.TraceInfo)
-        com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfoOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_base_TraceInfo_descriptor;
-      }
-
-      @java.lang.Override
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_base_TraceInfo_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.class, com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.Builder.class);
-      }
-
-      // Construct using com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.newBuilder()
-      private Builder() {
-
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-        super(parent);
-
-      }
-      @java.lang.Override
-      public Builder clear() {
-        super.clear();
-        bitField0_ = 0;
-        traceId_ = "";
-        service_ = "";
-        host_ = "";
-        ip_ = "";
-        port_ = 0;
-        startTime_ = 0L;
-        return this;
-      }
-
-      @java.lang.Override
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_base_TraceInfo_descriptor;
-      }
-
-      @java.lang.Override
-      public com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo getDefaultInstanceForType() {
-        return com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.getDefaultInstance();
-      }
-
-      @java.lang.Override
-      public com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo build() {
-        com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      @java.lang.Override
-      public com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo buildPartial() {
-        com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo result = new com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo(this);
-        if (bitField0_ != 0) { buildPartial0(result); }
-        onBuilt();
-        return result;
-      }
-
-      private void buildPartial0(com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo result) {
-        int from_bitField0_ = bitField0_;
-        if (((from_bitField0_ & 0x00000001) != 0)) {
-          result.traceId_ = traceId_;
-        }
-        if (((from_bitField0_ & 0x00000002) != 0)) {
-          result.service_ = service_;
-        }
-        if (((from_bitField0_ & 0x00000004) != 0)) {
-          result.host_ = host_;
-        }
-        if (((from_bitField0_ & 0x00000008) != 0)) {
-          result.ip_ = ip_;
-        }
-        if (((from_bitField0_ & 0x00000010) != 0)) {
-          result.port_ = port_;
-        }
-        if (((from_bitField0_ & 0x00000020) != 0)) {
-          result.startTime_ = startTime_;
-        }
-      }
-
-      @java.lang.Override
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo) {
-          return mergeFrom((com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo other) {
-        if (other == com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.getDefaultInstance()) return this;
-        if (!other.getTraceId().isEmpty()) {
-          traceId_ = other.traceId_;
-          bitField0_ |= 0x00000001;
-          onChanged();
-        }
-        if (!other.getService().isEmpty()) {
-          service_ = other.service_;
-          bitField0_ |= 0x00000002;
-          onChanged();
-        }
-        if (!other.getHost().isEmpty()) {
-          host_ = other.host_;
-          bitField0_ |= 0x00000004;
-          onChanged();
-        }
-        if (!other.getIp().isEmpty()) {
-          ip_ = other.ip_;
-          bitField0_ |= 0x00000008;
-          onChanged();
-        }
-        if (other.getPort() != 0) {
-          setPort(other.getPort());
-        }
-        if (other.getStartTime() != 0L) {
-          setStartTime(other.getStartTime());
-        }
-        this.mergeUnknownFields(other.getUnknownFields());
-        onChanged();
-        return this;
-      }
-
-      @java.lang.Override
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      @java.lang.Override
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        if (extensionRegistry == null) {
-          throw new java.lang.NullPointerException();
-        }
-        try {
-          boolean done = false;
-          while (!done) {
-            int tag = input.readTag();
-            switch (tag) {
-              case 0:
-                done = true;
-                break;
-              case 10: {
-                traceId_ = input.readStringRequireUtf8();
-                bitField0_ |= 0x00000001;
-                break;
-              } // case 10
-              case 90: {
-                service_ = input.readStringRequireUtf8();
-                bitField0_ |= 0x00000002;
-                break;
-              } // case 90
-              case 98: {
-                host_ = input.readStringRequireUtf8();
-                bitField0_ |= 0x00000004;
-                break;
-              } // case 98
-              case 106: {
-                ip_ = input.readStringRequireUtf8();
-                bitField0_ |= 0x00000008;
-                break;
-              } // case 106
-              case 112: {
-                port_ = input.readInt32();
-                bitField0_ |= 0x00000010;
-                break;
-              } // case 112
-              case 408: {
-                startTime_ = input.readInt64();
-                bitField0_ |= 0x00000020;
-                break;
-              } // case 408
-              default: {
-                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
-                  done = true; // was an endgroup tag
-                }
-                break;
-              } // default:
-            } // switch (tag)
-          } // while (!done)
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.unwrapIOException();
-        } finally {
-          onChanged();
-        } // finally
-        return this;
-      }
-      private int bitField0_;
-
-      private java.lang.Object traceId_ = "";
-      /**
-       * <code>string traceId = 1;</code>
-       * @return The traceId.
-       */
-      public java.lang.String getTraceId() {
-        java.lang.Object ref = traceId_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          traceId_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>string traceId = 1;</code>
-       * @return The bytes for traceId.
-       */
-      public com.google.protobuf.ByteString
-          getTraceIdBytes() {
-        java.lang.Object ref = traceId_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          traceId_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>string traceId = 1;</code>
-       * @param value The traceId to set.
-       * @return This builder for chaining.
-       */
-      public Builder setTraceId(
-          java.lang.String value) {
-        if (value == null) { throw new NullPointerException(); }
-        traceId_ = value;
-        bitField0_ |= 0x00000001;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string traceId = 1;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearTraceId() {
-        traceId_ = getDefaultInstance().getTraceId();
-        bitField0_ = (bitField0_ & ~0x00000001);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string traceId = 1;</code>
-       * @param value The bytes for traceId to set.
-       * @return This builder for chaining.
-       */
-      public Builder setTraceIdBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) { throw new NullPointerException(); }
-        checkByteStringIsUtf8(value);
-        traceId_ = value;
-        bitField0_ |= 0x00000001;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object service_ = "";
-      /**
-       * <code>string service = 11;</code>
-       * @return The service.
-       */
-      public java.lang.String getService() {
-        java.lang.Object ref = service_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          service_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>string service = 11;</code>
-       * @return The bytes for service.
-       */
-      public com.google.protobuf.ByteString
-          getServiceBytes() {
-        java.lang.Object ref = service_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          service_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>string service = 11;</code>
-       * @param value The service to set.
-       * @return This builder for chaining.
-       */
-      public Builder setService(
-          java.lang.String value) {
-        if (value == null) { throw new NullPointerException(); }
-        service_ = value;
-        bitField0_ |= 0x00000002;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string service = 11;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearService() {
-        service_ = getDefaultInstance().getService();
-        bitField0_ = (bitField0_ & ~0x00000002);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string service = 11;</code>
-       * @param value The bytes for service to set.
-       * @return This builder for chaining.
-       */
-      public Builder setServiceBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) { throw new NullPointerException(); }
-        checkByteStringIsUtf8(value);
-        service_ = value;
-        bitField0_ |= 0x00000002;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object host_ = "";
-      /**
-       * <code>string host = 12;</code>
-       * @return The host.
-       */
-      public java.lang.String getHost() {
-        java.lang.Object ref = host_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          host_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>string host = 12;</code>
-       * @return The bytes for host.
-       */
-      public com.google.protobuf.ByteString
-          getHostBytes() {
-        java.lang.Object ref = host_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          host_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>string host = 12;</code>
-       * @param value The host to set.
-       * @return This builder for chaining.
-       */
-      public Builder setHost(
-          java.lang.String value) {
-        if (value == null) { throw new NullPointerException(); }
-        host_ = value;
-        bitField0_ |= 0x00000004;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string host = 12;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearHost() {
-        host_ = getDefaultInstance().getHost();
-        bitField0_ = (bitField0_ & ~0x00000004);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string host = 12;</code>
-       * @param value The bytes for host to set.
-       * @return This builder for chaining.
-       */
-      public Builder setHostBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) { throw new NullPointerException(); }
-        checkByteStringIsUtf8(value);
-        host_ = value;
-        bitField0_ |= 0x00000004;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object ip_ = "";
-      /**
-       * <code>string ip = 13;</code>
-       * @return The ip.
-       */
-      public java.lang.String getIp() {
-        java.lang.Object ref = ip_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          ip_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>string ip = 13;</code>
-       * @return The bytes for ip.
-       */
-      public com.google.protobuf.ByteString
-          getIpBytes() {
-        java.lang.Object ref = ip_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          ip_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>string ip = 13;</code>
-       * @param value The ip to set.
-       * @return This builder for chaining.
-       */
-      public Builder setIp(
-          java.lang.String value) {
-        if (value == null) { throw new NullPointerException(); }
-        ip_ = value;
-        bitField0_ |= 0x00000008;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string ip = 13;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearIp() {
-        ip_ = getDefaultInstance().getIp();
-        bitField0_ = (bitField0_ & ~0x00000008);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string ip = 13;</code>
-       * @param value The bytes for ip to set.
-       * @return This builder for chaining.
-       */
-      public Builder setIpBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) { throw new NullPointerException(); }
-        checkByteStringIsUtf8(value);
-        ip_ = value;
-        bitField0_ |= 0x00000008;
-        onChanged();
-        return this;
-      }
-
-      private int port_ ;
-      /**
-       * <code>int32 port = 14;</code>
-       * @return The port.
-       */
-      @java.lang.Override
-      public int getPort() {
-        return port_;
-      }
-      /**
-       * <code>int32 port = 14;</code>
-       * @param value The port to set.
-       * @return This builder for chaining.
-       */
-      public Builder setPort(int value) {
-
-        port_ = value;
-        bitField0_ |= 0x00000010;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>int32 port = 14;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearPort() {
-        bitField0_ = (bitField0_ & ~0x00000010);
-        port_ = 0;
-        onChanged();
-        return this;
-      }
+    private static final StatusCode[] VALUES = values();
 
-      private long startTime_ ;
-      /**
-       * <code>int64 startTime = 51;</code>
-       * @return The startTime.
-       */
-      @java.lang.Override
-      public long getStartTime() {
-        return startTime_;
+    public static StatusCode valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
       }
-      /**
-       * <code>int64 startTime = 51;</code>
-       * @param value The startTime to set.
-       * @return This builder for chaining.
-       */
-      public Builder setStartTime(long value) {
-
-        startTime_ = value;
-        bitField0_ |= 0x00000020;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>int64 startTime = 51;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearStartTime() {
-        bitField0_ = (bitField0_ & ~0x00000020);
-        startTime_ = 0L;
-        onChanged();
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:rpc.base.TraceInfo)
-    }
-
-    // @@protoc_insertion_point(class_scope:rpc.base.TraceInfo)
-    private static final com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo();
-    }
-
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<TraceInfo>
-        PARSER = new com.google.protobuf.AbstractParser<TraceInfo>() {
-      @java.lang.Override
-      public TraceInfo parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        Builder builder = newBuilder();
-        try {
-          builder.mergeFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.setUnfinishedMessage(builder.buildPartial());
-        } catch (com.google.protobuf.UninitializedMessageException e) {
-          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
-        } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(e)
-              .setUnfinishedMessage(builder.buildPartial());
-        }
-        return builder.buildPartial();
-      }
-    };
-
-    public static com.google.protobuf.Parser<TraceInfo> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<TraceInfo> getParserForType() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
-  public interface ReqBaseOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:rpc.base.ReqBase)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <code>string requestId = 1;</code>
-     * @return The requestId.
-     */
-    java.lang.String getRequestId();
-    /**
-     * <code>string requestId = 1;</code>
-     * @return The bytes for requestId.
-     */
-    com.google.protobuf.ByteString
-        getRequestIdBytes();
-
-    /**
-     * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-     * @return Whether the traceInfo field is set.
-     */
-    boolean hasTraceInfo();
-    /**
-     * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-     * @return The traceInfo.
-     */
-    com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo getTraceInfo();
-    /**
-     * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-     */
-    com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfoOrBuilder getTraceInfoOrBuilder();
-  }
-  /**
-   * Protobuf type {@code rpc.base.ReqBase}
-   */
-  public static final class ReqBase extends
-      com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:rpc.base.ReqBase)
-      ReqBaseOrBuilder {
-  private static final long serialVersionUID = 0L;
-    static {
-      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
-        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
-        /* major= */ 4,
-        /* minor= */ 26,
-        /* patch= */ 0,
-        /* suffix= */ "",
-        ReqBase.class.getName());
-    }
-    // Use ReqBase.newBuilder() to construct.
-    private ReqBase(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
-      super(builder);
-    }
-    private ReqBase() {
-      requestId_ = "";
-    }
-
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_base_ReqBase_descriptor;
-    }
-
-    @java.lang.Override
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_base_ReqBase_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase.class, com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase.Builder.class);
-    }
-
-    private int bitField0_;
-    public static final int REQUESTID_FIELD_NUMBER = 1;
-    @SuppressWarnings("serial")
-    private volatile java.lang.Object requestId_ = "";
-    /**
-     * <code>string requestId = 1;</code>
-     * @return The requestId.
-     */
-    @java.lang.Override
-    public java.lang.String getRequestId() {
-      java.lang.Object ref = requestId_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        requestId_ = s;
-        return s;
-      }
-    }
-    /**
-     * <code>string requestId = 1;</code>
-     * @return The bytes for requestId.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getRequestIdBytes() {
-      java.lang.Object ref = requestId_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        requestId_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int TRACEINFO_FIELD_NUMBER = 5;
-    private com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo traceInfo_;
-    /**
-     * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-     * @return Whether the traceInfo field is set.
-     */
-    @java.lang.Override
-    public boolean hasTraceInfo() {
-      return ((bitField0_ & 0x00000001) != 0);
-    }
-    /**
-     * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-     * @return The traceInfo.
-     */
-    @java.lang.Override
-    public com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo getTraceInfo() {
-      return traceInfo_ == null ? com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.getDefaultInstance() : traceInfo_;
-    }
-    /**
-     * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-     */
-    @java.lang.Override
-    public com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfoOrBuilder getTraceInfoOrBuilder() {
-      return traceInfo_ == null ? com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.getDefaultInstance() : traceInfo_;
-    }
-
-    private byte memoizedIsInitialized = -1;
-    @java.lang.Override
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    @java.lang.Override
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(requestId_)) {
-        com.google.protobuf.GeneratedMessage.writeString(output, 1, requestId_);
-      }
-      if (((bitField0_ & 0x00000001) != 0)) {
-        output.writeMessage(5, getTraceInfo());
-      }
-      getUnknownFields().writeTo(output);
-    }
-
-    @java.lang.Override
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(requestId_)) {
-        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, requestId_);
-      }
-      if (((bitField0_ & 0x00000001) != 0)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(5, getTraceInfo());
-      }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSize = size;
-      return size;
-    }
-
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase)) {
-        return super.equals(obj);
-      }
-      com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase other = (com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase) obj;
-
-      if (!getRequestId()
-          .equals(other.getRequestId())) return false;
-      if (hasTraceInfo() != other.hasTraceInfo()) return false;
-      if (hasTraceInfo()) {
-        if (!getTraceInfo()
-            .equals(other.getTraceInfo())) return false;
-      }
-      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
-      return true;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + REQUESTID_FIELD_NUMBER;
-      hash = (53 * hash) + getRequestId().hashCode();
-      if (hasTraceInfo()) {
-        hash = (37 * hash) + TRACEINFO_FIELD_NUMBER;
-        hash = (53 * hash) + getTraceInfo().hashCode();
-      }
-      hash = (29 * hash) + getUnknownFields().hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseWithIOException(PARSER, input);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseWithIOException(PARSER, input);
-    }
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    @java.lang.Override
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    @java.lang.Override
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * Protobuf type {@code rpc.base.ReqBase}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:rpc.base.ReqBase)
-        com.github.paopaoyue.mesh.rpc.proto.Base.ReqBaseOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_base_ReqBase_descriptor;
-      }
-
-      @java.lang.Override
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_base_ReqBase_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase.class, com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase.Builder.class);
-      }
-
-      // Construct using com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage
-                .alwaysUseFieldBuilders) {
-          getTraceInfoFieldBuilder();
-        }
-      }
-      @java.lang.Override
-      public Builder clear() {
-        super.clear();
-        bitField0_ = 0;
-        requestId_ = "";
-        traceInfo_ = null;
-        if (traceInfoBuilder_ != null) {
-          traceInfoBuilder_.dispose();
-          traceInfoBuilder_ = null;
-        }
-        return this;
-      }
-
-      @java.lang.Override
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_base_ReqBase_descriptor;
-      }
-
-      @java.lang.Override
-      public com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase getDefaultInstanceForType() {
-        return com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase.getDefaultInstance();
-      }
-
-      @java.lang.Override
-      public com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase build() {
-        com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      @java.lang.Override
-      public com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase buildPartial() {
-        com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase result = new com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase(this);
-        if (bitField0_ != 0) { buildPartial0(result); }
-        onBuilt();
-        return result;
-      }
-
-      private void buildPartial0(com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase result) {
-        int from_bitField0_ = bitField0_;
-        if (((from_bitField0_ & 0x00000001) != 0)) {
-          result.requestId_ = requestId_;
-        }
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000002) != 0)) {
-          result.traceInfo_ = traceInfoBuilder_ == null
-              ? traceInfo_
-              : traceInfoBuilder_.build();
-          to_bitField0_ |= 0x00000001;
-        }
-        result.bitField0_ |= to_bitField0_;
-      }
-
-      @java.lang.Override
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase) {
-          return mergeFrom((com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase other) {
-        if (other == com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase.getDefaultInstance()) return this;
-        if (!other.getRequestId().isEmpty()) {
-          requestId_ = other.requestId_;
-          bitField0_ |= 0x00000001;
-          onChanged();
-        }
-        if (other.hasTraceInfo()) {
-          mergeTraceInfo(other.getTraceInfo());
-        }
-        this.mergeUnknownFields(other.getUnknownFields());
-        onChanged();
-        return this;
-      }
-
-      @java.lang.Override
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      @java.lang.Override
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        if (extensionRegistry == null) {
-          throw new java.lang.NullPointerException();
-        }
-        try {
-          boolean done = false;
-          while (!done) {
-            int tag = input.readTag();
-            switch (tag) {
-              case 0:
-                done = true;
-                break;
-              case 10: {
-                requestId_ = input.readStringRequireUtf8();
-                bitField0_ |= 0x00000001;
-                break;
-              } // case 10
-              case 42: {
-                input.readMessage(
-                    getTraceInfoFieldBuilder().getBuilder(),
-                    extensionRegistry);
-                bitField0_ |= 0x00000002;
-                break;
-              } // case 42
-              default: {
-                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
-                  done = true; // was an endgroup tag
-                }
-                break;
-              } // default:
-            } // switch (tag)
-          } // while (!done)
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.unwrapIOException();
-        } finally {
-          onChanged();
-        } // finally
-        return this;
-      }
-      private int bitField0_;
-
-      private java.lang.Object requestId_ = "";
-      /**
-       * <code>string requestId = 1;</code>
-       * @return The requestId.
-       */
-      public java.lang.String getRequestId() {
-        java.lang.Object ref = requestId_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          requestId_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>string requestId = 1;</code>
-       * @return The bytes for requestId.
-       */
-      public com.google.protobuf.ByteString
-          getRequestIdBytes() {
-        java.lang.Object ref = requestId_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          requestId_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>string requestId = 1;</code>
-       * @param value The requestId to set.
-       * @return This builder for chaining.
-       */
-      public Builder setRequestId(
-          java.lang.String value) {
-        if (value == null) { throw new NullPointerException(); }
-        requestId_ = value;
-        bitField0_ |= 0x00000001;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string requestId = 1;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearRequestId() {
-        requestId_ = getDefaultInstance().getRequestId();
-        bitField0_ = (bitField0_ & ~0x00000001);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string requestId = 1;</code>
-       * @param value The bytes for requestId to set.
-       * @return This builder for chaining.
-       */
-      public Builder setRequestIdBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) { throw new NullPointerException(); }
-        checkByteStringIsUtf8(value);
-        requestId_ = value;
-        bitField0_ |= 0x00000001;
-        onChanged();
-        return this;
-      }
-
-      private com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo traceInfo_;
-      private com.google.protobuf.SingleFieldBuilder<
-          com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo, com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.Builder, com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfoOrBuilder> traceInfoBuilder_;
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       * @return Whether the traceInfo field is set.
-       */
-      public boolean hasTraceInfo() {
-        return ((bitField0_ & 0x00000002) != 0);
-      }
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       * @return The traceInfo.
-       */
-      public com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo getTraceInfo() {
-        if (traceInfoBuilder_ == null) {
-          return traceInfo_ == null ? com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.getDefaultInstance() : traceInfo_;
-        } else {
-          return traceInfoBuilder_.getMessage();
-        }
+      if (desc.getIndex() == -1) {
+        return UNRECOGNIZED;
       }
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       */
-      public Builder setTraceInfo(com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo value) {
-        if (traceInfoBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          traceInfo_ = value;
-        } else {
-          traceInfoBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00000002;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       */
-      public Builder setTraceInfo(
-          com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.Builder builderForValue) {
-        if (traceInfoBuilder_ == null) {
-          traceInfo_ = builderForValue.build();
-        } else {
-          traceInfoBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00000002;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       */
-      public Builder mergeTraceInfo(com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo value) {
-        if (traceInfoBuilder_ == null) {
-          if (((bitField0_ & 0x00000002) != 0) &&
-            traceInfo_ != null &&
-            traceInfo_ != com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.getDefaultInstance()) {
-            getTraceInfoBuilder().mergeFrom(value);
-          } else {
-            traceInfo_ = value;
-          }
-        } else {
-          traceInfoBuilder_.mergeFrom(value);
-        }
-        if (traceInfo_ != null) {
-          bitField0_ |= 0x00000002;
-          onChanged();
-        }
-        return this;
-      }
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       */
-      public Builder clearTraceInfo() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        traceInfo_ = null;
-        if (traceInfoBuilder_ != null) {
-          traceInfoBuilder_.dispose();
-          traceInfoBuilder_ = null;
-        }
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       */
-      public com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.Builder getTraceInfoBuilder() {
-        bitField0_ |= 0x00000002;
-        onChanged();
-        return getTraceInfoFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       */
-      public com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfoOrBuilder getTraceInfoOrBuilder() {
-        if (traceInfoBuilder_ != null) {
-          return traceInfoBuilder_.getMessageOrBuilder();
-        } else {
-          return traceInfo_ == null ?
-              com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.getDefaultInstance() : traceInfo_;
-        }
-      }
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilder<
-          com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo, com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.Builder, com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfoOrBuilder> 
-          getTraceInfoFieldBuilder() {
-        if (traceInfoBuilder_ == null) {
-          traceInfoBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo, com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.Builder, com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfoOrBuilder>(
-                  getTraceInfo(),
-                  getParentForChildren(),
-                  isClean());
-          traceInfo_ = null;
-        }
-        return traceInfoBuilder_;
-      }
-
-      // @@protoc_insertion_point(builder_scope:rpc.base.ReqBase)
+      return VALUES[desc.getIndex()];
     }
 
-    // @@protoc_insertion_point(class_scope:rpc.base.ReqBase)
-    private static final com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase();
-    }
-
-    public static com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<ReqBase>
-        PARSER = new com.google.protobuf.AbstractParser<ReqBase>() {
-      @java.lang.Override
-      public ReqBase parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        Builder builder = newBuilder();
-        try {
-          builder.mergeFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.setUnfinishedMessage(builder.buildPartial());
-        } catch (com.google.protobuf.UninitializedMessageException e) {
-          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
-        } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(e)
-              .setUnfinishedMessage(builder.buildPartial());
-        }
-        return builder.buildPartial();
-      }
-    };
-
-    public static com.google.protobuf.Parser<ReqBase> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<ReqBase> getParserForType() {
-      return PARSER;
-    }
+    private final int value;
 
-    @java.lang.Override
-    public com.github.paopaoyue.mesh.rpc.proto.Base.ReqBase getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
+    private StatusCode(int value) {
+      this.value = value;
     }
 
+    // @@protoc_insertion_point(enum_scope:rpc.StatusCode)
   }
 
   public interface RespBaseOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:rpc.base.RespBase)
+      // @@protoc_insertion_point(interface_extends:rpc.RespBase)
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>string requestId = 1;</code>
-     * @return The requestId.
-     */
-    java.lang.String getRequestId();
-    /**
-     * <code>string requestId = 1;</code>
-     * @return The bytes for requestId.
-     */
-    com.google.protobuf.ByteString
-        getRequestIdBytes();
-
-    /**
-     * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-     * @return Whether the traceInfo field is set.
-     */
-    boolean hasTraceInfo();
-    /**
-     * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-     * @return The traceInfo.
-     */
-    com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo getTraceInfo();
-    /**
-     * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-     */
-    com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfoOrBuilder getTraceInfoOrBuilder();
-
-    /**
-     * <code>int32 code = 10;</code>
+     * <code>int32 code = 1;</code>
      * @return The code.
      */
     int getCode();
 
     /**
-     * <code>string message = 11;</code>
+     * <code>string message = 2;</code>
      * @return The message.
      */
     java.lang.String getMessage();
     /**
-     * <code>string message = 11;</code>
+     * <code>string message = 2;</code>
      * @return The bytes for message.
      */
     com.google.protobuf.ByteString
         getMessageBytes();
   }
   /**
-   * Protobuf type {@code rpc.base.RespBase}
+   * Protobuf type {@code rpc.RespBase}
    */
   public static final class RespBase extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:rpc.base.RespBase)
+      // @@protoc_insertion_point(message_implements:rpc.RespBase)
       RespBaseOrBuilder {
   private static final long serialVersionUID = 0L;
     static {
@@ -1912,93 +221,26 @@ public final class Base {
       super(builder);
     }
     private RespBase() {
-      requestId_ = "";
       message_ = "";
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_base_RespBase_descriptor;
+      return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_RespBase_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_base_RespBase_fieldAccessorTable
+      return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_RespBase_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.github.paopaoyue.mesh.rpc.proto.Base.RespBase.class, com.github.paopaoyue.mesh.rpc.proto.Base.RespBase.Builder.class);
     }
 
-    private int bitField0_;
-    public static final int REQUESTID_FIELD_NUMBER = 1;
-    @SuppressWarnings("serial")
-    private volatile java.lang.Object requestId_ = "";
-    /**
-     * <code>string requestId = 1;</code>
-     * @return The requestId.
-     */
-    @java.lang.Override
-    public java.lang.String getRequestId() {
-      java.lang.Object ref = requestId_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        requestId_ = s;
-        return s;
-      }
-    }
-    /**
-     * <code>string requestId = 1;</code>
-     * @return The bytes for requestId.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getRequestIdBytes() {
-      java.lang.Object ref = requestId_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        requestId_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int TRACEINFO_FIELD_NUMBER = 5;
-    private com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo traceInfo_;
-    /**
-     * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-     * @return Whether the traceInfo field is set.
-     */
-    @java.lang.Override
-    public boolean hasTraceInfo() {
-      return ((bitField0_ & 0x00000001) != 0);
-    }
-    /**
-     * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-     * @return The traceInfo.
-     */
-    @java.lang.Override
-    public com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo getTraceInfo() {
-      return traceInfo_ == null ? com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.getDefaultInstance() : traceInfo_;
-    }
-    /**
-     * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-     */
-    @java.lang.Override
-    public com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfoOrBuilder getTraceInfoOrBuilder() {
-      return traceInfo_ == null ? com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.getDefaultInstance() : traceInfo_;
-    }
-
-    public static final int CODE_FIELD_NUMBER = 10;
+    public static final int CODE_FIELD_NUMBER = 1;
     private int code_ = 0;
     /**
-     * <code>int32 code = 10;</code>
+     * <code>int32 code = 1;</code>
      * @return The code.
      */
     @java.lang.Override
@@ -2006,11 +248,11 @@ public final class Base {
       return code_;
     }
 
-    public static final int MESSAGE_FIELD_NUMBER = 11;
+    public static final int MESSAGE_FIELD_NUMBER = 2;
     @SuppressWarnings("serial")
     private volatile java.lang.Object message_ = "";
     /**
-     * <code>string message = 11;</code>
+     * <code>string message = 2;</code>
      * @return The message.
      */
     @java.lang.Override
@@ -2027,7 +269,7 @@ public final class Base {
       }
     }
     /**
-     * <code>string message = 11;</code>
+     * <code>string message = 2;</code>
      * @return The bytes for message.
      */
     @java.lang.Override
@@ -2059,17 +301,11 @@ public final class Base {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(requestId_)) {
-        com.google.protobuf.GeneratedMessage.writeString(output, 1, requestId_);
-      }
-      if (((bitField0_ & 0x00000001) != 0)) {
-        output.writeMessage(5, getTraceInfo());
-      }
       if (code_ != 0) {
-        output.writeInt32(10, code_);
+        output.writeInt32(1, code_);
       }
       if (!com.google.protobuf.GeneratedMessage.isStringEmpty(message_)) {
-        com.google.protobuf.GeneratedMessage.writeString(output, 11, message_);
+        com.google.protobuf.GeneratedMessage.writeString(output, 2, message_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -2080,19 +316,12 @@ public final class Base {
       if (size != -1) return size;
 
       size = 0;
-      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(requestId_)) {
-        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, requestId_);
-      }
-      if (((bitField0_ & 0x00000001) != 0)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(5, getTraceInfo());
-      }
       if (code_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(10, code_);
+          .computeInt32Size(1, code_);
       }
       if (!com.google.protobuf.GeneratedMessage.isStringEmpty(message_)) {
-        size += com.google.protobuf.GeneratedMessage.computeStringSize(11, message_);
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(2, message_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
@@ -2109,13 +338,6 @@ public final class Base {
       }
       com.github.paopaoyue.mesh.rpc.proto.Base.RespBase other = (com.github.paopaoyue.mesh.rpc.proto.Base.RespBase) obj;
 
-      if (!getRequestId()
-          .equals(other.getRequestId())) return false;
-      if (hasTraceInfo() != other.hasTraceInfo()) return false;
-      if (hasTraceInfo()) {
-        if (!getTraceInfo()
-            .equals(other.getTraceInfo())) return false;
-      }
       if (getCode()
           != other.getCode()) return false;
       if (!getMessage()
@@ -2131,12 +353,6 @@ public final class Base {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + REQUESTID_FIELD_NUMBER;
-      hash = (53 * hash) + getRequestId().hashCode();
-      if (hasTraceInfo()) {
-        hash = (37 * hash) + TRACEINFO_FIELD_NUMBER;
-        hash = (53 * hash) + getTraceInfo().hashCode();
-      }
       hash = (37 * hash) + CODE_FIELD_NUMBER;
       hash = (53 * hash) + getCode();
       hash = (37 * hash) + MESSAGE_FIELD_NUMBER;
@@ -2239,51 +455,39 @@ public final class Base {
       return builder;
     }
     /**
-     * Protobuf type {@code rpc.base.RespBase}
+     * Protobuf type {@code rpc.RespBase}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:rpc.base.RespBase)
+        // @@protoc_insertion_point(builder_implements:rpc.RespBase)
         com.github.paopaoyue.mesh.rpc.proto.Base.RespBaseOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_base_RespBase_descriptor;
+        return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_RespBase_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_base_RespBase_fieldAccessorTable
+        return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_RespBase_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.github.paopaoyue.mesh.rpc.proto.Base.RespBase.class, com.github.paopaoyue.mesh.rpc.proto.Base.RespBase.Builder.class);
       }
 
       // Construct using com.github.paopaoyue.mesh.rpc.proto.Base.RespBase.newBuilder()
       private Builder() {
-        maybeForceBuilderInitialization();
+
       }
 
       private Builder(
           com.google.protobuf.GeneratedMessage.BuilderParent parent) {
         super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage
-                .alwaysUseFieldBuilders) {
-          getTraceInfoFieldBuilder();
-        }
+
       }
       @java.lang.Override
       public Builder clear() {
         super.clear();
         bitField0_ = 0;
-        requestId_ = "";
-        traceInfo_ = null;
-        if (traceInfoBuilder_ != null) {
-          traceInfoBuilder_.dispose();
-          traceInfoBuilder_ = null;
-        }
         code_ = 0;
         message_ = "";
         return this;
@@ -2292,7 +496,7 @@ public final class Base {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_base_RespBase_descriptor;
+        return com.github.paopaoyue.mesh.rpc.proto.Base.internal_static_rpc_RespBase_descriptor;
       }
 
       @java.lang.Override
@@ -2320,22 +524,11 @@ public final class Base {
       private void buildPartial0(com.github.paopaoyue.mesh.rpc.proto.Base.RespBase result) {
         int from_bitField0_ = bitField0_;
         if (((from_bitField0_ & 0x00000001) != 0)) {
-          result.requestId_ = requestId_;
-        }
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000002) != 0)) {
-          result.traceInfo_ = traceInfoBuilder_ == null
-              ? traceInfo_
-              : traceInfoBuilder_.build();
-          to_bitField0_ |= 0x00000001;
-        }
-        if (((from_bitField0_ & 0x00000004) != 0)) {
           result.code_ = code_;
         }
-        if (((from_bitField0_ & 0x00000008) != 0)) {
+        if (((from_bitField0_ & 0x00000002) != 0)) {
           result.message_ = message_;
         }
-        result.bitField0_ |= to_bitField0_;
       }
 
       @java.lang.Override
@@ -2350,20 +543,12 @@ public final class Base {
 
       public Builder mergeFrom(com.github.paopaoyue.mesh.rpc.proto.Base.RespBase other) {
         if (other == com.github.paopaoyue.mesh.rpc.proto.Base.RespBase.getDefaultInstance()) return this;
-        if (!other.getRequestId().isEmpty()) {
-          requestId_ = other.requestId_;
-          bitField0_ |= 0x00000001;
-          onChanged();
-        }
-        if (other.hasTraceInfo()) {
-          mergeTraceInfo(other.getTraceInfo());
-        }
         if (other.getCode() != 0) {
           setCode(other.getCode());
         }
         if (!other.getMessage().isEmpty()) {
           message_ = other.message_;
-          bitField0_ |= 0x00000008;
+          bitField0_ |= 0x00000002;
           onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
@@ -2392,28 +577,16 @@ public final class Base {
               case 0:
                 done = true;
                 break;
-              case 10: {
-                requestId_ = input.readStringRequireUtf8();
+              case 8: {
+                code_ = input.readInt32();
                 bitField0_ |= 0x00000001;
                 break;
-              } // case 10
-              case 42: {
-                input.readMessage(
-                    getTraceInfoFieldBuilder().getBuilder(),
-                    extensionRegistry);
+              } // case 8
+              case 18: {
+                message_ = input.readStringRequireUtf8();
                 bitField0_ |= 0x00000002;
                 break;
-              } // case 42
-              case 80: {
-                code_ = input.readInt32();
-                bitField0_ |= 0x00000004;
-                break;
-              } // case 80
-              case 90: {
-                message_ = input.readStringRequireUtf8();
-                bitField0_ |= 0x00000008;
-                break;
-              } // case 90
+              } // case 18
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -2431,202 +604,9 @@ public final class Base {
       }
       private int bitField0_;
 
-      private java.lang.Object requestId_ = "";
-      /**
-       * <code>string requestId = 1;</code>
-       * @return The requestId.
-       */
-      public java.lang.String getRequestId() {
-        java.lang.Object ref = requestId_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          requestId_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>string requestId = 1;</code>
-       * @return The bytes for requestId.
-       */
-      public com.google.protobuf.ByteString
-          getRequestIdBytes() {
-        java.lang.Object ref = requestId_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          requestId_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>string requestId = 1;</code>
-       * @param value The requestId to set.
-       * @return This builder for chaining.
-       */
-      public Builder setRequestId(
-          java.lang.String value) {
-        if (value == null) { throw new NullPointerException(); }
-        requestId_ = value;
-        bitField0_ |= 0x00000001;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string requestId = 1;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearRequestId() {
-        requestId_ = getDefaultInstance().getRequestId();
-        bitField0_ = (bitField0_ & ~0x00000001);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string requestId = 1;</code>
-       * @param value The bytes for requestId to set.
-       * @return This builder for chaining.
-       */
-      public Builder setRequestIdBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) { throw new NullPointerException(); }
-        checkByteStringIsUtf8(value);
-        requestId_ = value;
-        bitField0_ |= 0x00000001;
-        onChanged();
-        return this;
-      }
-
-      private com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo traceInfo_;
-      private com.google.protobuf.SingleFieldBuilder<
-          com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo, com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.Builder, com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfoOrBuilder> traceInfoBuilder_;
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       * @return Whether the traceInfo field is set.
-       */
-      public boolean hasTraceInfo() {
-        return ((bitField0_ & 0x00000002) != 0);
-      }
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       * @return The traceInfo.
-       */
-      public com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo getTraceInfo() {
-        if (traceInfoBuilder_ == null) {
-          return traceInfo_ == null ? com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.getDefaultInstance() : traceInfo_;
-        } else {
-          return traceInfoBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       */
-      public Builder setTraceInfo(com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo value) {
-        if (traceInfoBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          traceInfo_ = value;
-        } else {
-          traceInfoBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00000002;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       */
-      public Builder setTraceInfo(
-          com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.Builder builderForValue) {
-        if (traceInfoBuilder_ == null) {
-          traceInfo_ = builderForValue.build();
-        } else {
-          traceInfoBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00000002;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       */
-      public Builder mergeTraceInfo(com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo value) {
-        if (traceInfoBuilder_ == null) {
-          if (((bitField0_ & 0x00000002) != 0) &&
-            traceInfo_ != null &&
-            traceInfo_ != com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.getDefaultInstance()) {
-            getTraceInfoBuilder().mergeFrom(value);
-          } else {
-            traceInfo_ = value;
-          }
-        } else {
-          traceInfoBuilder_.mergeFrom(value);
-        }
-        if (traceInfo_ != null) {
-          bitField0_ |= 0x00000002;
-          onChanged();
-        }
-        return this;
-      }
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       */
-      public Builder clearTraceInfo() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        traceInfo_ = null;
-        if (traceInfoBuilder_ != null) {
-          traceInfoBuilder_.dispose();
-          traceInfoBuilder_ = null;
-        }
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       */
-      public com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.Builder getTraceInfoBuilder() {
-        bitField0_ |= 0x00000002;
-        onChanged();
-        return getTraceInfoFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       */
-      public com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfoOrBuilder getTraceInfoOrBuilder() {
-        if (traceInfoBuilder_ != null) {
-          return traceInfoBuilder_.getMessageOrBuilder();
-        } else {
-          return traceInfo_ == null ?
-              com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.getDefaultInstance() : traceInfo_;
-        }
-      }
-      /**
-       * <code>.rpc.base.TraceInfo traceInfo = 5;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilder<
-          com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo, com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.Builder, com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfoOrBuilder> 
-          getTraceInfoFieldBuilder() {
-        if (traceInfoBuilder_ == null) {
-          traceInfoBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo, com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfo.Builder, com.github.paopaoyue.mesh.rpc.proto.Base.TraceInfoOrBuilder>(
-                  getTraceInfo(),
-                  getParentForChildren(),
-                  isClean());
-          traceInfo_ = null;
-        }
-        return traceInfoBuilder_;
-      }
-
       private int code_ ;
       /**
-       * <code>int32 code = 10;</code>
+       * <code>int32 code = 1;</code>
        * @return The code.
        */
       @java.lang.Override
@@ -2634,23 +614,23 @@ public final class Base {
         return code_;
       }
       /**
-       * <code>int32 code = 10;</code>
+       * <code>int32 code = 1;</code>
        * @param value The code to set.
        * @return This builder for chaining.
        */
       public Builder setCode(int value) {
 
         code_ = value;
-        bitField0_ |= 0x00000004;
+        bitField0_ |= 0x00000001;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 code = 10;</code>
+       * <code>int32 code = 1;</code>
        * @return This builder for chaining.
        */
       public Builder clearCode() {
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000001);
         code_ = 0;
         onChanged();
         return this;
@@ -2658,7 +638,7 @@ public final class Base {
 
       private java.lang.Object message_ = "";
       /**
-       * <code>string message = 11;</code>
+       * <code>string message = 2;</code>
        * @return The message.
        */
       public java.lang.String getMessage() {
@@ -2674,7 +654,7 @@ public final class Base {
         }
       }
       /**
-       * <code>string message = 11;</code>
+       * <code>string message = 2;</code>
        * @return The bytes for message.
        */
       public com.google.protobuf.ByteString
@@ -2691,7 +671,7 @@ public final class Base {
         }
       }
       /**
-       * <code>string message = 11;</code>
+       * <code>string message = 2;</code>
        * @param value The message to set.
        * @return This builder for chaining.
        */
@@ -2699,22 +679,22 @@ public final class Base {
           java.lang.String value) {
         if (value == null) { throw new NullPointerException(); }
         message_ = value;
-        bitField0_ |= 0x00000008;
+        bitField0_ |= 0x00000002;
         onChanged();
         return this;
       }
       /**
-       * <code>string message = 11;</code>
+       * <code>string message = 2;</code>
        * @return This builder for chaining.
        */
       public Builder clearMessage() {
         message_ = getDefaultInstance().getMessage();
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000002);
         onChanged();
         return this;
       }
       /**
-       * <code>string message = 11;</code>
+       * <code>string message = 2;</code>
        * @param value The bytes for message to set.
        * @return This builder for chaining.
        */
@@ -2723,15 +703,15 @@ public final class Base {
         if (value == null) { throw new NullPointerException(); }
         checkByteStringIsUtf8(value);
         message_ = value;
-        bitField0_ |= 0x00000008;
+        bitField0_ |= 0x00000002;
         onChanged();
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:rpc.base.RespBase)
+      // @@protoc_insertion_point(builder_scope:rpc.RespBase)
     }
 
-    // @@protoc_insertion_point(class_scope:rpc.base.RespBase)
+    // @@protoc_insertion_point(class_scope:rpc.RespBase)
     private static final com.github.paopaoyue.mesh.rpc.proto.Base.RespBase DEFAULT_INSTANCE;
     static {
       DEFAULT_INSTANCE = new com.github.paopaoyue.mesh.rpc.proto.Base.RespBase();
@@ -2780,20 +760,10 @@ public final class Base {
   }
 
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_rpc_base_TraceInfo_descriptor;
+    internal_static_rpc_RespBase_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_rpc_base_TraceInfo_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_rpc_base_ReqBase_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_rpc_base_ReqBase_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_rpc_base_RespBase_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_rpc_base_RespBase_fieldAccessorTable;
+      internal_static_rpc_RespBase_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -2803,38 +773,24 @@ public final class Base {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\016rpc/base.proto\022\010rpc.base\"h\n\tTraceInfo\022" +
-      "\017\n\007traceId\030\001 \001(\t\022\017\n\007service\030\013 \001(\t\022\014\n\004hos" +
-      "t\030\014 \001(\t\022\n\n\002ip\030\r \001(\t\022\014\n\004port\030\016 \001(\005\022\021\n\tsta" +
-      "rtTime\0303 \001(\003\"D\n\007ReqBase\022\021\n\trequestId\030\001 \001" +
-      "(\t\022&\n\ttraceInfo\030\005 \001(\0132\023.rpc.base.TraceIn" +
-      "fo\"d\n\010RespBase\022\021\n\trequestId\030\001 \001(\t\022&\n\ttra" +
-      "ceInfo\030\005 \001(\0132\023.rpc.base.TraceInfo\022\014\n\004cod" +
-      "e\030\n \001(\005\022\017\n\007message\030\013 \001(\tB+\n#com.github.p" +
-      "aopaoyue.mesh.rpc.protoB\004Baseb\006proto3"
+      "\n\016rpc/base.proto\022\003rpc\")\n\010RespBase\022\014\n\004cod" +
+      "e\030\001 \001(\005\022\017\n\007message\030\002 \001(\t*\220\001\n\nStatusCode\022" +
+      "\006\n\002OK\020\000\022\022\n\rNETWORK_ERROR\020\311\001\022\030\n\023SERVICE_U" +
+      "NAVAILABLE\020\312\001\022\024\n\017GATEWAY_TIMEOUT\020\313\001\022\033\n\025I" +
+      "NTERNAL_SERVER_ERROR\020\221\277\005\022\031\n\023INVALID_PARA" +
+      "M_ERROR\020\222\277\005B+\n#com.github.paopaoyue.mesh" +
+      ".rpc.protoB\004Baseb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         });
-    internal_static_rpc_base_TraceInfo_descriptor =
+    internal_static_rpc_RespBase_descriptor =
       getDescriptor().getMessageTypes().get(0);
-    internal_static_rpc_base_TraceInfo_fieldAccessorTable = new
+    internal_static_rpc_RespBase_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_rpc_base_TraceInfo_descriptor,
-        new java.lang.String[] { "TraceId", "Service", "Host", "Ip", "Port", "StartTime", });
-    internal_static_rpc_base_ReqBase_descriptor =
-      getDescriptor().getMessageTypes().get(1);
-    internal_static_rpc_base_ReqBase_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_rpc_base_ReqBase_descriptor,
-        new java.lang.String[] { "RequestId", "TraceInfo", });
-    internal_static_rpc_base_RespBase_descriptor =
-      getDescriptor().getMessageTypes().get(2);
-    internal_static_rpc_base_RespBase_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_rpc_base_RespBase_descriptor,
-        new java.lang.String[] { "RequestId", "TraceInfo", "Code", "Message", });
+        internal_static_rpc_RespBase_descriptor,
+        new java.lang.String[] { "Code", "Message", });
     descriptor.resolveAllFeaturesImmutable();
   }
 
