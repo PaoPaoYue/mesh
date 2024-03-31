@@ -1,6 +1,6 @@
 package com.github.paopaoyue.mesh.rpc.core.client;
 
-import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
+import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.config.ServiceProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,11 +100,8 @@ public class Reactor implements Runnable {
             SocketChannel channel = SocketChannel.open(address);
             channel.configureBlocking(false);
             SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
-            ConnectionHandler connectionHandler = new ConnectionHandler(serviceName, tag, key);
+            ConnectionHandler connectionHandler = new ConnectionHandler(keepAlive, serviceName, tag, key);
             key.attach(connectionHandler);
-            if (keepAlive) {
-                connectionPool.put(getKeyForConnection(serviceName, tag), connectionHandler);
-            }
             selector.wakeup();
             return connectionHandler;
         } catch (IOException e) {
@@ -129,8 +126,16 @@ public class Reactor implements Runnable {
         return connectionPool;
     }
 
+    public void addConnection(String serviceName, String tag, ConnectionHandler connectionHandler) {
+        connectionPool.put(getKeyForConnection(serviceName, tag), connectionHandler);
+    }
+
     public ConnectionHandler getConnection(String serviceName, String tag) {
         return connectionPool.get(getKeyForConnection(serviceName, tag));
+    }
+
+    public void removeConnection(String serviceName, String tag) {
+        connectionPool.remove(getKeyForConnection(serviceName, tag));
     }
 
 }

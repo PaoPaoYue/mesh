@@ -1,7 +1,7 @@
 package com.github.paopaoyue.mesh.rpc.core.client;
 
-import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
-import com.github.paopaoyue.mesh.rpc.call.CallOption;
+import com.github.paopaoyue.mesh.rpc.api.CallOption;
+import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.proto.System;
 import com.github.paopaoyue.mesh.rpc.util.RespBaseUtil;
 import org.slf4j.Logger;

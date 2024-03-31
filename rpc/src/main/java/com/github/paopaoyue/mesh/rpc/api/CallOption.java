@@ -1,4 +1,4 @@
-package com.github.paopaoyue.mesh.rpc.call;
+package com.github.paopaoyue.mesh.rpc.api;
 
 import java.time.Duration;
 

@@ -1,9 +1,10 @@
 package com.github.paopaoyue.mesh.rpc.core.server;
 
-import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.config.Properties;
+import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.stub.IServerStub;
 import com.github.paopaoyue.mesh.rpc.stub.SystemServerStub;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public class RpcServer {
         for (int i = 0; i < subReactors.length; i++) {
             this.subReactors[i] = new SubReactor();
         }
-        this.acceptor = new Acceptor();
+        this.acceptor = new Acceptor(this.subReactors);
         this.threadPool = Executors.newFixedThreadPool(1 + prop.getServerNetworkThreads() + prop.getServerWorkerThreads()); // main reactor + sub reactors + worker threads
 
         this.timer = new Timer();
@@ -48,16 +49,17 @@ public class RpcServer {
 
     }
 
+    @PostConstruct
     public void start() {
         logger.info("Starting rpc server...");
         Properties prop = RpcAutoConfiguration.getProp();
 
         status = Status.RUNNING;
-        threadPool.submit(mainReactor);
+        threadPool.execute(mainReactor);
         for (SubReactor subReactor : subReactors) {
-            threadPool.submit(subReactor);
+            threadPool.execute(subReactor);
         }
-        timer.scheduleAtFixedRate(new Sentinel(), 0, prop.getKeepAliveInterval());
+        timer.scheduleAtFixedRate(new Sentinel(), 0, prop.getKeepAliveInterval() * 1000L);
         logger.info("Rpc server up!!!");
     }
 
@@ -69,6 +71,7 @@ public class RpcServer {
         status = Status.TERMINATING;
         try {
             timer.cancel();
+            timer.purge();
             mainReactor.shutdown();
             for (SubReactor subReactor : subReactors) {
                 subReactor.shutdown();
@@ -84,7 +87,7 @@ public class RpcServer {
             return;
         }
         status = Status.TERMINATED;
-        logger.info("rpc server shutdown gracefully");
+        logger.info("rpc server shutdown complete");
     }
 
     public Status getStatus() {

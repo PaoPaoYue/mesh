@@ -1,34 +1,36 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.2.2'
-	id 'io.spring.dependency-management' version '1.1.4'
+    id 'java'
+    id 'org.springframework.boot' version '3.2.2'
+    id 'io.spring.dependency-management' version '1.1.4'
 }
 
 group = 'com.github.paopaoyue'
 version = '0.0.1'
 
 java {
-	sourceCompatibility = '21'
+    sourceCompatibility = '21'
 }
 
 bootJar {
     archiveBaseName = 'dictio nary-application'
-    archiveVersion =  '0.0.1'
-	archiveClassifier = ''
+    archiveVersion = '0.0.1'
+    archiveClassifier = ''
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-	implementation project(':rpc')
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-validation:3.2.3'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    implementation 'com.google.protobuf:protobuf-java:4.26.0'
+    implementation project(':rpc')
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 

@@ -5,12 +5,13 @@ package rpc;
 option java_package = "com.github.paopaoyue.mesh.rpc.proto";
 option java_outer_classname = "Base";
 
-
+// include this in any rpc response
 message RespBase {
   int32 code = 1;
   string message = 2;
 }
 
+// should define your own service status code at >= 100000
 enum StatusCode {
   OK = 0;
   // system error

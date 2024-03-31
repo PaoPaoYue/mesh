@@ -21,9 +21,17 @@ public class Context {
     private int upperPort;
 
     public Context() {
+        service = "";
+        handler = "";
+        flag = new Flag(0);
         requestId = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
         traceId = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
         startTime = System.currentTimeMillis();
+        upperService = "";
+        upperHandler = "";
+        upperDevice = "";
+        upperHost = "";
+        upperPort = 0;
     }
 
     public Context(Protocol.Packet packet) {

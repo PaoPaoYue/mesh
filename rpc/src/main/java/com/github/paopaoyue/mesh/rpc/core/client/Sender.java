@@ -1,7 +1,7 @@
 package com.github.paopaoyue.mesh.rpc.core.client;
 
-import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
-import com.github.paopaoyue.mesh.rpc.call.CallOption;
+import com.github.paopaoyue.mesh.rpc.api.CallOption;
+import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.exception.TimeoutException;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
 
@@ -16,8 +16,8 @@ public class Sender {
     private final Reactor reactor;
     private Lock lock;
 
-    public Sender() {
-        this.reactor = RpcAutoConfiguration.getRpcClient().getReactor();
+    public Sender(Reactor reactor) {
+        this.reactor = reactor;
         this.lock = new ReentrantLock();
     }
 

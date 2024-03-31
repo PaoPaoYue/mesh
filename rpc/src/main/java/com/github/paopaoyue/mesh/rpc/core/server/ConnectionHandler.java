@@ -1,7 +1,7 @@
 package com.github.paopaoyue.mesh.rpc.core.server;
 
-import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.config.Properties;
+import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.exception.HandlerException;
 import com.github.paopaoyue.mesh.rpc.exception.HandlerNotFoundException;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;

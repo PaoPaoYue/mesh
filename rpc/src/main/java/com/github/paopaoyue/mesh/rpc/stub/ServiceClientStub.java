@@ -1,7 +1,6 @@
 package com.github.paopaoyue.mesh.rpc.stub;
 
-import com.github.paopaoyue.mesh.rpc.core.client.RpcClient;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +11,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@ConditionalOnBean(RpcClient.class)
+@ConditionalOnProperty(prefix = "mesh.rpc", name = "client-enabled", havingValue = "true")
 @Component
 public @interface ServiceClientStub {
 

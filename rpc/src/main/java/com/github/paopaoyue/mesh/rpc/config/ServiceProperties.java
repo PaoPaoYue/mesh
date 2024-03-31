@@ -35,4 +35,13 @@ public class ServiceProperties {
     public void setPort(int port) {
         this.port = port;
     }
+
+    @Override
+    public String toString() {
+        return "ServiceProperties{" +
+                "name='" + name + '\'' +
+                ", host='" + host + '\'' +
+                ", port=" + port +
+                '}';
+    }
 }

@@ -1,8 +1,8 @@
 package com.github.paopaoyue.mesh.rpc.core.client;
 
-import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
-import com.github.paopaoyue.mesh.rpc.call.CallOption;
+import com.github.paopaoyue.mesh.rpc.api.CallOption;
 import com.github.paopaoyue.mesh.rpc.config.Properties;
+import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.exception.ServiceUnavailableException;
 import com.github.paopaoyue.mesh.rpc.exception.TimeoutException;
 import com.github.paopaoyue.mesh.rpc.exception.TransportErrorException;
@@ -40,6 +40,7 @@ public class ConnectionHandler {
     private static final System.PingRequest FIN_REQUEST = System.PingRequest.newBuilder().setMessage(PING_MESSAGE).build();
     private static final CallOption FIN_CALLOPTION = new CallOption().setFin(true);
 
+    private boolean keepAlive;
     private String serviceName;
     private String tag;
     private SelectionKey key;
@@ -53,7 +54,7 @@ public class ConnectionHandler {
 
     private volatile Status status;
 
-    public ConnectionHandler(String serviceName, String tag, SelectionKey key) {
+    public ConnectionHandler(boolean keepAlive, String serviceName, String tag, SelectionKey key) {
         Properties prop = RpcAutoConfiguration.getProp();
 
         this.status = Status.IDLE;
@@ -64,10 +65,15 @@ public class ConnectionHandler {
         this.writeQueue = new LinkedBlockingQueue<>();
         this.requestWaiterMap = new HashMap<>();
 
+        this.keepAlive = keepAlive;
         this.serviceName = serviceName;
         this.tag = tag;
         this.key = key;
         this.socketChannel = (SocketChannel) key.channel();
+
+        if (keepAlive) {
+            RpcAutoConfiguration.getRpcClient().getReactor().addConnection(serviceName, tag, this);
+        }
     }
 
     // not thread safe, run only in single thread
@@ -252,7 +258,7 @@ public class ConnectionHandler {
     public void stopNow(Exception error) {
         this.status = Status.TERMINATING;
         try {
-            RpcAutoConfiguration.getRpcClient().getReactor().getConnectionPool().remove(tag);
+            if (keepAlive) RpcAutoConfiguration.getRpcClient().getReactor().removeConnection(serviceName, tag);
 
             for (Waiter waiter : requestWaiterMap.values()) {
                 waiter.signal(error);
@@ -266,6 +272,10 @@ public class ConnectionHandler {
         } catch (IOException e) {
             logger.error("{} connection stop failure: {}", this, e.getMessage(), e);
         }
+    }
+
+    public boolean isKeepAlive() {
+        return keepAlive;
     }
 
     public String getServiceName() {

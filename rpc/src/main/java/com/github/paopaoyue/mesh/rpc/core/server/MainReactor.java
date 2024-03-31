@@ -1,8 +1,8 @@
 package com.github.paopaoyue.mesh.rpc.core.server;
 
 
-import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.config.Properties;
+import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +34,7 @@ public class MainReactor implements Runnable {
             this.selector = Selector.open();
             this.socketChannel = ServerSocketChannel.open();
             this.socketChannel.socket().bind(new InetSocketAddress(prop.getServerService().getHost(), prop.getServerService().getPort()));
+            this.socketChannel.configureBlocking(false);
             this.key = this.socketChannel.register(selector, SelectionKey.OP_ACCEPT);
         } catch (IOException e) {
             logger.error("Main reactor initialize failure, check configuration: {}", e.getMessage(), e);
@@ -62,11 +63,21 @@ public class MainReactor implements Runnable {
                 }
                 ;
             }
+            Acceptor acceptor = RpcAutoConfiguration.getRpcServer().getAcceptor();
             Set<SelectionKey> selected = selector.selectedKeys();
             for (SelectionKey key : selected) {
                 if (key.isAcceptable()) {
-                    Acceptor acceptor = RpcAutoConfiguration.getRpcServer().getAcceptor();
-                    acceptor.accept(key);
+                    try {
+                        acceptor.accept(socketChannel.accept());
+                    } catch (IOException e) {
+                        logger.error("Main reactor server socket accept() failed: {}", e.getMessage(), e);
+                        RpcAutoConfiguration.getRpcServer().shutdown();
+                        break;
+                    } catch (ClosedSelectorException e) {
+                        logger.error("Main reactor server socket closed: {}", e.getMessage(), e);
+                        RpcAutoConfiguration.getRpcServer().shutdown();
+                        break;
+                    }
                 }
             }
             selected.clear();

@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.Range;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
+import java.util.Arrays;
 import java.util.Set;
 
 @ConfigurationProperties(prefix = "mesh.rpc")
@@ -12,7 +13,7 @@ public class Properties {
     @NotNull
     private boolean serverEnabled = false;
     @NestedConfigurationProperty
-    private ServiceProperties serverService = new ServiceProperties();
+    private ServiceProperties serverService = null;
     @Range(min = 1, max = 16)
     private int serverNetworkThreads = 1;
     @Range(min = 1, max = 32)
@@ -28,7 +29,7 @@ public class Properties {
     private int clientShutDownTimeout = 10;
 
     @Range(min = 1, max = 2 * 1024 * 1024)
-    private int packetMaxSize = 1024;
+    private int packetMaxSize = 1024 * 1024;
     @Range(min = 3, max = 10)
     private int keepAliveTimeout = 6;
     @Range(min = 1, max = 3)
@@ -120,5 +121,22 @@ public class Properties {
 
     public void setKeepAliveInterval(int keepAliveInterval) {
         this.keepAliveInterval = keepAliveInterval;
+    }
+
+    @Override
+    public String toString() {
+        return "Properties{" +
+                "serverEnabled=" + serverEnabled +
+                ", serverService=" + serverService +
+                ", serverNetworkThreads=" + serverNetworkThreads +
+                ", serverWorkerThreads=" + serverWorkerThreads +
+                ", serverShutDownTimeout=" + serverShutDownTimeout +
+                ", clientEnabled=" + clientEnabled +
+                ", clientServices=" + Arrays.toString(clientServices.stream().map(ServiceProperties::toString).toArray()) +
+                ", clientShutDownTimeout=" + clientShutDownTimeout +
+                ", packetMaxSize=" + packetMaxSize +
+                ", keepAliveTimeout=" + keepAliveTimeout +
+                ", keepAliveInterval=" + keepAliveInterval +
+                '}';
     }
 }

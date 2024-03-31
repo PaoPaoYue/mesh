@@ -1,9 +1,10 @@
 package com.github.paopaoyue.mesh.rpc.core.client;
 
-import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.config.Properties;
+import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.config.ServiceProperties;
 import com.github.paopaoyue.mesh.rpc.stub.SystemClientStub;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,20 +34,22 @@ public class RpcClient {
         this.latch = new CountDownLatch(1);
 
         this.reactor = new Reactor(latch);
-        this.sender = new Sender();
+        this.sender = new Sender(reactor);
 
         this.timer = new Timer();
 
         this.servicePropMap = prop.getClientServices().stream().collect(Collectors.toMap(ServiceProperties::getName, s -> s));
+        this.systemStub = new SystemClientStub();
     }
 
+    @PostConstruct
     public void start() {
         logger.info("Starting rpc client...");
         Properties prop = RpcAutoConfiguration.getProp();
 
         status = Status.RUNNING;
         new Thread(reactor).start();
-        timer.scheduleAtFixedRate(new Sentinel(), 0, prop.getKeepAliveInterval());
+        timer.scheduleAtFixedRate(new Sentinel(), 0, prop.getKeepAliveInterval() * 1000L);
         logger.info("Rpc client up!!!");
     }
 
@@ -58,6 +61,7 @@ public class RpcClient {
         status = Status.TERMINATING;
         try {
             timer.cancel();
+            timer.purge();
             Thread.sleep(1000); // ensure all the upcoming requests are processed
             reactor.shutdown();
             boolean allDone = latch.await(prop.getClientShutDownTimeout(), TimeUnit.SECONDS);
@@ -69,7 +73,7 @@ public class RpcClient {
             return;
         }
         status = Status.TERMINATED;
-        logger.info("rpc client shutdown gracefully");
+        logger.info("rpc client shutdown complete");
     }
 
     public Status getStatus() {
