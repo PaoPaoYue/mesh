@@ -102,7 +102,7 @@ public class ConnectionHandler {
         int currentLimit = readBuffer.limit();
         while (readBuffer.hasReadRemaining()) {
             if (readBuffer.readRemaining() < LENGTH_FIELD_OFFSET + LENGTH_FIELD_LENGTH) {
-                logger.warn("{} received header not complete, received: {} bytes", this, readBuffer.readRemaining());
+                logger.debug("{} received header not complete, received: {} bytes", this, readBuffer.readRemaining());
                 readBuffer.compact();
                 return;
             }
@@ -118,7 +118,7 @@ public class ConnectionHandler {
                 return;
             }
             if (readBuffer.readRemaining() < currentPacketLength) {
-                logger.warn("{} received body not complete, received: {} bytes, want: {} bytes", this, readBuffer.readRemaining(), currentPacketLength);
+                logger.debug("{} received body not complete, received: {} bytes, want: {} bytes", this, readBuffer.readRemaining(), currentPacketLength);
                 readBuffer.compact();
                 return;
             }

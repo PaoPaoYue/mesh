@@ -70,11 +70,13 @@ public class Reactor implements Runnable {
             }
             Set<SelectionKey> selected = selector.selectedKeys();
             for (SelectionKey key : selected) {
-                try {
-                    ((ConnectionHandler) key.attachment()).process();
-                } catch (Exception e) {
-                    logger.error("Client connection handler process failure with unknown exception: {}", e.getMessage(), e);
-                    ((ConnectionHandler) key.attachment()).stopNow(e);
+                if (key.isValid() && key.attachment() != null) {
+                    try {
+                        ((ConnectionHandler) key.attachment()).process();
+                    } catch (Exception e) {
+                        logger.error("Client connection handler process failure with unknown exception: {}", e.getMessage(), e);
+                        ((ConnectionHandler) key.attachment()).stopNow(e);
+                    }
                 }
             }
             selected.clear();
