@@ -1,4 +1,4 @@
-package com.github.paopaoyue.mesh.rpc.core.exception;
+package com.github.paopaoyue.mesh.rpc.exception;
 
 public class HandlerException extends Exception {
     public HandlerException(String errorMessage, Throwable err) {

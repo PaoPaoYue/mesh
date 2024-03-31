@@ -5,7 +5,7 @@ import org.hibernate.validator.constraints.Range;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
-import java.util.List;
+import java.util.Set;
 
 @ConfigurationProperties(prefix = "mesh.rpc")
 public class Properties {
@@ -17,18 +17,18 @@ public class Properties {
     private int serverNetworkThreads = 1;
     @Range(min = 1, max = 32)
     private int serverWorkerThreads = 1;
-    @Range(min = 1, max = 2 * 1024 * 1024)
-    private int serverWorkerBufferSize = 1024;
-    @Range(min = 1, max = 30)
+    @Range(min = 1, max = 60)
     private int serverShutDownTimeout = 10;
 
     @NotNull
     private boolean clientEnabled = false;
     @NestedConfigurationProperty
-    private List<ServiceProperties> clientServices = List.of(new ServiceProperties());
-    @Range(min = 1, max = 30)
+    private Set<ServiceProperties> clientServices = Set.of();
+    @Range(min = 1, max = 60)
     private int clientShutDownTimeout = 10;
 
+    @Range(min = 1, max = 2 * 1024 * 1024)
+    private int packetMaxSize = 1024;
     @Range(min = 3, max = 10)
     private int keepAliveTimeout = 6;
     @Range(min = 1, max = 3)
@@ -66,14 +66,6 @@ public class Properties {
         this.serverWorkerThreads = serverWorkerThreads;
     }
 
-    public int getServerWorkerBufferSize() {
-        return serverWorkerBufferSize;
-    }
-
-    public void setServerWorkerBufferSize(int serverWorkerBufferSize) {
-        this.serverWorkerBufferSize = serverWorkerBufferSize;
-    }
-
     public int getServerShutDownTimeout() {
         return serverShutDownTimeout;
     }
@@ -90,11 +82,11 @@ public class Properties {
         this.clientEnabled = clientEnabled;
     }
 
-    public List<ServiceProperties> getClientServices() {
+    public Set<ServiceProperties> getClientServices() {
         return clientServices;
     }
 
-    public void setClientServices(List<ServiceProperties> clientServices) {
+    public void setClientServices(Set<ServiceProperties> clientServices) {
         this.clientServices = clientServices;
     }
 
@@ -104,6 +96,14 @@ public class Properties {
 
     public void setClientShutDownTimeout(int clientShutDownTimeout) {
         this.clientShutDownTimeout = clientShutDownTimeout;
+    }
+
+    public int getPacketMaxSize() {
+        return packetMaxSize;
+    }
+
+    public void setPacketMaxSize(int packetMaxSize) {
+        this.packetMaxSize = packetMaxSize;
     }
 
     public int getKeepAliveTimeout() {

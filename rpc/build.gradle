@@ -36,6 +36,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     implementation 'com.google.protobuf:protobuf-java:4.26.0'
+    implementation 'org.awaitility:awaitility:4.2.1'
 }
 
 tasks.withType(JavaCompile).configureEach {

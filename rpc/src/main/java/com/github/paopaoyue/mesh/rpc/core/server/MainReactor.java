@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -17,6 +18,7 @@ public class MainReactor implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(MainReactor.class);
     private Selector selector;
+    private SelectionKey key;
     private ServerSocketChannel socketChannel;
 
 
@@ -32,30 +34,48 @@ public class MainReactor implements Runnable {
             this.selector = Selector.open();
             this.socketChannel = ServerSocketChannel.open();
             this.socketChannel.socket().bind(new InetSocketAddress(prop.getServerService().getHost(), prop.getServerService().getPort()));
-            this.socketChannel.register(selector, SelectionKey.OP_ACCEPT);
+            this.key = this.socketChannel.register(selector, SelectionKey.OP_ACCEPT);
         } catch (IOException e) {
             logger.error("Main reactor initialize failure, check configuration: {}", e.getMessage(), e);
             RpcAutoConfiguration.getRpcServer().shutdown();
         }
 
-        try {
-            while (true) {
+        while (true) {
+            try {
                 selector.select();
-                if (Thread.interrupted() || rpcServer.getStatus() != RpcServer.Status.RUNNING) {
+            } catch (IOException e) {
+                logger.error("Main reactor select() failed: {}", e.getMessage(), e);
+                RpcAutoConfiguration.getRpcServer().shutdown();
+                break;
+            } catch (ClosedSelectorException e) {
+                logger.error("Main reactor selector closed: {}", e.getMessage(), e);
+                RpcAutoConfiguration.getRpcServer().shutdown();
+                break;
+            }
+            if (Thread.interrupted() || rpcServer.getStatus() != RpcServer.Status.RUNNING) {
+                if (rpcServer.getStatus() == RpcServer.Status.TERMINATED) {
                     break;
                 }
-                Set<SelectionKey> selected = selector.selectedKeys();
-                for (SelectionKey key : selected) {
-                    if (key.isAcceptable()) {
-                        Acceptor acceptor = RpcAutoConfiguration.getRpcServer().getAcceptor();
-                        acceptor.accept(key);
-                    }
+                if (rpcServer.getStatus() == RpcServer.Status.TERMINATING && selector.keys().isEmpty()) {
+                    logger.debug("All connection done, Main reactor shutdown complete");
+                    break;
                 }
-                selected.clear();
+                ;
             }
+            Set<SelectionKey> selected = selector.selectedKeys();
+            for (SelectionKey key : selected) {
+                if (key.isAcceptable()) {
+                    Acceptor acceptor = RpcAutoConfiguration.getRpcServer().getAcceptor();
+                    acceptor.accept(key);
+                }
+            }
+            selected.clear();
+        }
+
+        try {
+            selector.close();
         } catch (IOException e) {
-            logger.error("Main reactor running failure: {}", e.getMessage(), e);
-            RpcAutoConfiguration.getRpcServer().shutdown();
+            logger.error("Main reactor selector close failure: {}", e.getMessage(), e);
         }
     }
 
@@ -63,17 +83,12 @@ public class MainReactor implements Runnable {
         try {
             socketChannel.socket().close();
             socketChannel.close();
-            selector.close();
+            key.cancel();
+
+            selector.wakeup();
         } catch (IOException e) {
             logger.error("Main reactor shutdown failure: {}", e.getMessage(), e);
         }
     }
 
-    public Selector getSelector() {
-        return selector;
-    }
-
-    public ServerSocketChannel getSocketChannel() {
-        return socketChannel;
-    }
 }

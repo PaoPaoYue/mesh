@@ -1,4 +1,4 @@
-package com.github.paopaoyue.mesh.rpc.core;
+package com.github.paopaoyue.mesh.rpc.util;
 
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
 

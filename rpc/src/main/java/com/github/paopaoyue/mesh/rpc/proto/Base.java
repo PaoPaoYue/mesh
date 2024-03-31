@@ -34,6 +34,14 @@ public final class Base {
      */
     OK(0),
     /**
+     * <pre>
+     * system error
+     * </pre>
+     *
+     * <code>CLIENT_INTERNAL_ERROR = 101;</code>
+     */
+    CLIENT_INTERNAL_ERROR(101),
+    /**
      * <code>NETWORK_ERROR = 201;</code>
      */
     NETWORK_ERROR(201),
@@ -46,6 +54,14 @@ public final class Base {
      */
     GATEWAY_TIMEOUT(203),
     /**
+     * <code>UNKNOWN_ERROR = 401;</code>
+     */
+    UNKNOWN_ERROR(401),
+    /**
+     * <pre>
+     * service error
+     * </pre>
+     *
      * <code>INTERNAL_SERVER_ERROR = 90001;</code>
      */
     INTERNAL_SERVER_ERROR(90001),
@@ -70,6 +86,14 @@ public final class Base {
      */
     public static final int OK_VALUE = 0;
     /**
+     * <pre>
+     * system error
+     * </pre>
+     *
+     * <code>CLIENT_INTERNAL_ERROR = 101;</code>
+     */
+    public static final int CLIENT_INTERNAL_ERROR_VALUE = 101;
+    /**
      * <code>NETWORK_ERROR = 201;</code>
      */
     public static final int NETWORK_ERROR_VALUE = 201;
@@ -82,6 +106,14 @@ public final class Base {
      */
     public static final int GATEWAY_TIMEOUT_VALUE = 203;
     /**
+     * <code>UNKNOWN_ERROR = 401;</code>
+     */
+    public static final int UNKNOWN_ERROR_VALUE = 401;
+    /**
+     * <pre>
+     * service error
+     * </pre>
+     *
      * <code>INTERNAL_SERVER_ERROR = 90001;</code>
      */
     public static final int INTERNAL_SERVER_ERROR_VALUE = 90001;
@@ -116,9 +148,11 @@ public final class Base {
     public static StatusCode forNumber(int value) {
       switch (value) {
         case 0: return OK;
+        case 101: return CLIENT_INTERNAL_ERROR;
         case 201: return NETWORK_ERROR;
         case 202: return SERVICE_UNAVAILABLE;
         case 203: return GATEWAY_TIMEOUT;
+        case 401: return UNKNOWN_ERROR;
         case 90001: return INTERNAL_SERVER_ERROR;
         case 90002: return INVALID_PARAM_ERROR;
         default: return null;
@@ -774,12 +808,13 @@ public final class Base {
   static {
     java.lang.String[] descriptorData = {
       "\n\016rpc/base.proto\022\003rpc\")\n\010RespBase\022\014\n\004cod" +
-      "e\030\001 \001(\005\022\017\n\007message\030\002 \001(\t*\220\001\n\nStatusCode\022" +
-      "\006\n\002OK\020\000\022\022\n\rNETWORK_ERROR\020\311\001\022\030\n\023SERVICE_U" +
-      "NAVAILABLE\020\312\001\022\024\n\017GATEWAY_TIMEOUT\020\313\001\022\033\n\025I" +
-      "NTERNAL_SERVER_ERROR\020\221\277\005\022\031\n\023INVALID_PARA" +
-      "M_ERROR\020\222\277\005B+\n#com.github.paopaoyue.mesh" +
-      ".rpc.protoB\004Baseb\006proto3"
+      "e\030\001 \001(\005\022\017\n\007message\030\002 \001(\t*\277\001\n\nStatusCode\022" +
+      "\006\n\002OK\020\000\022\031\n\025CLIENT_INTERNAL_ERROR\020e\022\022\n\rNE" +
+      "TWORK_ERROR\020\311\001\022\030\n\023SERVICE_UNAVAILABLE\020\312\001" +
+      "\022\024\n\017GATEWAY_TIMEOUT\020\313\001\022\022\n\rUNKNOWN_ERROR\020" +
+      "\221\003\022\033\n\025INTERNAL_SERVER_ERROR\020\221\277\005\022\031\n\023INVAL" +
+      "ID_PARAM_ERROR\020\222\277\005B+\n#com.github.paopaoy" +
+      "ue.mesh.rpc.protoB\004Baseb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,

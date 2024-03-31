@@ -1,6 +1,7 @@
 package com.github.paopaoyue.mesh.rpc;
 
 import com.github.paopaoyue.mesh.rpc.config.Properties;
+import com.github.paopaoyue.mesh.rpc.config.ServiceProperties;
 import com.github.paopaoyue.mesh.rpc.core.client.RpcClient;
 import com.github.paopaoyue.mesh.rpc.core.server.RpcServer;
 import com.github.paopaoyue.mesh.rpc.stub.IClientStub;
@@ -19,7 +20,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -89,11 +89,18 @@ public class RpcAutoConfiguration {
     public RpcClient rpcClient() {
         try {
             Map<String, Object> stubs = context.getBeansWithAnnotation(ServiceClientStub.class);
-            Set<IClientStub> serviceClientStubs = stubs.values().stream().map(IClientStub.class::cast).collect(Collectors.toSet());
+            Map<String, IClientStub> serviceClientStubs = stubs.values().stream().collect(Collectors.toMap(o -> o.getClass().getAnnotation(ServiceClientStub.class).serviceName(), IClientStub.class::cast));
+            Map<String, ServiceProperties> serviceProperties = prop.getClientServices().stream().collect(Collectors.toMap(ServiceProperties::getName, s -> s));
             if (serviceClientStubs.isEmpty()) {
                 throw new RuntimeException("No service stub found, please add @ServiceClientStub to your service stub implementation");
             }
-            rpcClient = new RpcClient(serviceClientStubs);
+            if (serviceProperties.isEmpty()) {
+                throw new RuntimeException("No service properties found, please add service properties to your configuration");
+            }
+            if (serviceProperties.keySet().stream().anyMatch(s -> !serviceClientStubs.containsKey(s))) {
+                throw new RuntimeException("Service stub not found for service properties");
+            }
+            rpcClient = new RpcClient();
         } catch (ClassCastException e) {
             throw new RuntimeException("Please add @ServiceClientStub to your service stub implementing IClientStub", e);
         } catch (Exception e) {

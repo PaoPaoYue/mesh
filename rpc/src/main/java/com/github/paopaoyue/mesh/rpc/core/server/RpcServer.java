@@ -16,13 +16,13 @@ import java.util.concurrent.TimeUnit;
 public class RpcServer {
 
     private static Logger logger = LoggerFactory.getLogger(RpcServer.class);
-    IServerStub systemStub;
-    IServerStub serviceStub;
+    private SystemServerStub systemStub;
+    private IServerStub serviceStub;
     private volatile Status status;
     private MainReactor mainReactor;
     private SubReactor[] subReactors;
     private Acceptor acceptor;
-    private ExecutorService workerPool;
+    private ExecutorService threadPool;
     private Timer timer;
 
     public RpcServer(IServerStub serviceStub) {
@@ -36,7 +36,7 @@ public class RpcServer {
             this.subReactors[i] = new SubReactor();
         }
         this.acceptor = new Acceptor();
-        this.workerPool = Executors.newFixedThreadPool(prop.getServerWorkerThreads());
+        this.threadPool = Executors.newFixedThreadPool(1 + prop.getServerNetworkThreads() + prop.getServerWorkerThreads()); // main reactor + sub reactors + worker threads
 
         this.timer = new Timer();
 
@@ -53,29 +53,31 @@ public class RpcServer {
         Properties prop = RpcAutoConfiguration.getProp();
 
         status = Status.RUNNING;
-        timer.scheduleAtFixedRate(new Sentinel(), 0, prop.getKeepAliveInterval());
-        new Thread(mainReactor).start();
+        threadPool.submit(mainReactor);
         for (SubReactor subReactor : subReactors) {
-            new Thread(subReactor).start();
+            threadPool.submit(subReactor);
         }
+        timer.scheduleAtFixedRate(new Sentinel(), 0, prop.getKeepAliveInterval());
         logger.info("Rpc server up!!!");
     }
 
     @PreDestroy
     public void shutdown() {
         logger.info("Shutting down rpc server...");
+        Properties prop = RpcAutoConfiguration.getProp();
+
         status = Status.TERMINATING;
         try {
             timer.cancel();
-            Thread.sleep(1000); // ensure all the upcoming requests are submitted to the worker pool
-            workerPool.shutdown();
-            boolean allDone = workerPool.awaitTermination(RpcAutoConfiguration.getProp().getServerShutDownTimeout() - 1, TimeUnit.SECONDS); // wait for all the worker to finish
-            if (!allDone) {
-                logger.error("Workers pool not clear while shutdown timeout, force shutdown!!!");
-            }
             mainReactor.shutdown();
             for (SubReactor subReactor : subReactors) {
                 subReactor.shutdown();
+            }
+            Thread.sleep(1000); // ensure all the upcoming requests are submitted to the thread pool
+            threadPool.shutdown();
+            boolean allDone = threadPool.awaitTermination(prop.getServerShutDownTimeout() - 1, TimeUnit.SECONDS); // wait for all the worker to finish
+            if (!allDone) {
+                logger.error("Server connection not clear while shutdown timeout, force shutdown!!!");
             }
         } catch (Exception e) {
             logger.error("Rpc server shutdown failure: {}", e.getMessage(), e);
@@ -101,11 +103,11 @@ public class RpcServer {
         return acceptor;
     }
 
-    public ExecutorService getWorkerPool() {
-        return workerPool;
+    public ExecutorService getThreadPool() {
+        return threadPool;
     }
 
-    public IServerStub getSystemStub() {
+    public SystemServerStub getSystemStub() {
         return systemStub;
     }
 

@@ -1,11 +1,15 @@
-package com.github.paopaoyue.mesh.rpc.core.server;
+package com.github.paopaoyue.mesh.rpc.core.client;
 
 import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
+import com.github.paopaoyue.mesh.rpc.call.CallOption;
 import com.github.paopaoyue.mesh.rpc.config.Properties;
-import com.github.paopaoyue.mesh.rpc.exception.HandlerException;
-import com.github.paopaoyue.mesh.rpc.exception.HandlerNotFoundException;
+import com.github.paopaoyue.mesh.rpc.exception.ServiceUnavailableException;
+import com.github.paopaoyue.mesh.rpc.exception.TimeoutException;
+import com.github.paopaoyue.mesh.rpc.exception.TransportErrorException;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
+import com.github.paopaoyue.mesh.rpc.proto.System;
 import com.github.paopaoyue.mesh.rpc.util.Flag;
+import com.github.paopaoyue.mesh.rpc.util.RespBaseUtil;
 import com.google.protobuf.CodedOutputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.slf4j.Logger;
@@ -16,8 +20,12 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -28,29 +36,36 @@ public class ConnectionHandler {
     private static final int LENGTH_FIELD_OFFSET = 3;
     private static final int LENGTH_FIELD_LENGTH = 4;
 
+    private static final String PING_MESSAGE = "FIN";
+    private static final System.PingRequest FIN_REQUEST = System.PingRequest.newBuilder().setMessage(PING_MESSAGE).build();
+    private static final CallOption FIN_CALLOPTION = new CallOption().setFin(true);
+
+    private String serviceName;
+    private String tag;
     private SelectionKey key;
     private SocketChannel socketChannel;
-    private Lock writeLock;
     private int bufferLen;
     private ByteBuffer readBuffer;
     private ByteBuffer writeBuffer;
-    private LinkedBlockingQueue<Protocol.Packet> writeQueue;
-    private volatile Status status;
-    private long lastActiveTime;
-    private AtomicInteger activeWorkerNum;
+    private Lock writeLock;
+    private LinkedBlockingQueue<Waiter> writeQueue;
+    private Map<Long, Waiter> requestWaiterMap;
 
-    public ConnectionHandler(SelectionKey key) {
+    private volatile Status status;
+
+    public ConnectionHandler(String serviceName, String tag, SelectionKey key) {
         Properties prop = RpcAutoConfiguration.getProp();
 
         this.status = Status.IDLE;
-        this.writeLock = new ReentrantLock();
         this.bufferLen = prop.getPacketMaxSize();
         this.readBuffer = ByteBuffer.allocate(bufferLen);
         this.writeBuffer = ByteBuffer.allocate(bufferLen);
+        this.writeLock = new ReentrantLock();
         this.writeQueue = new LinkedBlockingQueue<>();
-        this.lastActiveTime = 0;
-        this.activeWorkerNum = new AtomicInteger(0);
+        this.requestWaiterMap = new HashMap<>();
 
+        this.serviceName = serviceName;
+        this.tag = tag;
         this.key = key;
         this.socketChannel = (SocketChannel) key.channel();
     }
@@ -60,7 +75,6 @@ public class ConnectionHandler {
         if (status == Status.TERMINATED) {
             return;
         }
-        lastActiveTime = System.currentTimeMillis();
         if (status != Status.TERMINATING) {
             status = Status.PROCESSING;
             if (key.isReadable()) {
@@ -73,10 +87,35 @@ public class ConnectionHandler {
                 status = Status.IDLE;
             }
         } else {
-            if (key.isWritable()) {
-                write();
+            if (key.isReadable()) {
+                read();
             }
         }
+    }
+
+    // thread safe, can be called by multiple threads
+    public Waiter sendPacket(Protocol.Packet packet) {
+        if (status == Status.TERMINATED || status == Status.TERMINATING) {
+            throw new IllegalStateException("Connection is terminated or terminating, no new request allowed");
+        }
+        if ((packet.getHeader().getFlag() & Flag.FIN) != 0) {
+            this.status = Status.TERMINATING;
+        }
+        Waiter waiter = new Waiter(packet.getHeader().getRequestId(), packet);
+        writeLock.lock();
+        try {
+            writeQueue.offer(waiter);
+            if ((key.interestOps() & SelectionKey.OP_WRITE) == 0 && (!writeQueue.isEmpty() || writeBuffer.hasRemaining())) {
+                key.interestOpsOr(SelectionKey.OP_WRITE);
+            }
+        } catch (Exception e) {
+            logger.error("{} change key listening status failed: {}", ConnectionHandler.this, e.getMessage(), e);
+            stopNow(e);
+            throw e;
+        } finally {
+            writeLock.unlock();
+        }
+        return waiter;
     }
 
     private void read() {
@@ -84,16 +123,16 @@ public class ConnectionHandler {
             int n = socketChannel.read(readBuffer);
             if (n == -1) {
                 logger.warn("{} disconnected at remote", this);
-                stopNow();
+                stopNow(new ServiceUnavailableException("Connection disconnected at remote"));
                 return;
             }
         } catch (ClosedChannelException e) {
             logger.error("{} disconnected abruptly: {}", this, e.getMessage(), e);
-            stopNow();
+            stopNow(new ServiceUnavailableException("Connection disconnected abruptly", e));
             return;
         } catch (Exception e) {
             logger.error("{} counter unexpected exception: {}", this, e.getMessage(), e);
-            stopNow();
+            stopNow(e);
             return;
         }
         readBuffer.flip();
@@ -110,8 +149,8 @@ public class ConnectionHandler {
             }
             if (bufferLen < currentPacketLength) {
                 // TODO: discard corresponding bytes instead of closing the connection -- low priority
-                logger.error("{} request of {} bytes is too large, closing connection", this, currentPacketLength);
-                stopNow();
+                logger.error("{} response of {} bytes is too large, closing connection", this, currentPacketLength);
+                stopNow(new TransportErrorException("Response too large"));
                 return;
             }
             if (readBuffer.remaining() < currentPacketLength) {
@@ -129,17 +168,17 @@ public class ConnectionHandler {
                 readBuffer.position(currentPacketLength);
             }
             if (currentPacket != null) {
-                try {
-                    activeWorkerNum.incrementAndGet();
-                    RpcAutoConfiguration.getRpcServer().getThreadPool().submit(new Worker(currentPacket));
-                } catch (Exception e) {
-                    activeWorkerNum.decrementAndGet();
-                    logger.error("{} submit worker failed: {}", this, e.getMessage(), e);
+                Waiter waiter = requestWaiterMap.get(currentPacket.getHeader().getRequestId());
+                if (waiter == null) {
+                    logger.error("{} request {} not found, skip this packet", this, currentPacket.getHeader().getRequestId());
+                    continue;
                 }
-                if ((currentPacket.getHeader().getFlag() & Flag.FIN) != 0) {
-                    status = Status.TERMINATING;
-                }
+                waiter.signal(currentPacket);
+                requestWaiterMap.remove(currentPacket.getHeader().getRequestId());
             }
+        }
+        if (status == Status.TERMINATING && requestWaiterMap.isEmpty()) {
+            stopNow();
         }
     }
 
@@ -155,20 +194,21 @@ public class ConnectionHandler {
                     writeBuffer.clear();
                 } catch (ClosedChannelException e) {
                     logger.error("{} disconnected abruptly: {}", this, e.getMessage(), e);
-                    stopNow();
+                    stopNow(new ServiceUnavailableException("Connection disconnected abruptly", e));
                     return;
                 } catch (Exception e) {
                     logger.error("{} counter unexpected exception: {}", this, e.getMessage(), e);
-                    stopNow();
+                    stopNow(e);
                     return;
                 }
             }
             if (writeQueue.isEmpty()) {
                 break;
             }
-            Protocol.Packet packet = writeQueue.poll();
+            Waiter waiter = writeQueue.poll();
             try {
-                packet.writeTo(CodedOutputStream.newInstance(writeBuffer));
+                requestWaiterMap.put(waiter.requestId, waiter);
+                waiter.request.writeTo(CodedOutputStream.newInstance(writeBuffer));
                 // inject packet length
                 int currentPacketLength = writeBuffer.position();
                 writeBuffer.putInt(LENGTH_FIELD_OFFSET, currentPacketLength - LENGTH_FIELD_OFFSET - LENGTH_FIELD_LENGTH);
@@ -177,7 +217,8 @@ public class ConnectionHandler {
                 }
                 writeBuffer.flip();
             } catch (IOException e) {
-                logger.error("{} response packet {} encode failed, skip this packet: {}", this, packet, e.getMessage(), e);
+                logger.error("{} response packet {} encode failed, skip this packet: {}", this, waiter.request, e.getMessage(), e);
+                waiter.signal(new TransportErrorException("Response encode failed", e));
                 continue;
             }
         }
@@ -185,11 +226,7 @@ public class ConnectionHandler {
             writeLock.lock();
             try {
                 if (writeQueue.isEmpty() && !writeBuffer.hasRemaining()) {
-                    if (status == Status.TERMINATING && activeWorkerNum.get() == 0) {
-                        stopNow();
-                    } else {
-                        key.interestOpsAnd(SelectionKey.OP_READ);
-                    }
+                    key.interestOpsAnd(SelectionKey.OP_READ);
                 }
             } catch (Exception e) {
                 logger.error("{} change key listening status failed: {}", this, e.getMessage(), e);
@@ -199,24 +236,28 @@ public class ConnectionHandler {
         }
     }
 
-    // not thread safe, called by other thread only when the connection is idle for a long time
-    public boolean checkAlive() {
-        int keepAliveTimeout = RpcAutoConfiguration.getProp().getKeepAliveTimeout();
-        if (this.status == Status.IDLE && System.currentTimeMillis() - lastActiveTime > keepAliveTimeout) {
-            logger.warn("{} inactive for {} ms, closing connection", this, keepAliveTimeout);
-            stopNow();
-            return false;
-        }
-        return true;
-    }
-
     public void stop() {
-        this.status = Status.TERMINATING;
+        if (this.status != Status.TERMINATING) {
+            System.PingResponse response = RpcAutoConfiguration.getRpcClient().getSystemStub().process(System.PingResponse.class, FIN_REQUEST, serviceName, FIN_CALLOPTION);
+            if (!RespBaseUtil.isOK(response.getBase())) {
+                logger.error("{} fin ping failed: code={}, {}", this, response.getBase().getCode(), response.getBase().getMessage());
+            }
+        }
     }
 
     public void stopNow() {
+        stopNow(null);
+    }
+
+    public void stopNow(Exception error) {
         this.status = Status.TERMINATING;
         try {
+            RpcAutoConfiguration.getRpcClient().getReactor().getConnectionPool().remove(tag);
+
+            for (Waiter waiter : requestWaiterMap.values()) {
+                waiter.signal(error);
+            }
+
             socketChannel.socket().close();
             socketChannel.close();
             key.cancel();
@@ -227,6 +268,14 @@ public class ConnectionHandler {
         }
     }
 
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
     public Status getStatus() {
         return status;
     }
@@ -234,18 +283,17 @@ public class ConnectionHandler {
     @Override
     public String toString() {
         try {
-            return "ServerConnectionHandler{" +
-                    "clientIp=" + socketChannel.getRemoteAddress() +
+            return "ClientConnectionHandler{" +
+                    "serverIp=" + socketChannel.getRemoteAddress() +
                     ", status=" + status +
                     '}';
         } catch (IOException e) {
-            logger.error("Client {} get remote address failed: {}", this, e.getMessage(), e);
-            return "ServerConnectionHandler{" +
+            logger.error("Failed to get remote address", e);
+            return "ClientConnectionHandler{" +
                     "status=" + status +
                     '}';
         }
     }
-
 
     public enum Status {
         IDLE,
@@ -254,43 +302,74 @@ public class ConnectionHandler {
         TERMINATED,
     }
 
-    public class Worker implements Runnable {
-        private final Protocol.Packet packet;
+    public class Waiter {
+        private final long requestId;
+        private final Lock lock;
+        private final Condition condition;
+        private boolean success;
+        private Protocol.Packet request;
+        private Protocol.Packet response;
+        private Exception error;
 
-        public Worker(Protocol.Packet packet) {
-            this.packet = packet;
+        public Waiter(long RequestId, Protocol.Packet request) {
+            this.requestId = RequestId;
+            this.lock = new ReentrantLock();
+            this.condition = lock.newCondition();
+            this.success = false;
+            this.request = request;
+            this.response = null;
+            this.error = null;
         }
 
-        @Override
-        public void run() {
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        private void signal(Protocol.Packet packet) {
+            lock.lock();
             try {
-                if ((packet.getHeader().getFlag() & Flag.SYSTEM_CALL) != 0) {
-                    Protocol.Packet out = RpcAutoConfiguration.getRpcServer().getSystemStub().process(packet);
-                    writeQueue.put(out);
-                } else if ((packet.getHeader().getFlag() & Flag.SERVICE_CALL) != 0) {
-                    Protocol.Packet out = RpcAutoConfiguration.getRpcServer().getServiceStub().process(packet);
-                    writeQueue.put(out);
-                } else {
-                    logger.error("{} send a packet with no specific SYSTEM_CALL or SERVICE_CALL", ConnectionHandler.this);
-                }
-            } catch (InterruptedException e) {
-                logger.error("{} interrupted while processing request: {}", ConnectionHandler.this, e.getMessage(), e);
-            } catch (HandlerNotFoundException | HandlerException e) {
-                logger.error("{} handler exception caught while processing request: {}", ConnectionHandler.this, e.getMessage(), e);
-            } catch (Exception e) {
-                logger.error("{} unknown exception caught while processing request: {}", ConnectionHandler.this, e.getMessage(), e);
-            }
-            writeLock.lock();
-            activeWorkerNum.decrementAndGet();
-            try {
-                if ((key.interestOps() & SelectionKey.OP_WRITE) == 0 && (status == Status.TERMINATING || !writeQueue.isEmpty() || writeBuffer.hasRemaining())) {
-                    key.interestOpsOr(SelectionKey.OP_WRITE);
-                }
-            } catch (Exception e) {
-                logger.error("{} change key listening status failed: {}", ConnectionHandler.this, e.getMessage(), e);
+                this.response = packet;
+                condition.signal();
             } finally {
-                writeLock.unlock();
+                lock.unlock();
             }
         }
+
+        private void signal(Exception error) {
+            lock.lock();
+            try {
+                this.error = error;
+                condition.signal();
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        public Protocol.Packet getResponse(Duration timeout) throws Exception {
+            lock.lock();
+            try {
+                if (error != null) {
+                    throw error;
+                }
+                if (response != null) {
+                    this.success = true;
+                    return response;
+                }
+                if (condition.await(timeout.getNano(), TimeUnit.NANOSECONDS)) {
+                    if (error != null) {
+                        throw error;
+                    }
+                    this.success = true;
+                    return response;
+                } else {
+                    logger.debug("{} request {} timeout", ConnectionHandler.this, requestId);
+                    throw new TimeoutException("Request timeout");
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
+
     }
 }

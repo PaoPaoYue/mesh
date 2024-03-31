@@ -1,7 +1,7 @@
 package com.github.paopaoyue.mesh.rpc.stub;
 
-import com.github.paopaoyue.mesh.rpc.core.exception.HandlerException;
-import com.github.paopaoyue.mesh.rpc.core.exception.HandlerNotFoundException;
+import com.github.paopaoyue.mesh.rpc.exception.HandlerException;
+import com.github.paopaoyue.mesh.rpc.exception.HandlerNotFoundException;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
 
 public interface IServerStub {

@@ -6,10 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
 import java.util.Set;
 
 public class SubReactor implements Runnable {
@@ -33,64 +33,69 @@ public class SubReactor implements Runnable {
             RpcAutoConfiguration.getRpcServer().shutdown();
         }
 
-        try {
-            while (true) {
+        while (true) {
+            try {
                 selector.select();
-                if (Thread.interrupted() || rpcServer.getStatus() != RpcServer.Status.RUNNING) {
+            } catch (IOException e) {
+                logger.error("Sub reactor select() failure: {}", e.getMessage(), e);
+                RpcAutoConfiguration.getRpcServer().shutdown();
+            } catch (ClosedSelectorException e) {
+                logger.error("Sub reactor selector closed: {}", e.getMessage(), e);
+                RpcAutoConfiguration.getRpcServer().shutdown();
+                break;
+            }
+            if (Thread.interrupted() || rpcServer.getStatus() != RpcServer.Status.RUNNING) {
+                if (rpcServer.getStatus() == RpcServer.Status.TERMINATED) {
                     break;
                 }
-                Set<SelectionKey> selected = selector.selectedKeys();
-                for (SelectionKey key : selected) {
-                    ((ConnectionHandler) key.attachment()).process();
+                if (rpcServer.getStatus() == RpcServer.Status.TERMINATING && selector.keys().isEmpty()) {
+                    logger.debug("All connection done, Sub reactor shutdown complete");
+                    break;
                 }
-                selected.clear();
             }
+            Set<SelectionKey> selected = selector.selectedKeys();
+            for (SelectionKey key : selected) {
+                try {
+                    ((ConnectionHandler) key.attachment()).process();
+                } catch (Exception e) {
+                    logger.error("Server connection handler process failure with unknown exception: {}", e.getMessage(), e);
+                    ((ConnectionHandler) key.attachment()).stopNow();
+                }
+            }
+            selected.clear();
+        }
+
+        try {
+            selector.close();
         } catch (IOException e) {
-            logger.error("Sub reactor running failure: {}", e.getMessage(), e);
-            RpcAutoConfiguration.getRpcServer().shutdown();
+            logger.error("Sub reactor selector close failure: {}", e.getMessage(), e);
         }
     }
 
 
-    public void dispatch(SelectableChannel channel) {
+    public ConnectionHandler dispatch(SelectableChannel channel) {
         try {
             channel.configureBlocking(false);
             SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
-            key.attach(new ConnectionHandler(key));
+            ConnectionHandler connectionHandler = new ConnectionHandler(key);
+            key.attach(connectionHandler);
             selector.wakeup();
+            return connectionHandler;
         } catch (IOException e) {
             logger.error("Sub reactor dispatch failure: {}", e.getMessage(), e);
             RpcAutoConfiguration.getRpcServer().shutdown();
         }
-    }
-
-    public void closeConnection(SelectionKey key) {
-        logger.info("Closing client connection: {}", key.attachment());
-        try {
-            ((SocketChannel) key.channel()).socket().close();
-            key.channel().close();
-        } catch (IOException e) {
-            logger.error("Client connection close failure: {}", e.getMessage(), e);
-        }
-        key.cancel();
-
+        return null;
     }
 
     public void shutdown() {
-        try {
-            for (SelectionKey key : selector.keys()) {
-                ConnectionHandler connectionHandler = (ConnectionHandler) key.attachment();
-                connectionHandler.stop();
-            }
-            selector.close();
-        } catch (IOException e) {
-            logger.error("Sub reactor shutdown failure: {}", e.getMessage(), e);
+        for (SelectionKey key : selector.keys()) {
+            ConnectionHandler connectionHandler = (ConnectionHandler) key.attachment();
+            connectionHandler.stop();
         }
     }
 
     public Selector getSelector() {
         return selector;
     }
-
-
 }

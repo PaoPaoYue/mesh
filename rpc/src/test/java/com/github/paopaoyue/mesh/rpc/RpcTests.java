@@ -1,8 +1,13 @@
 package com.github.paopaoyue.mesh.rpc;
 
 import com.github.paopaoyue.mesh.rpc.config.Properties;
+import com.github.paopaoyue.mesh.rpc.proto.Base;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
+import com.github.paopaoyue.mesh.rpc.util.RespBaseUtil;
+import com.google.protobuf.Any;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
@@ -10,10 +15,11 @@ import org.springframework.context.ApplicationContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 @SpringBootTest(classes = RpcAutoConfiguration.class)
 class RpcTests {
+
+    Logger logger = LoggerFactory.getLogger(RpcTests.class);
 
     @Autowired
     ApplicationContext context;
@@ -33,26 +39,24 @@ class RpcTests {
     public void testBufferRead() throws IOException {
 
         ByteBuffer buffer = ByteBuffer.allocate(1024);
-        System.out.println(Arrays.toString(convertFixedInt32(1024 * 1024 * 532 + 135 + 149)));
 
         Protocol.Packet packet = Protocol.Packet.newBuilder()
                 .setHeader(Protocol.PacketHeader.newBuilder().setLength(1024 * 1024 * 532 + 135 + 149).setFlag(1).build())
                 .setTraceInfo(Protocol.TraceInfo.newBuilder())
                 .buildPartial();
-        System.out.println(packet.toString());
         byte[] bytes = packet.toByteArray();
         int len = bytes.length;
         byte[] pre = new byte[len / 2 + 1];
         byte[] suf = new byte[len - len / 2 - 1];
-        System.arraycopy(bytes, 0, pre, 0, len / 2 + 1);
-        System.arraycopy(bytes, len / 2 + 1, suf, 0, len - len / 2 - 1);
+
+        java.lang.System.arraycopy(bytes, 0, pre, 0, len / 2 + 1);
+        java.lang.System.arraycopy(bytes, len / 2 + 1, suf, 0, len - len / 2 - 1);
         buffer.put(bytes);
         buffer.put(pre);
         buffer.put(suf);
         buffer.flip();
         buffer.limit(len);
 
-        System.out.println(Arrays.toString(bytes));
 
 //        Protocol.PacketHeader header2 = Protocol.PacketHeader.parseFrom(buffer);
 //        System.out.println(header2.toString());
@@ -60,14 +64,12 @@ class RpcTests {
 //        buffer.rewind();
 
         Protocol.Packet packet2 = Protocol.Packet.parseFrom(buffer);
-        System.out.println(packet2.toString());
 
         buffer.position(len);
 
         buffer.limit(len + len);
 
         packet2 = Protocol.Packet.parseFrom(buffer);
-        System.out.println(packet2.toString());
 
         buffer.compact();
 //        buffer.put(suf);
@@ -80,6 +82,20 @@ class RpcTests {
 
 //        packet2 = Protocol.Packet.parseFrom(buffer);
 //        System.out.println(packet2.toString());
+    }
+
+    @Test
+    public void testByteRead() throws IOException {
+
+        ByteBuffer buffer = ByteBuffer.allocate(1024);
+
+        Protocol.Packet packet = Protocol.Packet.newBuilder().setBody(Any.pack(RespBaseUtil.ErrorRespBase(Base.StatusCode.NETWORK_ERROR_VALUE, "test"))).build();
+
+        byte[] bytes = packet.toByteArray();
+        Protocol.Packet packet1 = Protocol.Packet.parseFrom(bytes);
+
+        Object response = packet1.getBody().unpack(Base.RespBase.class);
+        logger.info("response: {}", packet.getClass().getSimpleName());
     }
 
     public class ByteBufferBackedInputStream extends InputStream {
