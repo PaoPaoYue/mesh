@@ -11,14 +11,14 @@ import com.github.paopaoyue.mesh.rpc.util.Flag;
 import com.github.paopaoyue.mesh.rpc.util.RespBaseUtil;
 import com.github.paopaoyue.mesh.rpc.util.TraceInfoUtil;
 import com.google.protobuf.Any;
-import com.google.protobuf.GeneratedMessage;
+import com.google.protobuf.GeneratedMessageV3;
 
 @ServiceClientStub(serviceName = "dictionary-application")
 public class DictionaryClientStub implements IClientStub {
 
     private static final String SERVICE_NAME = "dictionary-application";
 
-    public <RESP extends GeneratedMessage, REQ extends GeneratedMessage> RESP process(Class<RESP> respClass, REQ request, CallOption option) {
+    public <RESP extends GeneratedMessageV3, REQ extends GeneratedMessageV3> RESP process(Class<RESP> respClass, REQ request, CallOption option) {
         Context context = Context.getContext();
 
         String handlerName =
