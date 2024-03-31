@@ -9,12 +9,14 @@ import com.github.paopaoyue.mesh.rpc.stub.IServerStub;
 import com.github.paopaoyue.mesh.rpc.stub.ServiceServerStub;
 import com.github.paopaoyue.mesh.rpc.util.Context;
 import com.google.protobuf.Any;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @ServiceServerStub(serviceName = "dictionary-application")
 public class DictionaryServerStub implements IServerStub {
 
     private static final String SERVICE_NAME = "dictionary-application";
 
+    @Autowired
     private IDictionaryService service;
 
     @Override

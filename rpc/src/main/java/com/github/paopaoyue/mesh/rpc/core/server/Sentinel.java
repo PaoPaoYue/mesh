@@ -1,5 +1,6 @@
 package com.github.paopaoyue.mesh.rpc.core.server;
 
+import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,10 @@ public class Sentinel extends TimerTask {
 
     @Override
     public void run() {
+        if (RpcAutoConfiguration.getRpcServer().getStatus() != RpcServer.Status.RUNNING) {
+            cancel();
+            return;
+        }
         for (ConnectionHandler connectionHandler : connectionHandlers) {
             if (connectionHandler.getStatus() == ConnectionHandler.Status.TERMINATING || connectionHandler.getStatus() == ConnectionHandler.Status.TERMINATED) {
                 this.connectionHandlers.remove(connectionHandler);

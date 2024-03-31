@@ -26,6 +26,7 @@ public class SystemClientStub implements IClientStub {
 
         Protocol.Packet packet = Protocol.Packet.newBuilder()
                 .setHeader(Protocol.PacketHeader.newBuilder()
+                        .setLength(1)
                         .setService(serviceName)
                         .setHandler(handlerName)
                         .setRequestId(context.getRequestId())

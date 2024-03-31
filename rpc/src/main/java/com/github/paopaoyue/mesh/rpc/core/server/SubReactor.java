@@ -77,7 +77,8 @@ public class SubReactor implements Runnable {
         try {
             channel.configureBlocking(false);
             SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
-            ConnectionHandler connectionHandler = new ConnectionHandler(key);
+            ConnectionHandler connectionHandler = new ConnectionHandler(this, key);
+            logger.debug("Server new connection established: {}", connectionHandler);
             key.attach(connectionHandler);
             selector.wakeup();
             return connectionHandler;
@@ -93,6 +94,7 @@ public class SubReactor implements Runnable {
             ConnectionHandler connectionHandler = (ConnectionHandler) key.attachment();
             connectionHandler.stop();
         }
+        selector.wakeup();
     }
 
     public Selector getSelector() {

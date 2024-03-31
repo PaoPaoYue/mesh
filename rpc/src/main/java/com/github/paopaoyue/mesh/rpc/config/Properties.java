@@ -17,7 +17,7 @@ public class Properties {
     @Range(min = 1, max = 16)
     private int serverNetworkThreads = 1;
     @Range(min = 1, max = 32)
-    private int serverWorkerThreads = 1;
+    private int serverWorkerThreads = 4;
     @Range(min = 1, max = 60)
     private int serverShutDownTimeout = 10;
 

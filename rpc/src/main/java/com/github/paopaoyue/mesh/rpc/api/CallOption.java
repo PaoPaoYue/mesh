@@ -71,6 +71,9 @@ public class CallOption {
             throw new IllegalArgumentException("Timeout must be less than 1 minute");
         }
         this.timeout = timeout;
+        if (overallTimeout.compareTo(timeout.multipliedBy(retryTimes + 1).plus(retryInterval.multipliedBy(retryTimes))) <= 0) {
+            this.overallTimeout = timeout.multipliedBy(retryTimes + 1).plus(retryInterval.multipliedBy(retryTimes));
+        }
         return this;
     }
 
@@ -106,8 +109,8 @@ public class CallOption {
         if (overallTimeout.compareTo(Duration.ofMinutes(1)) >= 0) {
             throw new IllegalArgumentException("OverallTimeout must be less than 1 minute");
         }
-        if (overallTimeout.compareTo(timeout.multipliedBy(retryTimes).plus(retryInterval.multipliedBy(retryTimes - 1))) <= 0) {
-            throw new IllegalArgumentException("OverallTimeout must be large than the sum of timeout and interval time multiply by retry times");
+        if (overallTimeout.compareTo(timeout.multipliedBy(retryTimes + 1).plus(retryInterval.multipliedBy(retryTimes))) <= 0) {
+            throw new IllegalArgumentException("OverallTimeout must be large than the sum of timeout and interval time multiply by request times");
         }
         this.overallTimeout = overallTimeout;
         return this;

@@ -33,6 +33,7 @@ public class DictionaryClientStub implements IClientStub {
 
         Protocol.Packet packet = Protocol.Packet.newBuilder()
                 .setHeader(Protocol.PacketHeader.newBuilder()
+                        .setLength(1)
                         .setService(SERVICE_NAME)
                         .setHandler(handlerName)
                         .setRequestId(context.getRequestId())

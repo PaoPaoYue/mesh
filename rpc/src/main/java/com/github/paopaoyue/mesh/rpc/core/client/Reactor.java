@@ -100,7 +100,8 @@ public class Reactor implements Runnable {
             SocketChannel channel = SocketChannel.open(address);
             channel.configureBlocking(false);
             SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
-            ConnectionHandler connectionHandler = new ConnectionHandler(keepAlive, serviceName, tag, key);
+            ConnectionHandler connectionHandler = new ConnectionHandler(this, keepAlive, serviceName, tag, key);
+            logger.debug("Client new connection established: {}", connectionHandler);
             key.attach(connectionHandler);
             selector.wakeup();
             return connectionHandler;

@@ -49,7 +49,7 @@ public class RpcClient {
 
         status = Status.RUNNING;
         new Thread(reactor).start();
-        timer.scheduleAtFixedRate(new Sentinel(), 0, prop.getKeepAliveInterval() * 1000L);
+        timer.scheduleAtFixedRate(new Sentinel(), prop.getKeepAliveInterval() * 1000L, prop.getKeepAliveInterval() * 1000L);
         logger.info("Rpc client up!!!");
     }
 
@@ -60,11 +60,9 @@ public class RpcClient {
 
         status = Status.TERMINATING;
         try {
-            timer.cancel();
-            timer.purge();
-            Thread.sleep(1000); // ensure all the upcoming requests are processed
             reactor.shutdown();
-            boolean allDone = latch.await(prop.getClientShutDownTimeout(), TimeUnit.SECONDS);
+            Thread.sleep(1000); // ensure all the upcoming requests are processed
+            boolean allDone = latch.await(prop.getClientShutDownTimeout() - 1, TimeUnit.SECONDS);
             if (!allDone) {
                 logger.error("Client connection not clear while shutdown timeout, force shutdown!!!");
             }

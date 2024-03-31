@@ -1,6 +1,5 @@
 package com.github.paopaoyue.mesh.rpc.core.client;
 
-import com.github.paopaoyue.mesh.rpc.api.CallOption;
 import com.github.paopaoyue.mesh.rpc.config.Properties;
 import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.exception.ServiceUnavailableException;
@@ -8,15 +7,17 @@ import com.github.paopaoyue.mesh.rpc.exception.TimeoutException;
 import com.github.paopaoyue.mesh.rpc.exception.TransportErrorException;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
 import com.github.paopaoyue.mesh.rpc.proto.System;
+import com.github.paopaoyue.mesh.rpc.util.Context;
 import com.github.paopaoyue.mesh.rpc.util.Flag;
-import com.github.paopaoyue.mesh.rpc.util.RespBaseUtil;
+import com.github.paopaoyue.mesh.rpc.util.ModeByteBuffer;
+import com.github.paopaoyue.mesh.rpc.util.TraceInfoUtil;
+import com.google.protobuf.Any;
 import com.google.protobuf.CodedOutputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -36,31 +37,27 @@ public class ConnectionHandler {
     private static final int LENGTH_FIELD_OFFSET = 3;
     private static final int LENGTH_FIELD_LENGTH = 4;
 
-    private static final String PING_MESSAGE = "FIN";
-    private static final System.PingRequest FIN_REQUEST = System.PingRequest.newBuilder().setMessage(PING_MESSAGE).build();
-    private static final CallOption FIN_CALLOPTION = new CallOption().setFin(true);
-
     private boolean keepAlive;
     private String serviceName;
     private String tag;
+    private Reactor reactor;
     private SelectionKey key;
     private SocketChannel socketChannel;
     private int bufferLen;
-    private ByteBuffer readBuffer;
-    private ByteBuffer writeBuffer;
+    private ModeByteBuffer readBuffer;
+    private ModeByteBuffer writeBuffer;
     private Lock writeLock;
     private LinkedBlockingQueue<Waiter> writeQueue;
     private Map<Long, Waiter> requestWaiterMap;
-
     private volatile Status status;
 
-    public ConnectionHandler(boolean keepAlive, String serviceName, String tag, SelectionKey key) {
+    public ConnectionHandler(Reactor reactor, boolean keepAlive, String serviceName, String tag, SelectionKey key) {
         Properties prop = RpcAutoConfiguration.getProp();
 
         this.status = Status.IDLE;
         this.bufferLen = prop.getPacketMaxSize();
-        this.readBuffer = ByteBuffer.allocate(bufferLen);
-        this.writeBuffer = ByteBuffer.allocate(bufferLen);
+        this.readBuffer = new ModeByteBuffer(bufferLen);
+        this.writeBuffer = new ModeByteBuffer(bufferLen);
         this.writeLock = new ReentrantLock();
         this.writeQueue = new LinkedBlockingQueue<>();
         this.requestWaiterMap = new HashMap<>();
@@ -70,6 +67,7 @@ public class ConnectionHandler {
         this.tag = tag;
         this.key = key;
         this.socketChannel = (SocketChannel) key.channel();
+        this.reactor = reactor;
 
         if (keepAlive) {
             RpcAutoConfiguration.getRpcClient().getReactor().addConnection(serviceName, tag, this);
@@ -81,21 +79,17 @@ public class ConnectionHandler {
         if (status == Status.TERMINATED) {
             return;
         }
-        if (status != Status.TERMINATING) {
+        if (status == Status.IDLE) {
             status = Status.PROCESSING;
-            if (key.isReadable()) {
-                read();
-            }
-            if (key.isWritable()) {
-                write();
-            }
-            if (status == Status.PROCESSING) {
-                status = Status.IDLE;
-            }
-        } else {
-            if (key.isReadable()) {
-                read();
-            }
+        }
+        if (key.isValid() && key.isReadable()) {
+            read();
+        }
+        if (key.isValid() && key.isWritable()) {
+            write();
+        }
+        if (status == Status.PROCESSING) {
+            status = Status.IDLE;
         }
     }
 
@@ -111,8 +105,9 @@ public class ConnectionHandler {
         writeLock.lock();
         try {
             writeQueue.offer(waiter);
-            if ((key.interestOps() & SelectionKey.OP_WRITE) == 0 && (!writeQueue.isEmpty() || writeBuffer.hasRemaining())) {
+            if ((key.interestOps() & SelectionKey.OP_WRITE) == 0 && (!writeQueue.isEmpty() || writeBuffer.hasReadRemaining())) {
                 key.interestOpsOr(SelectionKey.OP_WRITE);
+                reactor.getSelector().wakeup();
             }
         } catch (Exception e) {
             logger.error("{} change key listening status failed: {}", ConnectionHandler.this, e.getMessage(), e);
@@ -126,7 +121,7 @@ public class ConnectionHandler {
 
     private void read() {
         try {
-            int n = socketChannel.read(readBuffer);
+            int n = socketChannel.read(readBuffer.getBuffer());
             if (n == -1) {
                 logger.warn("{} disconnected at remote", this);
                 stopNow(new ServiceUnavailableException("Connection disconnected at remote"));
@@ -142,16 +137,17 @@ public class ConnectionHandler {
             return;
         }
         readBuffer.flip();
-        while (readBuffer.hasRemaining()) {
-            if (readBuffer.remaining() < LENGTH_FIELD_OFFSET + LENGTH_FIELD_LENGTH) {
-                logger.debug("{} received header not complete, received: {} bytes", this, readBuffer.remaining());
+        int currentLimit = readBuffer.limit();
+        while (readBuffer.hasReadRemaining()) {
+            if (readBuffer.readRemaining() < LENGTH_FIELD_OFFSET + LENGTH_FIELD_LENGTH) {
+                logger.debug("{} received header not complete, received: {} bytes", this, readBuffer.readRemaining());
                 readBuffer.compact();
                 return;
             }
             // extract packet length before parsing
             int currentPacketLength = 0;
             for (int i = 0; i < LENGTH_FIELD_LENGTH; i++) {
-                currentPacketLength += readBuffer.array()[readBuffer.position() + LENGTH_FIELD_OFFSET + i] << (i * 8);
+                currentPacketLength += (readBuffer.array()[readBuffer.position() + LENGTH_FIELD_OFFSET + i] & 0xFF) << (i * 8);
             }
             if (bufferLen < currentPacketLength) {
                 // TODO: discard corresponding bytes instead of closing the connection -- low priority
@@ -159,21 +155,24 @@ public class ConnectionHandler {
                 stopNow(new TransportErrorException("Response too large"));
                 return;
             }
-            if (readBuffer.remaining() < currentPacketLength) {
-                logger.debug("{} received body not complete, received: {} bytes, want: {} bytes", this, readBuffer.remaining(), currentPacketLength);
+            if (readBuffer.readRemaining() < currentPacketLength) {
+                logger.debug("{} received body not complete, received: {} bytes, want: {} bytes", this, readBuffer.readRemaining(), currentPacketLength);
                 readBuffer.compact();
                 return;
             }
             Protocol.Packet currentPacket = null;
             try {
-                currentPacket = Protocol.Packet.parseFrom(readBuffer);
+                readBuffer.limit(readBuffer.position() + currentPacketLength);
+                currentPacket = Protocol.Packet.parseFrom(readBuffer.getBuffer());
             } catch (InvalidProtocolBufferException e) {
                 logger.error("{} request packet parsing failed, skip this packet: {}", this, e.getMessage(), e);
                 currentPacketLength = 0;
             } finally {
-                readBuffer.position(currentPacketLength);
+                readBuffer.limit(currentLimit);
+                readBuffer.position(readBuffer.position() + currentPacketLength);
             }
             if (currentPacket != null) {
+                logger.debug("{} received response of request: {}", this, currentPacket.getHeader().getRequestId());
                 Waiter waiter = requestWaiterMap.get(currentPacket.getHeader().getRequestId());
                 if (waiter == null) {
                     logger.error("{} request {} not found, skip this packet", this, currentPacket.getHeader().getRequestId());
@@ -190,11 +189,11 @@ public class ConnectionHandler {
 
     private void write() {
         while (true) {
-            if (writeBuffer.hasRemaining()) {
+            if (writeBuffer.hasReadRemaining()) {
                 try {
-                    socketChannel.write(writeBuffer);
-                    if (writeBuffer.hasRemaining()) {
-                        logger.debug("{} write waiting for socket buffer, available: {} bytes, want: {} bytes", this, socketChannel.socket().getSendBufferSize(), writeBuffer.remaining());
+                    socketChannel.write(writeBuffer.getBuffer());
+                    if (writeBuffer.hasReadRemaining()) {
+                        logger.debug("{} write waiting for socket buffer, available: {} bytes, want: {} bytes", this, socketChannel.socket().getSendBufferSize(), writeBuffer.readRemaining());
                         break;
                     }
                     writeBuffer.clear();
@@ -214,13 +213,15 @@ public class ConnectionHandler {
             Waiter waiter = writeQueue.poll();
             try {
                 requestWaiterMap.put(waiter.requestId, waiter);
-                waiter.request.writeTo(CodedOutputStream.newInstance(writeBuffer));
+                CodedOutputStream outputStream = CodedOutputStream.newInstance(writeBuffer.getBuffer());
+                waiter.request.writeTo(outputStream);
+                outputStream.flush();
                 // inject packet length
                 int currentPacketLength = writeBuffer.position();
-                writeBuffer.putInt(LENGTH_FIELD_OFFSET, currentPacketLength - LENGTH_FIELD_OFFSET - LENGTH_FIELD_LENGTH);
                 for (int i = 0; i < LENGTH_FIELD_LENGTH; i++) {
                     writeBuffer.array()[LENGTH_FIELD_OFFSET + i] = (byte) (currentPacketLength >> (i * 8) & 0xff);
                 }
+                logger.debug("{} send request: {}", this, waiter.request.getHeader().getRequestId());
                 writeBuffer.flip();
             } catch (IOException e) {
                 logger.error("{} response packet {} encode failed, skip this packet: {}", this, waiter.request, e.getMessage(), e);
@@ -228,10 +229,10 @@ public class ConnectionHandler {
                 continue;
             }
         }
-        if (writeQueue.isEmpty() && !writeBuffer.hasRemaining()) {
+        if (writeQueue.isEmpty() && !writeBuffer.hasReadRemaining()) {
             writeLock.lock();
             try {
-                if (writeQueue.isEmpty() && !writeBuffer.hasRemaining()) {
+                if (writeQueue.isEmpty() && !writeBuffer.hasReadRemaining()) {
                     key.interestOpsAnd(SelectionKey.OP_READ);
                 }
             } catch (Exception e) {
@@ -244,9 +245,23 @@ public class ConnectionHandler {
 
     public void stop() {
         if (this.status != Status.TERMINATING) {
-            System.PingResponse response = RpcAutoConfiguration.getRpcClient().getSystemStub().process(System.PingResponse.class, FIN_REQUEST, serviceName, FIN_CALLOPTION);
-            if (!RespBaseUtil.isOK(response.getBase())) {
-                logger.error("{} fin ping failed: code={}, {}", this, response.getBase().getCode(), response.getBase().getMessage());
+            Context context = Context.getContext();
+            Waiter waiter = sendPacket(Protocol.Packet.newBuilder()
+                    .setHeader(Protocol.PacketHeader.newBuilder()
+                            .setLength(1)
+                            .setService(serviceName)
+                            .setHandler("ping")
+                            .setRequestId(context.getRequestId())
+                            .setFlag(Flag.SYSTEM_CALL | Flag.FIN | (keepAlive ? Flag.KEEP_ALIVE : 0))
+                            .build())
+                    .setTraceInfo(TraceInfoUtil.createTraceInfo(context))
+                    .setBody(Any.pack(System.PingRequest.newBuilder().setMessage("FIN").build())).build());
+            try {
+                waiter.getResponse(Duration.ofSeconds(1));
+            } catch (Exception e) {
+                logger.error("{} send fin packet failed: {}", this, e.getMessage(), e);
+            } finally {
+                this.status = Status.TERMINATING;
             }
         }
     }
@@ -258,16 +273,20 @@ public class ConnectionHandler {
     public void stopNow(Exception error) {
         this.status = Status.TERMINATING;
         try {
-            if (keepAlive) RpcAutoConfiguration.getRpcClient().getReactor().removeConnection(serviceName, tag);
+            if (keepAlive) {
+                RpcAutoConfiguration.getRpcClient().getReactor().removeConnection(serviceName, tag);
+            }
 
             for (Waiter waiter : requestWaiterMap.values()) {
                 waiter.signal(error);
             }
 
+            logger.debug("{} connection stop now", this);
             socketChannel.socket().close();
             socketChannel.close();
             key.cancel();
 
+            reactor.getSelector().wakeup();
             this.status = Status.TERMINATED;
         } catch (IOException e) {
             logger.error("{} connection stop failure: {}", this, e.getMessage(), e);
@@ -366,7 +385,7 @@ public class ConnectionHandler {
                     this.success = true;
                     return response;
                 }
-                if (condition.await(timeout.getNano(), TimeUnit.NANOSECONDS)) {
+                if (condition.await(timeout.getSeconds(), TimeUnit.SECONDS)) {
                     if (error != null) {
                         throw error;
                     }

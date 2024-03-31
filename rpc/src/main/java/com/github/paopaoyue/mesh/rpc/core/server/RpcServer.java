@@ -59,7 +59,7 @@ public class RpcServer {
         for (SubReactor subReactor : subReactors) {
             threadPool.execute(subReactor);
         }
-        timer.scheduleAtFixedRate(new Sentinel(), 0, prop.getKeepAliveInterval() * 1000L);
+        timer.scheduleAtFixedRate(new Sentinel(), prop.getKeepAliveInterval() * 1000L, prop.getKeepAliveInterval() * 1000L);
         logger.info("Rpc server up!!!");
     }
 
@@ -70,8 +70,6 @@ public class RpcServer {
 
         status = Status.TERMINATING;
         try {
-            timer.cancel();
-            timer.purge();
             mainReactor.shutdown();
             for (SubReactor subReactor : subReactors) {
                 subReactor.shutdown();

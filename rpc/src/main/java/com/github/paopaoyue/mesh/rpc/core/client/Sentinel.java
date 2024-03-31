@@ -20,6 +20,10 @@ public class Sentinel extends TimerTask {
 
     @Override
     public void run() {
+        if (RpcAutoConfiguration.getRpcClient().getStatus() != RpcClient.Status.RUNNING) {
+            cancel();
+            return;
+        }
         Map<String, ConnectionHandler> connectionPool = RpcAutoConfiguration.getRpcClient().getReactor().getConnectionPool();
         for (Map.Entry<String, ConnectionHandler> entry : connectionPool.entrySet()) {
             String tag = entry.getKey();
