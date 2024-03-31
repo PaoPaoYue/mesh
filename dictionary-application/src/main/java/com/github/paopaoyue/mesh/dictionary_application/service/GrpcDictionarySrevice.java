@@ -24,11 +24,11 @@ public class GrpcDictionarySrevice extends DictionaryServiceGrpc.DictionaryServi
     @Override
     public void get(Dictionary.GetRequest request, StreamObserver<Dictionary.GetResponse> responseObserver) {
         String value = dictionary.get(request.getKey());
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            Thread.sleep(200);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
         if (value != null) {
             responseObserver.onNext(Dictionary.GetResponse.newBuilder()
                     .setKey(request.getKey())

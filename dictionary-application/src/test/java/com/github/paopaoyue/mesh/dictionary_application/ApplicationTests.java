@@ -25,7 +25,7 @@ class ApplicationTests {
     @Autowired
     ApplicationContext context;
 
-
+    @Autowired
     IDictionaryCaller dictionaryCaller;
 
     @GrpcClient("hello")
@@ -41,10 +41,11 @@ class ApplicationTests {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         for (int i = 0; i < 10; i++) {
+            int finalI = i;
             new Thread(() -> {
                 int success = 0;
-                for (int j = 0; j < 10000; j++) {
-                    var resp = dictionaryCaller.get(request, option);
+                for (int j = 0; j < 1000; j++) {
+                    var resp = dictionaryCaller.get(request, option.setConnectionTag(String.valueOf(finalI)));
                     if (RespBaseUtil.isOK(resp.getBase())) {
 //                        logger.info(new String(resp.getValue().getBytes(), StandardCharsets.UTF_8));
                         success += 1;
@@ -74,7 +75,7 @@ class ApplicationTests {
         for (int i = 0; i < 10; i++) {
             new Thread(() -> {
                 int success = 0;
-                for (int j = 0; j < 100; j++) {
+                for (int j = 0; j < 1000; j++) {
                     var resp = stub.get(request);
                     if (RespBaseUtil.isOK(resp.getBase())) {
 //                        logger.info(new String(resp.getValue().getBytes(), StandardCharsets.UTF_8));

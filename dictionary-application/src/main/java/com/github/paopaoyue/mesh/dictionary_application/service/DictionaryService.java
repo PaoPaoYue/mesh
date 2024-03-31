@@ -21,6 +21,11 @@ public class DictionaryService implements IDictionaryService {
     @Override
     public Dictionary.GetResponse get(Dictionary.GetRequest request) {
         String value = dictionary.get(request.getKey());
+//        try {
+//            Thread.sleep(200);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
         if (value != null) {
             return Dictionary.GetResponse.newBuilder()
                     .setKey(request.getKey())
