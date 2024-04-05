@@ -30,7 +30,7 @@ public class SystemClientStub implements IClientStub {
                         .setService(serviceName)
                         .setHandler(handlerName)
                         .setRequestId(context.getRequestId())
-                        .setFlag(Flag.SYSTEM_CALL | (option.isKeepAlive() ? Flag.KEEP_ALIVE : 0))
+                        .setFlag(Flag.SYSTEM_CALL | (option.isKeepAlive() ? Flag.KEEP_ALIVE : 0) | (option.isFin() ? Flag.FIN : 0))
                         .build())
                 .setTraceInfo(TraceInfoUtil.createTraceInfo(context))
                 .setBody(Any.pack(request))

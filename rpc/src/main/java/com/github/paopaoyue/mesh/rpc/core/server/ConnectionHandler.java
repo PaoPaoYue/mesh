@@ -71,9 +71,6 @@ public class ConnectionHandler {
             if (key.isValid() && key.isWritable()) {
                 write();
             }
-            if (status == Status.PROCESSING) {
-                status = Status.IDLE;
-            }
         } else {
             if (key.isWritable()) {
                 write();
@@ -196,6 +193,7 @@ public class ConnectionHandler {
                     if (status == Status.TERMINATING && activeWorkerNum.get() == 0) {
                         stopNow();
                     } else {
+                        status = Status.IDLE;
                         key.interestOpsAnd(SelectionKey.OP_READ);
                     }
                 }
@@ -210,6 +208,7 @@ public class ConnectionHandler {
     // not thread safe, called by other thread only when the connection is idle for a long time
     public boolean checkAlive() {
         int keepAliveTimeout = RpcAutoConfiguration.getProp().getKeepAliveTimeout();
+        int keepAliveIdleTimeout = RpcAutoConfiguration.getProp().getKeepAliveIdleTimeout();
         if (this.status == Status.IDLE && System.currentTimeMillis() - lastActiveTime > keepAliveTimeout) {
             logger.warn("{} inactive for {} ms, closing connection", this, keepAliveTimeout);
             stopNow();
@@ -219,20 +218,22 @@ public class ConnectionHandler {
     }
 
     public void stop() {
-        this.status = Status.TERMINATING;
-        writeLock.lock();
-        try {
-            if (writeQueue.isEmpty() && !writeBuffer.hasReadRemaining()) {
-                if (activeWorkerNum.get() == 0) {
-                    stopNow();
-                } else {
-                    key.interestOpsOr(SelectionKey.OP_WRITE);
+        if (status != Status.TERMINATING) {
+            this.status = Status.TERMINATING;
+            writeLock.lock();
+            try {
+                if (writeQueue.isEmpty() && !writeBuffer.hasReadRemaining()) {
+                    if (activeWorkerNum.get() == 0) {
+                        stopNow();
+                    } else {
+                        key.interestOpsOr(SelectionKey.OP_WRITE);
+                    }
                 }
+            } catch (Exception e) {
+                logger.error("{} change key listening status failed: {}", this, e.getMessage(), e);
+            } finally {
+                writeLock.unlock();
             }
-        } catch (Exception e) {
-            logger.error("{} change key listening status failed: {}", this, e.getMessage(), e);
-        } finally {
-            writeLock.unlock();
         }
     }
 

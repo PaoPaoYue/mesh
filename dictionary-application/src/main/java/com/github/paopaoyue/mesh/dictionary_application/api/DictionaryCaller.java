@@ -1,18 +1,23 @@
 package com.github.paopaoyue.mesh.dictionary_application.api;
 
+import com.github.paopaoyue.mesh.dictionary_application.config.AutoConfiguration;
 import com.github.paopaoyue.mesh.dictionary_application.proto.Dictionary;
 import com.github.paopaoyue.mesh.rpc.api.CallOption;
 import com.github.paopaoyue.mesh.rpc.api.RpcCaller;
 import com.github.paopaoyue.mesh.rpc.stub.IClientStub;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 @RpcCaller(serviceName = "dictionary-application")
 public class DictionaryCaller implements IDictionaryCaller {
 
-    @Autowired
-    @Qualifier("dictionaryClientStub")
     IClientStub clientStub;
+
+    @Autowired
+    AutoConfiguration configuration;
+
+    public DictionaryCaller(IClientStub clientStub) {
+        this.clientStub = clientStub;
+    }
 
     @Override
     public Dictionary.GetResponse get(Dictionary.GetRequest request, CallOption option) {

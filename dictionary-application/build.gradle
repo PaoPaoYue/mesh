@@ -12,7 +12,7 @@ java {
 }
 
 bootJar {
-    archiveBaseName = 'dictio nary-application'
+    archiveBaseName = 'dictionary-application'
     archiveVersion = '0.0.1'
     archiveClassifier = ''
 }

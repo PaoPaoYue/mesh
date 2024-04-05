@@ -16,8 +16,10 @@ public class Properties {
     private ServiceProperties serverService = null;
     @Range(min = 1, max = 16)
     private int serverNetworkThreads = 1;
-    @Range(min = 1, max = 32)
+    @Range(min = 0, max = 32)
     private int serverWorkerThreads = 4;
+    @Range(min = 0, max = 600)
+    private int serverWorkerKeepAliveTimeout = 60;
     @Range(min = 1, max = 60)
     private int serverShutDownTimeout = 10;
 
@@ -34,6 +36,10 @@ public class Properties {
     private int keepAliveTimeout = 6;
     @Range(min = 1, max = 3)
     private int keepAliveInterval = 2;
+    // unsupported right now, need to send go away packet from server to client
+    // TODO: need to implement this go away packet -- high priority
+    @Range(min = 10, max = 60)
+    private int keepAliveIdleTimeout = 10;
 
     public boolean isServerEnabled() {
         return serverEnabled;
@@ -65,6 +71,14 @@ public class Properties {
 
     public void setServerWorkerThreads(int serverWorkerThreads) {
         this.serverWorkerThreads = serverWorkerThreads;
+    }
+
+    public int getServerWorkerKeepAliveTimeout() {
+        return serverWorkerKeepAliveTimeout;
+    }
+
+    public void setServerWorkerKeepAliveTimeout(int serverWorkerKeepAliveTimeout) {
+        this.serverWorkerKeepAliveTimeout = serverWorkerKeepAliveTimeout;
     }
 
     public int getServerShutDownTimeout() {
@@ -123,6 +137,14 @@ public class Properties {
         this.keepAliveInterval = keepAliveInterval;
     }
 
+    public int getKeepAliveIdleTimeout() {
+        return keepAliveIdleTimeout;
+    }
+
+    public void setKeepAliveIdleTimeout(int keepAliveIdleTimeout) {
+        this.keepAliveIdleTimeout = keepAliveIdleTimeout;
+    }
+
     @Override
     public String toString() {
         return "Properties{" +
@@ -130,6 +152,7 @@ public class Properties {
                 ", serverService=" + serverService +
                 ", serverNetworkThreads=" + serverNetworkThreads +
                 ", serverWorkerThreads=" + serverWorkerThreads +
+                ", serverWorkerKeepAliveTimeout=" + serverWorkerKeepAliveTimeout +
                 ", serverShutDownTimeout=" + serverShutDownTimeout +
                 ", clientEnabled=" + clientEnabled +
                 ", clientServices=" + Arrays.toString(clientServices.stream().map(ServiceProperties::toString).toArray()) +
@@ -137,6 +160,7 @@ public class Properties {
                 ", packetMaxSize=" + packetMaxSize +
                 ", keepAliveTimeout=" + keepAliveTimeout +
                 ", keepAliveInterval=" + keepAliveInterval +
+                ", keepAliveIdleTimeout=" + keepAliveIdleTimeout +
                 '}';
     }
 }

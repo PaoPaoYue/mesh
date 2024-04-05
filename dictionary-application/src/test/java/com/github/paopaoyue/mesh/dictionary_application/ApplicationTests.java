@@ -2,8 +2,10 @@ package com.github.paopaoyue.mesh.dictionary_application;
 
 import com.github.paopaoyue.mesh.dictionary_application.api.IDictionaryCaller;
 import com.github.paopaoyue.mesh.dictionary_application.proto.Dictionary;
+import com.github.paopaoyue.mesh.dictionary_application.proto.DictionaryServiceGrpc;
 import com.github.paopaoyue.mesh.rpc.api.CallOption;
 import com.github.paopaoyue.mesh.rpc.util.RespBaseUtil;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +37,7 @@ class ApplicationTests {
         CountDownLatch latch = new CountDownLatch(10);
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 100; i++) {
             new Thread(() -> {
                 int success = 0;
                 for (int j = 0; j < 10000; j++) {

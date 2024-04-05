@@ -32,6 +32,7 @@ public class Sentinel extends TimerTask {
             if (connectionHandler.getStatus() == ConnectionHandler.Status.TERMINATING || connectionHandler.getStatus() == ConnectionHandler.Status.TERMINATED) {
                 this.connectionHandlers.remove(connectionHandler);
             } else if (!connectionHandler.checkAlive()) {
+                connectionHandler.stopNow();
                 this.connectionHandlers.remove(connectionHandler);
             }
         }

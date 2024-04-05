@@ -88,9 +88,6 @@ public class ConnectionHandler {
         if (key.isValid() && key.isWritable()) {
             write();
         }
-        if (status == Status.PROCESSING) {
-            status = Status.IDLE;
-        }
     }
 
     // thread safe, can be called by multiple threads
@@ -182,8 +179,12 @@ public class ConnectionHandler {
                 requestWaiterMap.remove(currentPacket.getHeader().getRequestId());
             }
         }
-        if (status == Status.TERMINATING && requestWaiterMap.isEmpty()) {
-            stopNow();
+        if (requestWaiterMap.isEmpty()) {
+            if (status == Status.TERMINATING) {
+                stopNow();
+            } else {
+                status = Status.IDLE;
+            }
         }
     }
 
@@ -245,6 +246,8 @@ public class ConnectionHandler {
 
     public void stop() {
         if (this.status != Status.TERMINATING) {
+            this.status = Status.TERMINATING;
+            if (keepAlive) RpcAutoConfiguration.getRpcClient().getReactor().removeConnection(serviceName, tag);
             Context context = Context.getContext();
             Waiter waiter = sendPacket(Protocol.Packet.newBuilder()
                     .setHeader(Protocol.PacketHeader.newBuilder()
@@ -260,8 +263,6 @@ public class ConnectionHandler {
                 waiter.getResponse(Duration.ofSeconds(1));
             } catch (Exception e) {
                 logger.error("{} send fin packet failed: {}", this, e.getMessage(), e);
-            } finally {
-                this.status = Status.TERMINATING;
             }
         }
     }
@@ -273,9 +274,7 @@ public class ConnectionHandler {
     public void stopNow(Exception error) {
         this.status = Status.TERMINATING;
         try {
-            if (keepAlive) {
-                RpcAutoConfiguration.getRpcClient().getReactor().removeConnection(serviceName, tag);
-            }
+            if (keepAlive) RpcAutoConfiguration.getRpcClient().getReactor().removeConnection(serviceName, tag);
 
             for (Waiter waiter : requestWaiterMap.values()) {
                 waiter.signal(error);

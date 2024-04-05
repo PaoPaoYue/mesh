@@ -37,7 +37,7 @@ public class DictionaryClientStub implements IClientStub {
                         .setService(SERVICE_NAME)
                         .setHandler(handlerName)
                         .setRequestId(context.getRequestId())
-                        .setFlag(Flag.SERVICE_CALL | (option.isKeepAlive() ? Flag.KEEP_ALIVE : 0))
+                        .setFlag(Flag.SERVICE_CALL | (option.isKeepAlive() ? Flag.KEEP_ALIVE : 0) | (option.isFin() ? Flag.FIN : 0))
                         .build())
                 .setTraceInfo(TraceInfoUtil.createTraceInfo(context))
                 .setBody(Any.pack(request))

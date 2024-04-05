@@ -10,9 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Timer;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class RpcServer {
 
@@ -37,7 +35,10 @@ public class RpcServer {
             this.subReactors[i] = new SubReactor();
         }
         this.acceptor = new Acceptor(this.subReactors);
-        this.threadPool = Executors.newFixedThreadPool(1 + prop.getServerNetworkThreads() + prop.getServerWorkerThreads()); // main reactor + sub reactors + worker threads
+        this.threadPool = new ThreadPoolExecutor(1 + prop.getServerNetworkThreads(),
+                prop.getServerWorkerThreads() != 0 ? 1 + prop.getServerNetworkThreads() + prop.getServerWorkerThreads() : Integer.MAX_VALUE, // main reactor + sub reactors + worker threads
+                prop.getServerWorkerKeepAliveTimeout(), TimeUnit.SECONDS,
+                prop.getServerWorkerThreads() != 0 ? new LinkedBlockingQueue<>() : new SynchronousQueue<>());
 
         this.timer = new Timer();
 
