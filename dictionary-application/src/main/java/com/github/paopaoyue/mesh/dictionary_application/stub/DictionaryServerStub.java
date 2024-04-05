@@ -15,11 +15,7 @@ public class DictionaryServerStub implements IServerStub {
 
     private static final String SERVICE_NAME = "dictionary-application";
 
-    private final IDictionaryService service;
-
-    public DictionaryServerStub(IDictionaryService service) {
-        this.service = service;
-    }
+    private IDictionaryService service;
 
     @Override
     public Protocol.Packet process(Protocol.Packet packet) throws HandlerException, HandlerNotFoundException {

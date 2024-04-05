@@ -3,6 +3,7 @@ package com.github.paopaoyue.mesh.rpc.config;
 import com.github.paopaoyue.mesh.rpc.api.RpcCaller;
 import com.github.paopaoyue.mesh.rpc.core.client.RpcClient;
 import com.github.paopaoyue.mesh.rpc.core.server.RpcServer;
+import com.github.paopaoyue.mesh.rpc.service.RpcService;
 import com.github.paopaoyue.mesh.rpc.stub.IClientStub;
 import com.github.paopaoyue.mesh.rpc.stub.IServerStub;
 import com.github.paopaoyue.mesh.rpc.stub.ServiceClientStub;
@@ -19,6 +20,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -65,30 +67,28 @@ public class RpcAutoConfiguration {
         logger.info("rpc framework starts with properties:" + prop.toString());
     }
 
-    @Autowired
-    public void setContext(ApplicationContext context) {
-        RpcAutoConfiguration.context = context;
-    }
-
     @Bean
     @ConditionalOnProperty(prefix = "mesh.rpc", name = "server-enabled", havingValue = "true")
     public RpcServer rpcServer() {
         Map<String, Object> stubs = context.getBeansWithAnnotation(ServiceServerStub.class);
+        ServiceProperties serviceProperties = prop.getServerService();
+        if (serviceProperties == null) {
+            throw new BeanCreationException("No service properties found, please add server service properties to your configuration");
+        }
+        Map<String, IServerStub> serviceServerStubs;
         try {
-            Map<String, IServerStub> serviceServerStubs = stubs.values().stream().collect(Collectors.toMap(o -> o.getClass().getAnnotation(ServiceServerStub.class).serviceName(), IServerStub.class::cast));
-            ServiceProperties serviceProperties = prop.getServerService();
-            if (serviceServerStubs.isEmpty()) {
-                throw new BeanCreationException("No service stub found, please add @ServiceServerStub to your service stub implementation");
-            }
-            if (serviceProperties == null) {
-                throw new BeanCreationException("No service properties found, please add server service properties to your configuration");
-            }
-            if (!serviceServerStubs.containsKey(serviceProperties.getName())) {
-                throw new BeanCreationException("Service stub not found for service properties, please check the service name in @ServiceClientStub");
-            }
+            serviceServerStubs = stubs.values().stream().collect(Collectors.toMap(o -> o.getClass().getAnnotation(ServiceServerStub.class).serviceName(), IServerStub.class::cast));
             rpcServer = new RpcServer(serviceServerStubs.get(serviceProperties.getName()));
         } catch (ClassCastException e) {
             throw new BeanCreationException("Please add @ServiceServerStub to your service stub implementing IServerStub", e);
+        } catch (Exception e) {
+            throw new BeanCreationException("Error creating rpc server", e);
+        }
+        if (serviceServerStubs.isEmpty()) {
+            throw new BeanCreationException("No service stub found, please add @ServiceServerStub to your service stub implementation");
+        }
+        if (!serviceServerStubs.containsKey(serviceProperties.getName())) {
+            throw new BeanCreationException("Service stub not found for service properties, please check the service name in @ServiceClientStub");
         }
         return rpcServer;
     }
@@ -97,52 +97,99 @@ public class RpcAutoConfiguration {
     @ConditionalOnProperty(prefix = "mesh.rpc", name = "client-enabled", havingValue = "true")
     public RpcClient rpcClient() {
         Map<String, Object> stubs = context.getBeansWithAnnotation(ServiceClientStub.class);
+        Map<String, ServiceProperties> serviceProperties = prop.getClientServices().stream().collect(Collectors.toMap(ServiceProperties::getName, s -> s));
+        if (serviceProperties.isEmpty()) {
+            throw new BeanCreationException("No service properties found, please add client service properties to your configuration");
+        }
+        Map<String, IClientStub> serviceClientStubs;
         try {
-            Map<String, IClientStub> serviceClientStubs = stubs.values().stream().collect(Collectors.toMap(o -> o.getClass().getAnnotation(ServiceClientStub.class).serviceName(), IClientStub.class::cast));
-            Map<String, ServiceProperties> serviceProperties = prop.getClientServices().stream().collect(Collectors.toMap(ServiceProperties::getName, s -> s));
-            if (serviceClientStubs.isEmpty()) {
-                throw new BeanCreationException("No service stub found, please add @ServiceClientStub to your service stub implementation");
-            }
-            if (serviceProperties.isEmpty()) {
-                throw new BeanCreationException("No service properties found, please add client service properties to your configuration");
-            }
-            if (serviceProperties.keySet().stream().anyMatch(s -> !serviceClientStubs.containsKey(s))) {
-                throw new BeanCreationException("Service stub not found for service properties, please check the service name in @ServiceClientStub");
-            }
+            serviceClientStubs = stubs.values().stream().collect(Collectors.toMap(o -> o.getClass().getAnnotation(ServiceClientStub.class).serviceName(), IClientStub.class::cast));
             rpcClient = new RpcClient();
         } catch (ClassCastException e) {
             throw new BeanCreationException("Please add @ServiceClientStub to your service stub implementing IClientStub", e);
+        } catch (Exception e) {
+            throw new BeanCreationException("Error creating rpc client", e);
+        }
+        if (serviceClientStubs.isEmpty()) {
+            throw new BeanCreationException("No service stub found, please add @ServiceClientStub to your service stub implementation");
+        }
+        if (serviceProperties.keySet().stream().anyMatch(s -> !serviceClientStubs.containsKey(s))) {
+            throw new BeanCreationException("Service stub not found for service properties, please check the service name in @ServiceClientStub");
         }
         return rpcClient;
     }
 
     @Component
-    public static class ClientCallerPostProcessor implements BeanPostProcessor {
+    public static class PostProcessor implements BeanPostProcessor, ApplicationContextAware {
+
+        @Override
+        public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+            context = applicationContext;
+        }
 
         @Override
         public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+            Object injected;
+            injected = injectRpcStub(bean);
+            injected = injectRpcService(injected);
+            return injected;
+        }
+
+        private Object injectRpcStub(Object bean) throws BeansException {
             RpcCaller annotation = bean.getClass().getAnnotation(RpcCaller.class);
             if (annotation == null) {
-                throw new BeanInitializationException("Please add @RpcCaller to your rpc client interface implementation");
+                return bean;
             }
             if (annotation.serviceName().isEmpty()) {
                 throw new BeanInitializationException("Please specify service name in @RpcCaller");
             }
             Map<String, Object> stubs = context.getBeansWithAnnotation(ServiceClientStub.class);
             try {
-                IClientStub matchedStub = (IClientStub) stubs.values().stream()
+                IClientStub matched = (IClientStub) stubs.values().stream()
                         .filter(o -> o.getClass().getAnnotation(ServiceClientStub.class).serviceName().equals(annotation.serviceName()))
                         .findFirst()
                         .orElseThrow(() -> new BeanInitializationException("Caller stub not found for service name: " + annotation.serviceName()));
-                Field field = ReflectionUtils.findField(bean.getClass(), "stub", IClientStub.class);
+                Field field = ReflectionUtils.findField(bean.getClass(), "clientStub", IClientStub.class);
                 if (field == null) {
-                    throw new BeanInitializationException("Please add stub field to your rpc client interface implementation");
+                    throw new BeanInitializationException("Please add 'clientStub' field to your rpc client interface implementation");
                 }
                 field.setAccessible(true);
-                ReflectionUtils.setField(field, bean, matchedStub);
+                ReflectionUtils.setField(field, bean, matched);
                 return bean;
             } catch (ClassCastException e) {
                 throw new BeanInitializationException("Please add @ServiceClientStub to your service stub implementing IClientStub", e);
+            } catch (BeanInitializationException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new BeanInitializationException("Error injecting rpc stub", e);
+            }
+        }
+
+        private Object injectRpcService(Object bean) throws BeansException {
+            ServiceServerStub annotation = bean.getClass().getAnnotation(ServiceServerStub.class);
+            if (annotation == null) {
+                return bean;
+            }
+            if (annotation.serviceName().isEmpty()) {
+                throw new BeanInitializationException("Please specify service name in @ServiceServerStub");
+            }
+            Map<String, Object> stubs = context.getBeansWithAnnotation(RpcService.class);
+            try {
+                Object matched = stubs.values().stream()
+                        .filter(o -> o.getClass().getAnnotation(RpcService.class).serviceName().equals(annotation.serviceName()))
+                        .findFirst()
+                        .orElseThrow(() -> new BeanInitializationException("Service not found for service name: " + annotation.serviceName()));
+                Field field = ReflectionUtils.findField(bean.getClass(), "service");
+                if (field == null) {
+                    throw new BeanInitializationException("Please add 'service' field to your rpc server stub implementation");
+                }
+                field.setAccessible(true);
+                ReflectionUtils.setField(field, bean, matched);
+                return bean;
+            } catch (BeanInitializationException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new BeanInitializationException("Error injecting rpc service", e);
             }
         }
     }

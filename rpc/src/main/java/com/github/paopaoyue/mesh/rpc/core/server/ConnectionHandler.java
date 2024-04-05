@@ -208,10 +208,9 @@ public class ConnectionHandler {
     // not thread safe, called by other thread only when the connection is idle for a long time
     public boolean checkAlive() {
         int keepAliveTimeout = RpcAutoConfiguration.getProp().getKeepAliveTimeout();
-        int keepAliveIdleTimeout = RpcAutoConfiguration.getProp().getKeepAliveIdleTimeout();
-        if (this.status == Status.IDLE && System.currentTimeMillis() - lastActiveTime > keepAliveTimeout) {
-            logger.warn("{} inactive for {} ms, closing connection", this, keepAliveTimeout);
-            stopNow();
+        long current = System.currentTimeMillis();
+        if (this.status == Status.IDLE && current - lastActiveTime > keepAliveTimeout) {
+            logger.warn("{} inactive for {} ms, closing connection", this, current - lastActiveTime);
             return false;
         }
         return true;

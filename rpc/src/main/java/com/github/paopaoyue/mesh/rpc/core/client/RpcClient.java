@@ -55,6 +55,9 @@ public class RpcClient {
 
     @PreDestroy
     public void shutdown() {
+        if (status != Status.RUNNING) {
+            return;
+        }
         logger.info("Shutting down rpc client...");
         Properties prop = RpcAutoConfiguration.getProp();
 

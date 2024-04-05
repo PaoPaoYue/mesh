@@ -109,7 +109,6 @@ public class Reactor implements Runnable {
             return connectionHandler;
         } catch (IOException e) {
             logger.error("Client reactor dispatch failure: {}", e.getMessage(), e);
-            RpcAutoConfiguration.getRpcClient().shutdown();
         }
         return null;
     }
@@ -119,6 +118,7 @@ public class Reactor implements Runnable {
             ConnectionHandler connectionHandler = (ConnectionHandler) key.attachment();
             connectionHandler.stop();
         }
+        selector.wakeup();
     }
 
     public Selector getSelector() {

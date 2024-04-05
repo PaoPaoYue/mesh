@@ -50,6 +50,10 @@ public class Sender {
                 connectionHandler = reactor.createConnection(option.isKeepAlive(), serviceName, option.getConnectionTag());
             }
 
+            if (connectionHandler == null) {
+                throw new IllegalStateException("Unable to create connection to service: " + serviceName);
+            }
+
             ConnectionHandler.Waiter waiter = connectionHandler.sendPacket(packet);
             try {
                 return waiter.getResponse(overallTimeout.compareTo(option.getTimeout()) >= 0 ? option.getTimeout() : overallTimeout);

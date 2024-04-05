@@ -92,7 +92,7 @@ public class ConnectionHandler {
 
     // thread safe, can be called by multiple threads
     public Waiter sendPacket(Protocol.Packet packet) {
-        if (status == Status.TERMINATED || status == Status.TERMINATING) {
+        if ((status == Status.TERMINATED || status == Status.TERMINATING) && (packet.getHeader().getFlag() & Flag.FIN) == 0) {
             throw new IllegalStateException("Connection is terminated or terminating, no new request allowed");
         }
         if ((packet.getHeader().getFlag() & Flag.FIN) != 0) {
@@ -246,8 +246,8 @@ public class ConnectionHandler {
 
     public void stop() {
         if (this.status != Status.TERMINATING) {
-            this.status = Status.TERMINATING;
             if (keepAlive) RpcAutoConfiguration.getRpcClient().getReactor().removeConnection(serviceName, tag);
+            this.status = Status.TERMINATING;
             Context context = Context.getContext();
             Waiter waiter = sendPacket(Protocol.Packet.newBuilder()
                     .setHeader(Protocol.PacketHeader.newBuilder()
@@ -272,10 +272,9 @@ public class ConnectionHandler {
     }
 
     public void stopNow(Exception error) {
+        if (keepAlive) RpcAutoConfiguration.getRpcClient().getReactor().removeConnection(serviceName, tag);
         this.status = Status.TERMINATING;
         try {
-            if (keepAlive) RpcAutoConfiguration.getRpcClient().getReactor().removeConnection(serviceName, tag);
-
             for (Waiter waiter : requestWaiterMap.values()) {
                 waiter.signal(error);
             }

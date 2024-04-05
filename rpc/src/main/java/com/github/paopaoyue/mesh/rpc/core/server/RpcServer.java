@@ -35,12 +35,12 @@ public class RpcServer {
             this.subReactors[i] = new SubReactor();
         }
         this.acceptor = new Acceptor(this.subReactors);
+        this.timer = new Timer();
+
         this.threadPool = new ThreadPoolExecutor(1 + prop.getServerNetworkThreads(),
                 prop.getServerWorkerThreads() != 0 ? 1 + prop.getServerNetworkThreads() + prop.getServerWorkerThreads() : Integer.MAX_VALUE, // main reactor + sub reactors + worker threads
                 prop.getServerWorkerKeepAliveTimeout(), TimeUnit.SECONDS,
                 prop.getServerWorkerThreads() != 0 ? new LinkedBlockingQueue<>() : new SynchronousQueue<>());
-
-        this.timer = new Timer();
 
         systemStub = new SystemServerStub();
         this.serviceStub = serviceStub;
@@ -66,6 +66,9 @@ public class RpcServer {
 
     @PreDestroy
     public void shutdown() {
+        if (status != Status.RUNNING) {
+            return;
+        }
         logger.info("Shutting down rpc server...");
         Properties prop = RpcAutoConfiguration.getProp();
 
