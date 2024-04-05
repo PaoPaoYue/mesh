@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -124,7 +125,7 @@ public class ConnectionHandler {
                 stopNow(new ServiceUnavailableException("Connection disconnected at remote"));
                 return;
             }
-        } catch (ClosedChannelException e) {
+        } catch (ClosedChannelException | SocketException e) {
             logger.error("{} disconnected abruptly: {}", this, e.getMessage(), e);
             stopNow(new ServiceUnavailableException("Connection disconnected abruptly", e));
             return;
@@ -198,7 +199,7 @@ public class ConnectionHandler {
                         break;
                     }
                     writeBuffer.clear();
-                } catch (ClosedChannelException e) {
+                } catch (ClosedChannelException | SocketException e) {
                     logger.error("{} disconnected abruptly: {}", this, e.getMessage(), e);
                     stopNow(new ServiceUnavailableException("Connection disconnected abruptly", e));
                     return;

@@ -4,66 +4,64 @@ import com.github.paopaoyue.mesh.dictionary_application.proto.Dictionary;
 import com.github.paopaoyue.mesh.rpc.service.RpcService;
 import com.github.paopaoyue.mesh.rpc.util.RespBaseUtil;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 @RpcService(serviceName = "dictionary-application")
 public class DictionaryService implements IDictionaryService {
 
-    private final Map<String, String> dictionary;
+    private LSMTree db;
 
-    public DictionaryService() {
-        dictionary = new ConcurrentHashMap<>();
-        dictionary.put("hello", "你好");
-        dictionary.put("world", "世界");
+    public DictionaryService(LSMTree db) {
+        this.db = db;
     }
 
     @Override
     public Dictionary.GetResponse get(Dictionary.GetRequest request) {
-        String value = dictionary.get(request.getKey());
-        if (value != null) {
+        try {
             return Dictionary.GetResponse.newBuilder()
                     .setKey(request.getKey())
-                    .setValue(value)
+                    .setValue(db.query(request.getKey()))
                     .setBase(RespBaseUtil.SuccessRespBase())
                     .build();
+        } catch (IllegalArgumentException e) {
+            return Dictionary.GetResponse.newBuilder().setBase(RespBaseUtil.ErrorRespBase(Dictionary.ServiceStatusCode.KEY_NOT_FOUND_VALUE, e.getMessage())).build();
         }
-        return Dictionary.GetResponse.newBuilder().setBase(RespBaseUtil.ErrorRespBase(Dictionary.ServiceStatusCode.KEY_NOT_FOUND_VALUE, "word not found")).build();
     }
 
     @Override
     public Dictionary.AddResponse add(Dictionary.AddRequest request) {
-        String previousValue = dictionary.putIfAbsent(request.getKey(), request.getValue());
-        if (previousValue != null) {
-            return Dictionary.AddResponse.newBuilder().setBase(RespBaseUtil.ErrorRespBase(Dictionary.ServiceStatusCode.KEY_DUPLICATE_VALUE, "word already exists")).build();
+        try {
+            db.add(request.getKey(), request.getValue());
+            return Dictionary.AddResponse.newBuilder()
+                    .setKey(request.getKey())
+                    .setBase(RespBaseUtil.SuccessRespBase())
+                    .build();
+        } catch (IllegalArgumentException e) {
+            return Dictionary.AddResponse.newBuilder().setBase(RespBaseUtil.ErrorRespBase(Dictionary.ServiceStatusCode.KEY_DUPLICATE_VALUE, e.getMessage())).build();
         }
-        return Dictionary.AddResponse.newBuilder()
-                .setKey(request.getKey())
-                .setBase(RespBaseUtil.SuccessRespBase())
-                .build();
     }
 
     @Override
     public Dictionary.RemoveResponse remove(Dictionary.RemoveRequest request) {
-        String previousValue = dictionary.remove(request.getKey());
-        if (previousValue != null) {
+        try {
+            db.remove(request.getKey());
             return Dictionary.RemoveResponse.newBuilder()
                     .setKey(request.getKey())
                     .setBase(RespBaseUtil.SuccessRespBase())
                     .build();
+        } catch (IllegalArgumentException e) {
+            return Dictionary.RemoveResponse.newBuilder().setBase(RespBaseUtil.ErrorRespBase(Dictionary.ServiceStatusCode.KEY_NOT_FOUND_VALUE, e.getMessage())).build();
         }
-        return Dictionary.RemoveResponse.newBuilder().setBase(RespBaseUtil.ErrorRespBase(Dictionary.ServiceStatusCode.KEY_NOT_FOUND_VALUE, "word not found")).build();
     }
 
     @Override
     public Dictionary.UpdateResponse update(Dictionary.UpdateRequest request) {
-        String previousValue = dictionary.replace(request.getKey(), request.getValue());
-        if (previousValue != null) {
+        try {
+            db.update(request.getKey(), request.getValue());
             return Dictionary.UpdateResponse.newBuilder()
                     .setKey(request.getKey())
                     .setBase(RespBaseUtil.SuccessRespBase())
                     .build();
+        } catch (IllegalArgumentException e) {
+            return Dictionary.UpdateResponse.newBuilder().setBase(RespBaseUtil.ErrorRespBase(Dictionary.ServiceStatusCode.KEY_NOT_FOUND_VALUE, e.getMessage())).build();
         }
-        return Dictionary.UpdateResponse.newBuilder().setBase(RespBaseUtil.ErrorRespBase(Dictionary.ServiceStatusCode.KEY_NOT_FOUND_VALUE, "word not found")).build();
     }
 }
