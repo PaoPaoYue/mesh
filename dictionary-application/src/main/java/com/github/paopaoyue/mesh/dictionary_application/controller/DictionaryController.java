@@ -87,11 +87,13 @@ public class DictionaryController {
             } else {
                 queryOutput.setTextFill(Color.RED);
                 queryOutput.setText(response.getBase().getMessage());
+                valueQueryResult.setText("");
                 queryOutput.setVisible(true);
             }
         } else {
             queryOutput.setTextFill(Color.RED);
             queryOutput.setText("Key is empty");
+            valueQueryResult.setText("");
             queryOutput.setVisible(true);
         }
     }
@@ -101,7 +103,7 @@ public class DictionaryController {
         String value = valueFieldUpdate.getText();
         if (!key.isEmpty() && !value.isEmpty()) {
             Instant start = Instant.now();
-            Dictionary.UpdateResponse response = caller.update(Dictionary.UpdateRequest.newBuilder().setKey(key).build(), new CallOption());
+            Dictionary.UpdateResponse response = caller.update(Dictionary.UpdateRequest.newBuilder().setKey(key).setValue(value).build(), new CallOption());
             Instant end = Instant.now();
             if (RespBaseUtil.isOK(response.getBase())) {
                 response = caller.update(Dictionary.UpdateRequest.newBuilder().setKey(key).setValue(value).build(), new CallOption());
