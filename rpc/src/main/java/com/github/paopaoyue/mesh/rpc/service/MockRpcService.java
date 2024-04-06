@@ -1,21 +1,19 @@
 package com.github.paopaoyue.mesh.rpc.service;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.core.annotation.AliasFor;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.TYPE)
+@Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @ConditionalOnProperty(prefix = "mesh.rpc", name = "server-enabled", havingValue = "true")
-@Component
-public @interface RpcService {
+@Bean
+public @interface MockRpcService {
 
-    @AliasFor(annotation = Component.class)
     String value() default "";
 
     String serviceName() default "";

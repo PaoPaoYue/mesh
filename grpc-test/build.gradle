@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.2'
+    id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'com.github.paopaoyue'
+version = '0.0.1'
+
+java {
+    sourceCompatibility = '21'
+}
+
+bootJar {
+    archiveBaseName = 'grpc-test'
+    archiveVersion = '0.0.1'
+    archiveClassifier = ''
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-validation:3.2.3'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    implementation 'com.google.protobuf:protobuf-java:3.25.0'
+    runtimeOnly 'io.grpc:grpc-netty-shaded:1.62.2'
+    implementation 'io.grpc:grpc-protobuf:1.62.2'
+    implementation 'io.grpc:grpc-stub:1.62.2'
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53' // necessary for Java 9+
+    implementation 'net.devh:grpc-server-spring-boot-starter:3.0.0.RELEASE'
+    implementation 'net.devh:grpc-client-spring-boot-starter:3.0.0.RELEASE'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+

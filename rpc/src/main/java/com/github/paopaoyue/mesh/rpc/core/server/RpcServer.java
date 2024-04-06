@@ -37,7 +37,7 @@ public class RpcServer {
         this.acceptor = new Acceptor(this.subReactors);
         this.timer = new Timer();
 
-        this.threadPool = new ThreadPoolExecutor(1 + prop.getServerNetworkThreads(),
+        this.threadPool = new ThreadPoolExecutor(1 + prop.getServerNetworkThreads() + prop.getServerWorkerThreads(),
                 prop.getServerWorkerThreads() != 0 ? 1 + prop.getServerNetworkThreads() + prop.getServerWorkerThreads() : Integer.MAX_VALUE, // main reactor + sub reactors + worker threads
                 prop.getServerWorkerKeepAliveTimeout(), TimeUnit.SECONDS,
                 prop.getServerWorkerThreads() != 0 ? new LinkedBlockingQueue<>() : new SynchronousQueue<>());
