@@ -1,26 +1,14 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.2.2'
+    id 'org.springframework.boot' version '3.2.4'
     id 'io.spring.dependency-management' version '1.1.4'
-    id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 
 group = 'com.github.paopaoyue'
-version = '0.0.1'
+version = '0.0.1-SNAPSHOT'
 
 java {
     sourceCompatibility = '21'
-}
-
-javafx {
-    version = "21.0.2"
-    modules = ['javafx.controls', 'javafx.fxml']
-}
-
-bootJar {
-    archiveBaseName = 'dictionary-application'
-    archiveVersion = '0.0.1'
-    archiveClassifier = ''
 }
 
 repositories {
@@ -33,14 +21,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     implementation 'com.google.protobuf:protobuf-java:4.26.0'
-    implementation 'org.openjfx:javafx-controls:22'
-    implementation 'org.openjfx:javafx-fxml:22'
-    implementation 'com.google.guava:guava:33.0.0-jre'
     implementation project(':rpc')
-    implementation project(':translate-application')
 }
 
 tasks.named('test') {
     useJUnitPlatform()
 }
-

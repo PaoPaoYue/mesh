@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package rpc;
+
+import "rpc/base.proto";
+
+option java_package = "com.github.paopaoyue.mesh.translate_application.proto";
+option java_outer_classname = "Translate";
+
+message TranslateRequest {
+  string text = 1;
+  string locale = 2;
+}
+
+message TranslateResponse {
+  string text = 1;
+  string locale = 2;
+  string result = 3;
+
+  RespBase base = 255;
+}
+
+
+enum ServiceStatusCode {
+  SERVICE_OK = 0;
+
+  LOCALE_NOT_SUPPORTED = 110002;
+}
+
+service DictionaryService {
+  rpc Translate(TranslateRequest) returns (TranslateResponse);
+}

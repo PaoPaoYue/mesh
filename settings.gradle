@@ -2,4 +2,5 @@ rootProject.name = 'mesh'
 
 include 'rpc'
 include 'dictionary-application'
+include 'translate-application'
 include 'grpc-test'
