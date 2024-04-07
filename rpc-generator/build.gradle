@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.github.paopaoyue'
+version = '0.0.1'
+
+mainClassName = 'com.github.paopaoyue.mesh.rpc_generator.Application'
+
+java {
+    sourceCompatibility = '21'
+}
+
+run {
+    standardInput = System.in
+    workingDir("../")
+}
+
+jar {
+    archiveBaseName = 'rpc-generator'
+    archiveVersion = '0.0.1'
+    archiveClassifier = ''
+    manifest {
+        attributes(
+                'Main-Class': 'com.github.paopaoyue.mesh.rpc_generator.Application'
+        )
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.freemarker:freemarker:2.3.14'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+

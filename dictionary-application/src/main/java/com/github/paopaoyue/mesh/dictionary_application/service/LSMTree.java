@@ -8,6 +8,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -15,6 +16,7 @@ import java.util.*;
 
 
 @Component
+@ConditionalOnProperty(prefix = "mesh.rpc", name = "server-enabled", havingValue = "true")
 public class LSMTree {
 
     private static final Logger logger = LoggerFactory.getLogger(LSMTree.class);
