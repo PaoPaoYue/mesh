@@ -7,7 +7,6 @@ import com.github.paopaoyue.mesh.dictionary_application.service.IDictionaryServi
 import com.github.paopaoyue.mesh.rpc.api.CallOption;
 import com.github.paopaoyue.mesh.rpc.service.MockRpcService;
 import com.github.paopaoyue.mesh.rpc.util.RespBaseUtil;
-import com.github.paopaoyue.mesh.translate_application.api.ITranslateCaller;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +34,6 @@ class ApplicationTests {
 
     @Autowired
     IDictionaryCaller dictionaryCaller;
-
-    @Autowired(required = false)
-    ITranslateCaller translateCaller;
 
     @Test
     void benchmark() {
