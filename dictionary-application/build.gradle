@@ -37,7 +37,6 @@ dependencies {
     implementation 'org.openjfx:javafx-fxml:22'
     implementation 'com.google.guava:guava:33.0.0-jre'
     implementation project(':rpc')
-    implementation project(':translate-application')
 }
 
 tasks.named('test') {
