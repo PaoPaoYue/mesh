@@ -12,6 +12,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 
@@ -168,6 +170,10 @@ public class LSMTree {
     @PostConstruct
     private synchronized void loadDataFromDisk() {
         try {
+            Path dataFolderPath = Paths.get(prop.getDataFolderPath());
+            if (!dataFolderPath.toFile().exists()) {
+                dataFolderPath.toFile().mkdirs();
+            }
             File logFile = new File(getLogFileName());
             if (logFile.exists()) {
                 this.logFileWriter = new BufferedWriter(new FileWriter(logFile, Charsets.UTF_8, true));
@@ -186,7 +192,7 @@ public class LSMTree {
                 this.logFileWriter = new BufferedWriter(new FileWriter(logFile, Charsets.UTF_8, false));
             }
         } catch (IOException e) {
-            logger.error("Error loading log data from disk", e);
+            logger.error("Error loading log data from disk, closing server", e);
         }
         for (int i = 0; i < MAX_DATA_FILE_NUM; i++) {
             File diskFile = new File(getDiskFileName(i));
