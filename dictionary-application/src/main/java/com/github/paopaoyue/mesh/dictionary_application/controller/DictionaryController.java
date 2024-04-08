@@ -106,7 +106,6 @@ public class DictionaryController {
             Dictionary.UpdateResponse response = caller.update(Dictionary.UpdateRequest.newBuilder().setKey(key).setValue(value).build(), new CallOption());
             Instant end = Instant.now();
             if (RespBaseUtil.isOK(response.getBase())) {
-                response = caller.update(Dictionary.UpdateRequest.newBuilder().setKey(key).setValue(value).build(), new CallOption());
                 if (RespBaseUtil.isOK(response.getBase())) {
                     updateOutput.setTextFill(Color.GREEN);
                     updateOutput.setText("Update operation success, total time cost: " + Duration.between(start, end).toMillis() + " ms");
