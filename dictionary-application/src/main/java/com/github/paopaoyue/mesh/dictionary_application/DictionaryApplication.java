@@ -10,7 +10,7 @@ public class DictionaryApplication {
 
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(DictionaryApplication.class, args);
-        if (context.getBean(Properties.class).isClientEnabled()) {
+        if (!context.getBean(Properties.class).isServerEnabled()) {
             JavaFxLauncher.springContext = context;
             JavaFxLauncher.launch(JavaFxLauncher.class, args);
         }
