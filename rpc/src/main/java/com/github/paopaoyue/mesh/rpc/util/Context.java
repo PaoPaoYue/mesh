@@ -3,7 +3,6 @@ package com.github.paopaoyue.mesh.rpc.util;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
 
 import java.util.Date;
-import java.util.UUID;
 
 public class Context {
     private static final ThreadLocal<Context> CONTEXT = ThreadLocal.withInitial(Context::new);
@@ -24,9 +23,9 @@ public class Context {
         service = "";
         handler = "";
         flag = new Flag(0);
-        requestId = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
-        traceId = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
-        startTime = System.currentTimeMillis();
+        requestId = 0;
+        traceId = 0;
+        startTime = 0;
         upperService = "";
         upperHandler = "";
         upperDevice = "";

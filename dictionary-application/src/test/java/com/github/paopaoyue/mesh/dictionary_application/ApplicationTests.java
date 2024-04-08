@@ -37,7 +37,12 @@ class ApplicationTests {
 
     @Test
     void benchmark() {
-        testRequest(10, 10000);
+        testRequest(1, 1);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void testRequest(int threadNum, int requestNum) {

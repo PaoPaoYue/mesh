@@ -16,7 +16,6 @@ public class Sentinel extends TimerTask {
 
     private static final String PING_MESSAGE = "HEARTBEAT";
     private static final System.PingRequest HEARTBEAT_REQUEST = System.PingRequest.newBuilder().setMessage(PING_MESSAGE).build();
-    private static final CallOption HEARTBEAT_CALLOPTION = new CallOption();
 
     @Override
     public void run() {
@@ -29,7 +28,7 @@ public class Sentinel extends TimerTask {
             String tag = entry.getKey();
             ConnectionHandler connectionHandler = entry.getValue();
             if (connectionHandler.getStatus() != ConnectionHandler.Status.TERMINATING && connectionHandler.getStatus() != ConnectionHandler.Status.TERMINATED) {
-                System.PingResponse response = RpcAutoConfiguration.getRpcClient().getSystemStub().process(System.PingResponse.class, HEARTBEAT_REQUEST, connectionHandler.getServiceName(), HEARTBEAT_CALLOPTION);
+                System.PingResponse response = RpcAutoConfiguration.getRpcClient().getSystemStub().process(System.PingResponse.class, HEARTBEAT_REQUEST, connectionHandler.getServiceName(), new CallOption().setConnectionTag(connectionHandler.getTag()));
                 if (!RespBaseUtil.isOK(response.getBase())) {
                     logger.error("{} keep alive heart beat ping failed: code={}, {}", connectionHandler, response.getBase().getCode(), response.getBase().getMessage());
                 }

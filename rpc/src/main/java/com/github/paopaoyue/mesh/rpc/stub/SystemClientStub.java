@@ -12,6 +12,8 @@ import com.github.paopaoyue.mesh.rpc.util.TraceInfoUtil;
 import com.google.protobuf.Any;
 import com.google.protobuf.GeneratedMessage;
 
+import java.util.UUID;
+
 public class SystemClientStub implements IClientStub {
 
     public <RESP extends GeneratedMessage, REQ extends GeneratedMessage> RESP process(Class<RESP> respClass, REQ request, String serviceName, CallOption option) {
@@ -29,7 +31,7 @@ public class SystemClientStub implements IClientStub {
                         .setLength(1)
                         .setService(serviceName)
                         .setHandler(handlerName)
-                        .setRequestId(context.getRequestId())
+                        .setRequestId(context.getRequestId() == 0 ? UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE : context.getRequestId())
                         .setFlag(Flag.SYSTEM_CALL | (option.isKeepAlive() ? Flag.KEEP_ALIVE : 0) | (option.isFin() ? Flag.FIN : 0))
                         .build())
                 .setTraceInfo(TraceInfoUtil.createTraceInfo(context))

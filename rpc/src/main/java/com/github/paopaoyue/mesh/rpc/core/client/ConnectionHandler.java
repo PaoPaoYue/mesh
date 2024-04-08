@@ -25,6 +25,7 @@ import java.nio.channels.SocketChannel;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -255,7 +256,7 @@ public class ConnectionHandler {
                             .setLength(1)
                             .setService(serviceName)
                             .setHandler("ping")
-                            .setRequestId(context.getRequestId())
+                            .setRequestId(context.getRequestId() == 0 ? UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE : context.getRequestId())
                             .setFlag(Flag.SYSTEM_CALL | Flag.FIN | (keepAlive ? Flag.KEEP_ALIVE : 0))
                             .build())
                     .setTraceInfo(TraceInfoUtil.createTraceInfo(context))
