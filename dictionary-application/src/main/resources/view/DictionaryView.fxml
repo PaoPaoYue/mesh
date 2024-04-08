@@ -15,10 +15,8 @@
                 <content>
                     <VBox spacing="10">
                         <GridPane alignment="TOP_LEFT" hgap="10" vgap="10">
-                            <Label text="Key:"/>
-                            <TextField fx:id="keyFieldAdd"/>
-                            <Label text="Value:" GridPane.rowIndex="1"/>
-                            <TextField fx:id="valueFieldAdd" GridPane.rowIndex="1"/>
+                            <TextField promptText="Enter your word" fx:id="keyFieldAdd"/>
+                            <TextField promptText="Enter the meanings" fx:id="valueFieldAdd" GridPane.rowIndex="1"/>
                         </GridPane>
                         <Button text="Add" onAction="#addEntry"/>
                         <Label fx:id="addOutput" visible="false"/>
@@ -29,8 +27,7 @@
                 <content>
                     <VBox spacing="10">
                         <GridPane alignment="TOP_LEFT" hgap="10" vgap="10">
-                            <Label text="Key:"/>
-                            <TextField fx:id="keyFieldQuery"/>
+                            <TextField promptText="Enter your word" fx:id="keyFieldQuery"/>
                         </GridPane>
                         <Button text="Query" onAction="#queryEntry"/>
                         <Label fx:id="queryOutput" visible="false"/>
@@ -42,10 +39,8 @@
                 <content>
                     <VBox spacing="10">
                         <GridPane alignment="TOP_LEFT" hgap="10" vgap="10">
-                            <Label text="Key:"/>
-                            <TextField fx:id="keyFieldUpdate"/>
-                            <Label text="Value:" GridPane.rowIndex="1"/>
-                            <TextField fx:id="valueFieldUpdate" GridPane.rowIndex="1"/>
+                            <TextField promptText="Enter your word" fx:id="keyFieldUpdate"/>
+                            <TextField promptText="Enter the meanings" fx:id="valueFieldUpdate" GridPane.rowIndex="1"/>
                         </GridPane>
                         <Button text="Update" onAction="#updateEntry"/>
                         <Label fx:id="updateOutput" visible="false"/>
@@ -56,8 +51,7 @@
                 <content>
                     <VBox spacing="10">
                         <GridPane alignment="TOP_LEFT" hgap="10" vgap="10">
-                            <Label text="Key:"/>
-                            <TextField fx:id="keyFieldRemove"/>
+                            <TextField promptText="Enter your word" fx:id="keyFieldRemove"/>
                         </GridPane>
                         <Button text="Remove" onAction="#removeEntry"/>
                         <Label fx:id="removeOutput" visible="false"/>
