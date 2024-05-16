@@ -1,4 +1,4 @@
-package ${info.rootPackage}.stub;
+package com.github.paopaoyue.mesh.canvas_application.stub;
 
 import com.github.paopaoyue.mesh.rpc.exception.HandlerException;
 import com.github.paopaoyue.mesh.rpc.exception.HandlerNotFoundException;
@@ -6,16 +6,16 @@ import com.github.paopaoyue.mesh.rpc.proto.Protocol;
 import com.github.paopaoyue.mesh.rpc.stub.IServerStub;
 import com.github.paopaoyue.mesh.rpc.stub.ServiceServerStub;
 import com.github.paopaoyue.mesh.rpc.util.Context;
-import ${info.rootPackage}.proto.${info.protoObject};
-import ${info.rootPackage}.service.I${info.serviceClass}Service;
+import com.github.paopaoyue.mesh.canvas_application.proto.CanvasProto;
+import com.github.paopaoyue.mesh.canvas_application.service.ICanvasService;
 import com.google.protobuf.Any;
 
-@ServiceServerStub(serviceName = "${info.service}")
-public class ${info.serviceClass}ServerStub implements IServerStub {
+@ServiceServerStub(serviceName = "canvas-application")
+public class CanvasServerStub implements IServerStub {
 
-    private static final String SERVICE_NAME = "${info.service}";
+    private static final String SERVICE_NAME = "canvas-application";
 
-    private I${info.serviceClass}Service service;
+    private ICanvasService service;
 
     @Override
     public Protocol.Packet process(Protocol.Packet packet) throws HandlerException, HandlerNotFoundException {
@@ -29,10 +29,14 @@ public class ${info.serviceClass}ServerStub implements IServerStub {
         Any responseBody;
         try {
             switch (context.getHandler()) {
-            <#list info.methodMap?keys as key>
-                case "${key}" ->
-                    responseBody = Any.pack(service.${info.methodMap[key].methodName}(packet.getBody().unpack(${info.protoObject}.${info.methodMap[key].input.structName}.class)));
-            </#list>
+                case "kickUser" ->
+                    responseBody = Any.pack(service.kickUser(packet.getBody().unpack(CanvasProto.KickUserRequest.class)));
+                case "sendTextMessage" ->
+                    responseBody = Any.pack(service.sendTextMessage(packet.getBody().unpack(CanvasProto.SendTextMessageRequest.class)));
+                case "login" ->
+                    responseBody = Any.pack(service.login(packet.getBody().unpack(CanvasProto.LoginRequest.class)));
+                case "sync" ->
+                    responseBody = Any.pack(service.sync(packet.getBody().unpack(CanvasProto.SyncRequest.class)));
                 default -> throw new HandlerNotFoundException(context.getService(), context.getHandler());
             }
         } catch (Exception e) {
