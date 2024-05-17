@@ -35,7 +35,7 @@ public class CanvasStorageService {
     }
 
     public void startSyncStorage() {
-        if (!rpcProp.isServerEnabled()) return;
+        if (!rpcProp.isServerEnabled() || !canvasProp.isAutoSave()) return;
         // Sync storage to disk periodically
         // initial delay to avoid overwriting the auto-save file
         syncTimer.scheduleAtFixedRate(new TimerTask() {
@@ -86,10 +86,12 @@ public class CanvasStorageService {
         stageItemQueue.clear();
         persistentItemList.clear();
 
-        File file = new File(canvasProp.getAutoSavePath());
-        if (file.exists()) {
-            if (!file.delete()) {
-                logger.error("Failed to delete file: {}", canvasProp.getAutoSavePath());
+        if (canvasProp.isAutoSave()) {
+            File file = new File(canvasProp.getAutoSavePath());
+            if (file.exists()) {
+                if (!file.delete()) {
+                    logger.error("Failed to delete file: {}", canvasProp.getAutoSavePath());
+                }
             }
         }
     }

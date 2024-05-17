@@ -92,36 +92,36 @@ message LoginRequest {
 }
 
 message LoginResponse {
-  string userId = 1;
+  string userId = 1; // generated userId of the client
   string username = 2;
 
   RespBase base = 255;
 }
 
 message SyncRequest {
-  string userId = 1;
-  int64 syncId = 2;
+  string userId = 1; // userId of the client
+  int64 syncId = 2;  // mark the sync position of the client
 
-  repeated CanvasItem items = 51;
-  optional CanvasItem transientItem = 52;
+  repeated CanvasItem items = 51; // items that the client has staged to sync
+  optional CanvasItem transientItem = 52; // item that the client is editing
 
-  bool reset = 101;
-  bool terminate = 102;
+  bool reset = 101; // reset all client's data -- only host
+  bool terminate = 102; // terminate all client -- only host
 }
 
 message SyncResponse {
-  string userId = 1;
-  int64 syncId = 2;
+  string userId = 1; // userId of the client
+  int64 syncId = 2;  // mark the next sync position of the client
 
-  repeated User users = 11;
+  repeated User users = 11; // all users in the room
 
-  repeated TextMessage textMessages = 21;
+  repeated TextMessage textMessages = 21; // all text messages in the room
 
-  repeated CanvasItem items = 51;
-  map<string, CanvasItem> transientItemMap = 52;
+  repeated CanvasItem items = 51; // new items that the client should sync
+  map<string, CanvasItem> transientItemMap = 52; // the live editing items of all clients
 
-  bool reset = 101;
-  bool terminate = 102;
+  bool reset = 101; // whether to reset the client's data
+  bool terminate = 102; // whether to terminate the client
 
   RespBase base = 255;
 }

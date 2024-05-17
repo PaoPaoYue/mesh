@@ -11,6 +11,7 @@ public class Properties {
     private int maxUsernameLength = 30;
     private int maxCanvasTextLength = 100;
     private boolean needConfirmToJoin = true;
+    private boolean autoSave = true;
 
     private String autoSaveFolder = "canvas-auto-save";
     private String defaultSaveFolder = "canvas-save";
@@ -104,6 +105,14 @@ public class Properties {
         this.defaultSaveFileName = defaultSaveFileName;
     }
 
+    public boolean isAutoSave() {
+        return autoSave;
+    }
+
+    public void setAutoSave(boolean autoSave) {
+        this.autoSave = autoSave;
+    }
+
     @Override
     public String toString() {
         return "Properties{" +
@@ -114,9 +123,10 @@ public class Properties {
                 ", maxUsernameLength=" + maxUsernameLength +
                 ", maxCanvasTextLength=" + maxCanvasTextLength +
                 ", needConfirmToJoin=" + needConfirmToJoin +
+                ", autoSave=" + autoSave +
                 ", autoSaveFolder='" + autoSaveFolder + '\'' +
                 ", defaultSaveFolder='" + defaultSaveFolder + '\'' +
-                ", defaultSaveFileName='" + defaultSaveFileName +
+                ", defaultSaveFileName='" + defaultSaveFileName + '\'' +
                 '}';
     }
 }

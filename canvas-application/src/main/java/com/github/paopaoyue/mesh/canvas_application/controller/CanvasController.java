@@ -133,10 +133,12 @@ public class CanvasController {
         }
 
         // load auto save
-        try {
-            clientCanvasService.resetCanvas(true, prop.getAutoSavePath());
-        } catch (IOException e) {
-            logger.error("Failed to load auto save", e);
+        if (prop.isAutoSave()) {
+            try {
+                clientCanvasService.resetCanvas(true, prop.getAutoSavePath());
+            } catch (IOException e) {
+                logger.error("Failed to load auto save", e);
+            }
         }
 
         // Set initial drawing color
