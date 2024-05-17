@@ -5,8 +5,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DrawTool implements ITool {
     private final List<CanvasProto.CanvasPosition> positions;
@@ -14,7 +14,7 @@ public class DrawTool implements ITool {
     private double lineWidth;
 
     public DrawTool() {
-        positions = new ArrayList<>();
+        positions = new CopyOnWriteArrayList<>();
     }
 
     public boolean isEmpty() {

@@ -2,7 +2,6 @@ package com.github.paopaoyue.mesh.canvas_application.service;
 
 import com.github.paopaoyue.mesh.canvas_application.proto.CanvasProto;
 import com.github.paopaoyue.mesh.rpc.config.Properties;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,6 @@ public class CanvasStorageService {
     private final Map<String, CanvasProto.CanvasItem> transientItemMap;
     private final Queue<CanvasProto.CanvasItem> stageItemQueue;
     private final List<CanvasProto.CanvasItem> persistentItemList;
-    private final List<CanvasProto.CanvasItem> itemsForReset;
     @Autowired
     private Properties rpcProp;
     @Autowired
@@ -33,19 +31,19 @@ public class CanvasStorageService {
         this.transientItemMap = new ConcurrentHashMap<>();
         this.stageItemQueue = new ConcurrentLinkedDeque<>();
         this.persistentItemList = new CopyOnWriteArrayList<>();
-        this.itemsForReset = new ArrayList<>();
         this.syncTimer = new Timer();
     }
 
-    @PostConstruct
     public void startSyncStorage() {
         if (!rpcProp.isServerEnabled()) return;
+        // Sync storage to disk periodically
+        // initial delay to avoid overwriting the auto-save file
         syncTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 flushToDisk(canvasProp.getAutoSavePath());
             }
-        }, 0, canvasProp.getSyncStorageInterval());
+        }, canvasProp.getSyncStorageInterval(), canvasProp.getSyncStorageInterval());
     }
 
     @PreDestroy
@@ -125,13 +123,13 @@ public class CanvasStorageService {
 
     }
 
-    public void loadFromDisk(String path) throws IOException {
+    public List<CanvasProto.CanvasItem> loadFromDisk(String path) throws IOException {
         File file = new File(path);
         if (!file.exists()) {
             logger.warn("File not found: {}", path);
-            return;
+            return null;
         }
-        itemsForReset.clear();
+        List<CanvasProto.CanvasItem> itemsForReset = new ArrayList<>();
         try (FileInputStream fis = new FileInputStream(file);
              DataInputStream dis = new DataInputStream(fis)) {
             while (dis.available() > 0) {
@@ -144,10 +142,6 @@ public class CanvasStorageService {
         } catch (IOException e) {
             logger.error("Failed to read from file: {}", path, e);
         }
-        return;
-    }
-
-    public List<CanvasProto.CanvasItem> getItemsForReset() {
         return itemsForReset;
     }
 }

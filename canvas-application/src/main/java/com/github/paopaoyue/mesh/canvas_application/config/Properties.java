@@ -5,12 +5,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "mesh.canvas-application")
 public class Properties {
     private int loginTimeout = 10;
-    private int syncInterval = 200;
+    private int syncInterval = 100;
     private int syncStorageInterval = 1000;
     private int maxMessageLength = 100;
     private int maxUsernameLength = 30;
     private int maxCanvasTextLength = 100;
-    private boolean needConfirmToJoin = false;
+    private boolean needConfirmToJoin = true;
 
     private String autoSaveFolder = "canvas-auto-save";
     private String defaultSaveFolder = "canvas-save";

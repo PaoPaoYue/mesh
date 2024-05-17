@@ -29,6 +29,7 @@ public class ClientCanvasService {
     private final Map<String, CanvasProto.User> userMap;
     private final CanvasController canvasController;
     private final CanvasStorageService storageService;
+    private List<CanvasProto.CanvasItem> itemsForReset;
     @Autowired
     private ICanvasCaller canvasCaller;
     @Autowired
@@ -50,13 +51,13 @@ public class ClientCanvasService {
     public void login(String username) throws Exception {
         var response = canvasCaller.login(CanvasProto.LoginRequest.newBuilder()
                 .setUsername(username)
-                .setIsHost(rpcProp.isServerEnabled())
+                .setIsHost(isHost())
                 .build(), new CallOption().setTimeout(Duration.ofSeconds(canvasProp.getLoginTimeout())));
         if (RespBaseUtil.isOK(response.getBase())) {
             this.currentUser = CanvasProto.User.newBuilder()
                     .setUserId(response.getUserId())
                     .setUsername(response.getUsername())
-                    .setIsHost(rpcProp.isServerEnabled())
+                    .setIsHost(isHost())
                     .build();
             userMap.put(this.currentUser.getUserId(), this.currentUser);
             startSync();
@@ -76,7 +77,7 @@ public class ClientCanvasService {
             return;
         }
         // wait for all client to sync the termination
-        if (currentUser.getIsHost()) {
+        if (isHost()) {
             try {
                 Thread.sleep(canvasProp.getSyncInterval() * 2L);
             } catch (InterruptedException e) {
@@ -86,7 +87,7 @@ public class ClientCanvasService {
     }
 
     public void kickUser(String userid) {
-        if (!currentUser.getIsHost()) return;
+        if (!isHost()) return;
         var response = canvasCaller.kickUser(CanvasProto.KickUserRequest.newBuilder()
                 .setUserId(currentUser.getUserId())
                 .setTargetUserId(userid)
@@ -111,7 +112,7 @@ public class ClientCanvasService {
     }
 
     public void saveCanvas(String savePath) {
-        if (!currentUser.getIsHost()) return;
+        if (!isHost()) return;
         canvasStorageService.flushToDisk(savePath);
     }
 
@@ -124,28 +125,30 @@ public class ClientCanvasService {
     }
 
     public void resetCanvas(boolean load, String loadPath) throws IOException {
-        if (!currentUser.getIsHost()) return;
+        if (!isHost()) return;
         if (isReset.get()) {
             canvasController.runLaterShowAlert(Alert.AlertType.WARNING, "the previous canvas reset is still in sync progress.", false);
             return;
         }
         if (load) {
-            canvasStorageService.loadFromDisk(loadPath);
+            itemsForReset = canvasStorageService.loadFromDisk(loadPath);
         }
         isReset.set(true);
-        return;
     }
 
     public void startSync() {
+        storageService.startSyncStorage();
         syncTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 try {
-                    List<CanvasProto.CanvasItem> items;
+                    List<CanvasProto.CanvasItem> items = new ArrayList<>();
                     if (isReset.get()) {
-                        items = canvasStorageService.getItemsForReset();
+                        if (itemsForReset != null) {
+                            items.addAll(itemsForReset);
+                            itemsForReset = null;
+                        }
                     } else {
-                        items = new ArrayList<>();
                         for (var item = storageService.pollStageItem(); item != null; item = storageService.pollStageItem()) {
                             items.add(item);
                         }
@@ -166,6 +169,7 @@ public class ClientCanvasService {
                             canvasController.runLaterShowAlert(Alert.AlertType.CONFIRMATION, "the host has terminated the canvas application.", true);
                             return;
                         }
+
                         userMap.clear();
                         response.getUsersList().forEach(user -> userMap.put(user.getUserId(), user));
 
@@ -173,11 +177,9 @@ public class ClientCanvasService {
                             storageService.reset();
                         }
 
-                        if (response.getSyncId() > storageService.getSyncId()) {
-                            storageService.updateTransientItemMap(response.getTransientItemMapMap());
-                            for (var item : response.getItemsList()) {
-                                storageService.putPersistentItem(item);
-                            }
+                        storageService.updateTransientItemMap(response.getTransientItemMapMap());
+                        for (var item : response.getItemsList()) {
+                            storageService.putPersistentItem(item);
                         }
 
                         canvasController.runLaterSyncData(response);
@@ -208,6 +210,10 @@ public class ClientCanvasService {
     @PreDestroy
     public void stopSync() {
         syncTimer.cancel();
+    }
+
+    public boolean isHost() {
+        return rpcProp.isServerEnabled();
     }
 
     public CanvasProto.User getCurrentUser() {

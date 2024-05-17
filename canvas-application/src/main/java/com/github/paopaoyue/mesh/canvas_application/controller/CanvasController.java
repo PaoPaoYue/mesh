@@ -58,7 +58,6 @@ public class CanvasController {
     private Canvas persistentCanvas;
     @FXML
     private Button colorPickerButton;
-    @FXML
     private ToggleGroup toolToggleGroup;
     @FXML
     private ToggleButton penToggleButton;
@@ -82,10 +81,6 @@ public class CanvasController {
     private Button resetButton;
     @FXML
     private Button importButton;
-    @FXML
-    private TextField usernameTextField;
-    @FXML
-    private Label promptLabel;
     @FXML
     private ListView<CanvasProto.User> userListView;
     @FXML
@@ -121,7 +116,16 @@ public class CanvasController {
         stageContext = stageCanvas.getGraphicsContext2D();
         persistentContext = persistentCanvas.getGraphicsContext2D();
 
-        if (!clientCanvasService.getCurrentUser().getIsHost()) {
+        toolToggleGroup = new ToggleGroup();
+        penToggleButton.setToggleGroup(toolToggleGroup);
+        eraserToggleButton.setToggleGroup(toolToggleGroup);
+        lineToggleButton.setToggleGroup(toolToggleGroup);
+        rectangleToggleButton.setToggleGroup(toolToggleGroup);
+        ovalToggleButton.setToggleGroup(toolToggleGroup);
+        circleToggleButton.setToggleGroup(toolToggleGroup);
+        textToggleButton.setToggleGroup(toolToggleGroup);
+
+        if (!clientCanvasService.isHost()) {
             saveButton.setVisible(false);
             saveAsButton.setVisible(false);
             resetButton.setVisible(false);
@@ -201,6 +205,8 @@ public class CanvasController {
         TextField usernameTextField = new TextField();
         usernameTextField.setPromptText("Enter Username");
         Label infoLabel = new Label();
+        infoLabel.setMaxWidth(280);
+        infoLabel.setWrapText(true);
         infoLabel.setVisible(false);
         vBox.getChildren().addAll(promptLabel, usernameTextField, infoLabel);
 
@@ -209,7 +215,7 @@ public class CanvasController {
             if (username.isEmpty() || username.isBlank() || username.length() > prop.getMaxUsernameLength()) {
                 // Show an alert if the username is invalid
                 infoLabel.setTextFill(Color.RED);
-                infoLabel.setText("Invalid username - should not be empty or exceed " + prop.getMaxUsernameLength() + " characters.");
+                infoLabel.setText("Invalid username: empty / exceeding " + prop.getMaxUsernameLength() + " length.");
                 infoLabel.setVisible(true);
                 return;
             }
@@ -278,7 +284,7 @@ public class CanvasController {
 
     @FXML
     private void showKickOutDialog(CanvasProto.User user) {
-        if (!clientCanvasService.getCurrentUser().getIsHost()) {
+        if (!clientCanvasService.isHost()) {
             showAlert(Alert.AlertType.INFORMATION, "Only host can use this function", false);
         }
         // Create the dialog
@@ -340,23 +346,27 @@ public class CanvasController {
         vBox.setSpacing(10);
         Label promptLabel = new Label("Please enter your text:");
         TextField textField = new TextField();
-        usernameTextField.setPromptText("Canvas text");
+        textField.setPromptText("Canvas text");
         Label infoLabel = new Label();
+        infoLabel.setMaxWidth(280);
+        infoLabel.setWrapText(true);
         infoLabel.setVisible(false);
-        vBox.getChildren().addAll(promptLabel, usernameTextField, infoLabel);
+        vBox.getChildren().addAll(promptLabel, textField, infoLabel);
 
         Dialog<String> loginDialog = createDialog("Set canvas text!", vBox, dialog -> {
-            String text = usernameTextField.getText();
+            String text = textField.getText();
             if (text.isEmpty() || text.isBlank() || text.length() > prop.getMaxCanvasTextLength()) {
                 // Show an alert if the text is invalid
                 infoLabel.setTextFill(Color.RED);
-                infoLabel.setText("Invalid text - should not be empty or exceed " + prop.getMaxCanvasTextLength() + " characters.");
+                infoLabel.setText("Invalid text: empty / exceeding " + prop.getMaxCanvasTextLength() + " length.");
                 infoLabel.setVisible(true);
                 return;
             }
             // trigger text input tool handler
             if (currentTool instanceof TextTool) {
-                ((TextTool) currentTool).handleCanvasTextInput(context, text, event.getX(), event.getY());
+                ((TextTool) currentTool).handleCanvasTextInput(context, (Color) drawingContext.getStroke(), text, event.getX(), event.getY());
+                clientCanvasService.addCanvasItemToSync(currentTool.toProto());
+                currentTool = null;
             }
 
             dialog.setResult("confirm");
@@ -439,7 +449,7 @@ public class CanvasController {
                             setText(null);
                             hbox.getChildren().addAll(new Label(user.getUsername()));
                             // Add kick out button to the cell
-                            if (clientCanvasService.getCurrentUser().getIsHost() && !user.getIsHost()) {
+                            if (clientCanvasService.isHost() && !user.getIsHost()) {
                                 Button kickOutButton = new Button("Kick Out");
                                 kickOutButton.getStyleClass().add("kick-out-button");
                                 kickOutButton.setOnAction(event -> {
@@ -492,20 +502,11 @@ public class CanvasController {
 
     @FXML
     private void selectTool() {
-        // Get the selected tool from toggle buttons
-        Toggle selectedToggle = toolToggleGroup.getSelectedToggle();
-        if (selectedToggle != null) {
-            ((ToggleButton) selectedToggle).setStyle("-fx-background-color: " + toRGBCode(color));
-        }
     }
 
     private void setDrawingColor(Color color) {
         this.color = color;
         colorPickerButton.setStyle("-fx-background-color: " + toRGBCode(color));
-        Toggle selectedToggle = toolToggleGroup.getSelectedToggle();
-        if (selectedToggle != null) {
-            ((ToggleButton) selectedToggle).setStyle("-fx-background-color: " + toRGBCode(color));
-        }
         drawingContext.setFill(color);
         drawingContext.setStroke(color);
     }
@@ -520,7 +521,11 @@ public class CanvasController {
         switch (protoItem.getItemCase()) {
             case DRAW -> tool = new DrawTool();
             case ERASER -> tool = new EraserTool();
-
+            case LINE -> tool = new LineTool();
+            case RECT -> tool = new RectTool();
+            case OVAL -> tool = new OvalTool();
+            case CIRCLE -> tool = new CircleTool();
+            case TEXT -> tool = new TextTool();
         }
         if (tool != null) {
             tool.fromProto(protoItem);
@@ -551,7 +556,7 @@ public class CanvasController {
             return;
         }
         if (currentTool instanceof TextTool) {
-            showTextInputDialog(drawingContext, event);
+            showTextInputDialog(stageContext, event);
         } else {
             currentTool.handleCanvasMousePressed(drawingContext, event);
         }
@@ -568,7 +573,6 @@ public class CanvasController {
         if (currentTool == null) {
             return;
         }
-        System.out.println("Mouse released!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         currentTool.handleCanvasMouseReleased(drawingContext, event);
         clientCanvasService.addCanvasItemToSync(currentTool.toProto());
         // clear drawing canvas
@@ -580,7 +584,7 @@ public class CanvasController {
 
     @FXML
     private void saveCanvas() {
-        if (!clientCanvasService.getCurrentUser().getIsHost()) {
+        if (!clientCanvasService.isHost()) {
             showAlert(Alert.AlertType.INFORMATION, "Only host can use this function", false);
         }
         clientCanvasService.saveCanvas(prop.getDefaultSavePath());
@@ -589,7 +593,7 @@ public class CanvasController {
 
     @FXML
     private void saveCanvasAs() {
-        if (!clientCanvasService.getCurrentUser().getIsHost()) {
+        if (!clientCanvasService.isHost()) {
             showAlert(Alert.AlertType.INFORMATION, "Only host can use this function", false);
         }
 
@@ -597,7 +601,7 @@ public class CanvasController {
         fileChooser.setTitle("Select Save File");
 
         // Set initial directory (optional)
-        File initialDirectory = new File(System.getProperty("user.home"));
+        File initialDirectory = new File(System.getProperty("user.dir"));
         fileChooser.setInitialDirectory(initialDirectory);
 
         // Set extension filter
@@ -617,7 +621,7 @@ public class CanvasController {
 
     @FXML
     private void resetCanvas() {
-        if (!clientCanvasService.getCurrentUser().getIsHost()) {
+        if (!clientCanvasService.isHost()) {
             showAlert(Alert.AlertType.INFORMATION, "Only host can use this function", false);
         }
         clientCanvasService.resetCanvas();
@@ -626,7 +630,7 @@ public class CanvasController {
 
     @FXML
     private void importCanvas() {
-        if (!clientCanvasService.getCurrentUser().getIsHost()) {
+        if (!clientCanvasService.isHost()) {
             showAlert(Alert.AlertType.INFORMATION, "Only host can use this function", false);
         }
 
@@ -634,7 +638,7 @@ public class CanvasController {
         fileChooser.setTitle("Select Open File");
 
         // Set initial directory (optional)
-        File initialDirectory = new File(System.getProperty("user.home"));
+        File initialDirectory = new File(System.getProperty("user.dir"));
         fileChooser.setInitialDirectory(initialDirectory);
 
         // Set extension filter

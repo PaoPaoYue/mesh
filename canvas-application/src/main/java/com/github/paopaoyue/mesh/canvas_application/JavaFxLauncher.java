@@ -29,6 +29,7 @@ public class JavaFxLauncher extends Application {
         JavaFxLauncher.primaryStage = primaryStage;
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/view/CanvasView.fxml"));
         fxmlLoader.setControllerFactory(springContext::getBean);
+
         Parent root = fxmlLoader.load();
         primaryStage.setScene(new Scene(root));
         primaryStage.setTitle("Canvas Application");

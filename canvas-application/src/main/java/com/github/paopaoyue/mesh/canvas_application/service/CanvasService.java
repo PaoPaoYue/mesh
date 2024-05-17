@@ -40,7 +40,7 @@ public class CanvasService implements ICanvasService {
         this.userTimeoutMap = new ConcurrentHashMap<>();
         this.messageList = new CopyOnWriteArrayList<>();
         this.blacklist = new ConcurrentSkipListSet<>();
-        this.resetNotifySet = new ConcurrentSkipListSet<>();
+        this.resetNotifySet = new HashSet<>();
         this.checkActiveTimer = new Timer();
         this.lock = new ReentrantLock();
 
@@ -178,12 +178,14 @@ public class CanvasService implements ICanvasService {
             if (resetNotifySet.contains(request.getUserId())) {
                 resetNotifySet.remove(request.getUserId());
                 isNotifyReset = true;
-            } else {
-                if (request.hasTransientItem()) {
-                    transientItemMap.put(request.getUserId(), request.getTransientItem());
-                }
-                persistentItemList.addAll(request.getItemsList());
             }
+            if (request.hasTransientItem()) {
+                transientItemMap.put(request.getUserId(), request.getTransientItem());
+            } else {
+                transientItemMap.remove(request.getUserId());
+            }
+            persistentItemList.addAll(request.getItemsList());
+
 
         } finally {
             lock.unlock();

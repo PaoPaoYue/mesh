@@ -5,8 +5,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class EraserTool implements ITool {
     private final List<CanvasProto.CanvasPosition> positions;
@@ -14,7 +14,7 @@ public class EraserTool implements ITool {
     private Color tempColor;
 
     public EraserTool() {
-        positions = new ArrayList<>();
+        positions = new CopyOnWriteArrayList<>();
     }
 
     public boolean isEmpty() {
@@ -47,11 +47,12 @@ public class EraserTool implements ITool {
     @Override
     public void handleCanvasMouseReleased(GraphicsContext context, MouseEvent event) {
         context.closePath();
+        context.setStroke(tempColor);
     }
 
     @Override
     public void fromProto(CanvasProto.CanvasItem protoItem) {
-        var item = protoItem.getDraw();
+        var item = protoItem.getEraser();
         this.lineWidth = item.getWidth();
         this.positions.addAll(item.getPositionsList());
     }

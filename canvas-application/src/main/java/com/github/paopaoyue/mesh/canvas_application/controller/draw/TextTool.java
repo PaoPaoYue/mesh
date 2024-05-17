@@ -6,6 +6,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
 public class TextTool implements ITool {
     private static final double DEFAULT_FONT_SIZE = 14;
 
@@ -23,14 +26,15 @@ public class TextTool implements ITool {
         return pos == null || text.isEmpty();
     }
 
-    public void handleCanvasTextInput(GraphicsContext context, String text, double x, double y) {
+    public void handleCanvasTextInput(GraphicsContext context, Color color, String text, double x, double y) {
+        this.color = color;
         this.pos = CanvasProto.CanvasPosition.newBuilder()
                 .setX(x)
                 .setY(y)
                 .build();
         this.text = text;
         context.setFont(Font.font(fontSize));
-        context.strokeText(text, pos.getX(), pos.getY());
+        context.fillText(text, pos.getX(), pos.getY());
     }
 
     @Override
@@ -50,7 +54,7 @@ public class TextTool implements ITool {
         var item = protoItem.getText();
         this.color = Util.fromProtoColor(item.getColor());
         this.pos = item.getPos();
-        this.text = item.getText();
+        this.text = URLDecoder.decode(item.getText(), java.nio.charset.StandardCharsets.UTF_8);
         this.fontSize = item.getFontSize();
     }
 
@@ -60,7 +64,8 @@ public class TextTool implements ITool {
                 .setText(CanvasProto.CanvasText.newBuilder()
                         .setColor(Util.toProtoColor(color))
                         .setPos(pos)
-                        .setText(text)
+                        .setText(URLEncoder.encode(text, java.nio.charset.StandardCharsets.UTF_8))
+                        .setFontSize(fontSize)
                         .build())
                 .build();
     }
@@ -69,6 +74,6 @@ public class TextTool implements ITool {
     public void draw(GraphicsContext context) {
         context.setStroke(color);
         context.setFont(Font.font(fontSize));
-        context.strokeText(text, pos.getX(), pos.getY());
+        context.fillText(text, pos.getX(), pos.getY());
     }
 }

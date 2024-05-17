@@ -32,11 +32,11 @@
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
             <Text text="Canvas"/>
-            <Pane styleClass="canvas-container">
-                <Canvas fx:id="drawingCanvas" width="600" height="600"/>
-                <Canvas fx:id="stageCanvas" width="600" height="600"/>
+            <StackPane styleClass="canvas-container">
                 <Canvas fx:id="persistentCanvas" width="600" height="600"/>
-            </Pane>
+                <Canvas fx:id="stageCanvas" width="600" height="600"/>
+                <Canvas fx:id="drawingCanvas" width="600" height="600"/>
+            </StackPane>
         </VBox>
     </center>
     <right>
@@ -53,7 +53,7 @@
                     </ImageView>
                 </graphic>
             </Button>
-            <Button fx:id="stokeButton" text="Stroke Adjustment" onAction="#showLineWidthDialog"
+            <Button fx:id="lineWidthButton" text="Stroke Adjustment" onAction="#showLineWidthDialog"
                     styleClass="tool-button">
                 <graphic>
                     <ImageView fitHeight="20" fitWidth="20">
@@ -62,7 +62,7 @@
                 </graphic>
             </Button>
             <Separator prefHeight="10" prefWidth="30"/>
-            <ToggleButton toggleGroup="#toolToggleGroup" fx:id="penToggleButton" text="Pen" onAction="#selectTool"
+            <ToggleButton fx:id="penToggleButton" text="Pen" onAction="#selectTool"
                           styleClass="tool-button">
                 <graphic>
                     <ImageView fitHeight="20" fitWidth="20">
@@ -70,7 +70,7 @@
                     </ImageView>
                 </graphic>
             </ToggleButton>
-            <ToggleButton toggleGroup="#toolToggleGroup" fx:id="EraserToggleButton" text="Eraser" onAction="#selectTool"
+            <ToggleButton fx:id="eraserToggleButton" text="Eraser" onAction="#selectTool"
                           styleClass="tool-button">
                 <graphic>
                     <ImageView fitHeight="20" fitWidth="20">
@@ -78,7 +78,7 @@
                     </ImageView>
                 </graphic>
             </ToggleButton>
-            <ToggleButton toggleGroup="#toolToggleGroup" fx:id="lineToggleButton" text="Line" onAction="#selectTool"
+            <ToggleButton fx:id="lineToggleButton" text="Line" onAction="#selectTool"
                           styleClass="tool-button">
                 <graphic>
                     <ImageView fitHeight="20" fitWidth="20">
@@ -86,7 +86,7 @@
                     </ImageView>
                 </graphic>
             </ToggleButton>
-            <ToggleButton toggleGroup="#toolToggleGroup" fx:id="rectangleToggleButton" text="Rectangle"
+            <ToggleButton fx:id="rectangleToggleButton" text="Rectangle"
                           onAction="#selectTool"
                           styleClass="tool-button">
                 <graphic>
@@ -95,7 +95,7 @@
                     </ImageView>
                 </graphic>
             </ToggleButton>
-            <ToggleButton toggleGroup="#toolToggleGroup" fx:id="ovalToggleButton" text="Oval" onAction="#selectTool"
+            <ToggleButton fx:id="ovalToggleButton" text="Oval" onAction="#selectTool"
                           styleClass="tool-button">
                 <graphic>
                     <ImageView fitHeight="20" fitWidth="20">
@@ -103,7 +103,7 @@
                     </ImageView>
                 </graphic>
             </ToggleButton>
-            <ToggleButton toggleGroup="#toolToggleGroup" fx:id="circleToggleButton" text="Circle" onAction="#selectTool"
+            <ToggleButton fx:id="circleToggleButton" text="Circle" onAction="#selectTool"
                           styleClass="tool-button">
                 <graphic>
                     <ImageView fitHeight="20" fitWidth="20">
@@ -111,7 +111,7 @@
                     </ImageView>
                 </graphic>
             </ToggleButton>
-            <ToggleButton toggleGroup="#toolToggleGroup" fx:id="textToggleButton" text="Text" onAction="#selectTool"
+            <ToggleButton fx:id="textToggleButton" text="Text" onAction="#selectTool"
                           styleClass="tool-button">
                 <graphic>
                     <ImageView fitHeight="20" fitWidth="20">
@@ -137,27 +137,21 @@
             <Button fx:id="importButton" styleClass="tool-button" onAction="#importCanvas">
                 <graphic>
                     <ImageView fitHeight="20" fitWidth="20">
-                        <image>
-                            <Image url="@/image/open.png"/>
-                        </image>
+                        <Image url="@/image/open.png"/>
                     </ImageView>
                 </graphic>
             </Button>
             <Button fx:id="resetButton" styleClass="tool-button" onAction="#resetCanvas">
                 <graphic>
                     <ImageView fitHeight="20" fitWidth="20">
-                        <image>
-                            <Image url="@/image/new.png"/>
-                        </image>
+                        <Image url="@/image/new.png"/>
                     </ImageView>
                 </graphic>
             </Button>
             <Button fx:id="exitButton" styleClass="tool-button" onAction="#showLogoutDialog">
                 <graphic>
                     <ImageView fitHeight="20" fitWidth="20">
-                        <image>
-                            <Image url="@/image/exit.png"/>
-                        </image>
+                        <Image url="@/image/exit.png"/>
                     </ImageView>
                 </graphic>
             </Button>
