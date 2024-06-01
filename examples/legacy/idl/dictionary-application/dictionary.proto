@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package rpc;
 
-import "rpc/base.proto";
+import "base.proto";
 
 option java_package = "com.github.paopaoyue.mesh.dictionary_application.proto";
 option java_outer_classname = "Dictionary";

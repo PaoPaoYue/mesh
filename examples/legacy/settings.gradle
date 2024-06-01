@@ -1,7 +1,5 @@
-rootProject.name = 'mesh'
+rootProject.name = 'legacy'
 
-include 'rpc'
-include 'rpc-generator'
 include 'grpc-test'
 include 'dictionary-application'
 include 'canvas-application'
