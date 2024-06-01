@@ -31,7 +31,7 @@ public class ${info.serviceClass}ServerStub implements IServerStub {
             switch (context.getHandler()) {
             <#list info.methodMap?keys as key>
                 case "${key}" ->
-                    responseBody = Any.pack(service.translate(packet.getBody().unpack(${info.protoObject}.${info.methodMap[key].input.structName}.class)));
+                    responseBody = Any.pack(service.${info.methodMap[key].methodName}(packet.getBody().unpack(${info.protoObject}.${info.methodMap[key].input.structName}.class)));
             </#list>
                 default -> throw new HandlerNotFoundException(context.getService(), context.getHandler());
             }

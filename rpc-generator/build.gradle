@@ -6,7 +6,9 @@ plugins {
 group = 'com.github.paopaoyue'
 version = '0.0.1'
 
-mainClassName = 'com.github.paopaoyue.mesh.rpc_generator.Application'
+application {
+    mainClass = 'com.github.paopaoyue.mesh.rpc_generator.Application'
+}
 
 java {
     sourceCompatibility = '21'

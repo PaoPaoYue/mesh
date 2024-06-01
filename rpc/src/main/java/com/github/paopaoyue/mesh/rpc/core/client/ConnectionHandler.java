@@ -1,7 +1,7 @@
 package com.github.paopaoyue.mesh.rpc.core.client;
 
+import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.config.Properties;
-import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.exception.ServiceUnavailableException;
 import com.github.paopaoyue.mesh.rpc.exception.TimeoutException;
 import com.github.paopaoyue.mesh.rpc.exception.TransportErrorException;
@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -51,10 +52,12 @@ public class ConnectionHandler {
     private LinkedBlockingQueue<Waiter> writeQueue;
     private Map<Long, Waiter> requestWaiterMap;
     private volatile Status status;
+    private AtomicLong lastAccessTime;
 
     public ConnectionHandler(Reactor reactor, boolean keepAlive, String serviceName, String tag, SelectionKey key) {
         Properties prop = RpcAutoConfiguration.getProp();
 
+        this.lastAccessTime = new AtomicLong(java.lang.System.currentTimeMillis());
         this.status = Status.IDLE;
         this.bufferLen = prop.getPacketMaxSize();
         this.readBuffer = new ModeByteBuffer(bufferLen);
@@ -69,10 +72,6 @@ public class ConnectionHandler {
         this.key = key;
         this.socketChannel = (SocketChannel) key.channel();
         this.reactor = reactor;
-
-        if (keepAlive) {
-            RpcAutoConfiguration.getRpcClient().getReactor().addConnection(serviceName, tag, this);
-        }
     }
 
     // not thread safe, run only in single thread
@@ -245,9 +244,29 @@ public class ConnectionHandler {
         }
     }
 
+    public boolean updateAndCheckIdleTimeout() {
+        long currentTime = java.lang.System.currentTimeMillis();
+        long lastTime = this.lastAccessTime.getAndSet(currentTime);
+        if (currentTime - lastTime > RpcAutoConfiguration.getProp().getKeepAliveIdleTimeout() * 1000L) {
+            logger.debug("trying to send on {} but idle timeout, create new connection instead", this);
+            this.stop();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean checkIdleTimeout() {
+        long currentTime = java.lang.System.currentTimeMillis();
+        if (currentTime - lastAccessTime.get() > RpcAutoConfiguration.getProp().getKeepAliveIdleTimeout() * 1000L) {
+            logger.debug("{} idle timeout with {} ms, closing connection", this, currentTime - lastAccessTime.get());
+            this.stop();
+            return true;
+        }
+        return false;
+    }
+
     public void stop() {
         if (this.status != Status.TERMINATING) {
-            if (keepAlive) RpcAutoConfiguration.getRpcClient().getReactor().removeConnection(serviceName, tag);
             this.status = Status.TERMINATING;
             Context context = Context.getContext();
             Waiter waiter = sendPacket(Protocol.Packet.newBuilder()
@@ -273,7 +292,6 @@ public class ConnectionHandler {
     }
 
     public void stopNow(Exception error) {
-        if (keepAlive) RpcAutoConfiguration.getRpcClient().getReactor().removeConnection(serviceName, tag);
         this.status = Status.TERMINATING;
         try {
             for (Waiter waiter : requestWaiterMap.values()) {

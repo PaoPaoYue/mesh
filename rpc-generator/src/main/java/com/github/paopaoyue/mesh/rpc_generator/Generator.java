@@ -28,7 +28,8 @@ public class Generator {
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 
         generateFile(cfg.getTemplate("build.gradle.ftl"), Path.of(getRootDirectory() + "build.gradle"), root, false);
-        generateFile(cfg.getTemplate("settings.gradle.ftl"), Path.of(getRootDirectory() + "settings.gradle"), root, false);
+        if (inputInfo.module.isEmpty())
+            generateFile(cfg.getTemplate("settings.gradle.ftl"), Path.of(getRootDirectory() + "settings.gradle"), root, false);
         generateFile(cfg.getTemplate("Application.ftl"), Path.of(getRootCodeDirectory() + convertSnakeToCamel(inputInfo.serviceAlias) + "Application.java"), root, false);
         generateFile(cfg.getTemplate("ApplicationTests.ftl"), Path.of(getRootTestDirectory() + convertSnakeToCamel(inputInfo.serviceAlias) + "ApplicationTests.java"), root, false);
         generateFile(cfg.getTemplate("application.properties.ftl"), Path.of(getResourceDirectory() + "application.properties"), root, false);
@@ -87,6 +88,7 @@ public class Generator {
         out.write(inputInfo.module.isEmpty() ? inputInfo.group + "." + convertModuleName(inputInfo.project) : inputInfo.group + "." + convertModuleName(inputInfo.project) + "." + convertModuleName(inputInfo.module) + ".config.AutoConfiguration\n");
         out.flush();
         out.close();
+        System.out.println("File written: " + path);
     }
 
     private void generateFile(Template template, Path path, Object root, boolean override) throws IOException {

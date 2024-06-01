@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import java.net.URL?>
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.github.paopaoyue.mesh.canvas_application.controller.CanvasController">
+    <left>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Text text="User List"/>
+            <ListView fx:id="userListView" prefWidth="260" prefHeight="150.0" focusTraversable="false"/>
+            <Text text="Chat"/>
+            <VBox prefWidth="260" spacing="10.0">
+                <ListView fx:id="chatListView" prefWidth="260" focusTraversable="false"/>
+                <HBox prefWidth="260" spacing="10">
+                    <TextField fx:id="messageTextField" prefWidth="190" promptText="Type your message..."/>
+                    <Button text="Send" prefWidth="60" onAction="#sendTextMessage"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </left>
+    <center>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Text text="Canvas"/>
+            <StackPane styleClass="canvas-container">
+                <Canvas fx:id="persistentCanvas" width="600" height="600"/>
+                <Canvas fx:id="stageCanvas" width="600" height="600"/>
+                <Canvas fx:id="drawingCanvas" width="600" height="600"/>
+            </StackPane>
+        </VBox>
+    </center>
+    <right>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Text text="Tools"/>
+            <Button fx:id="colorPickerButton" text="Color Picker" onAction="#showColorDialog"
+                    styleClass="tool-button">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <Image url="@/image/color.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button fx:id="lineWidthButton" text="Stroke Adjustment" onAction="#showLineWidthDialog"
+                    styleClass="tool-button">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <Image url="@/image/stroke.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Separator prefHeight="10" prefWidth="30"/>
+            <ToggleButton fx:id="penToggleButton" text="Pen" onAction="#selectTool"
+                          styleClass="tool-button">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <Image url="@/image/draw.png"/>
+                    </ImageView>
+                </graphic>
+            </ToggleButton>
+            <ToggleButton fx:id="eraserToggleButton" text="Eraser" onAction="#selectTool"
+                          styleClass="tool-button">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <Image url="@/image/eraser.png"/>
+                    </ImageView>
+                </graphic>
+            </ToggleButton>
+            <ToggleButton fx:id="lineToggleButton" text="Line" onAction="#selectTool"
+                          styleClass="tool-button">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <Image url="@/image/line.png"/>
+                    </ImageView>
+                </graphic>
+            </ToggleButton>
+            <ToggleButton fx:id="rectangleToggleButton" text="Rectangle"
+                          onAction="#selectTool"
+                          styleClass="tool-button">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <Image url="@/image/square.png"/>
+                    </ImageView>
+                </graphic>
+            </ToggleButton>
+            <ToggleButton fx:id="ovalToggleButton" text="Oval" onAction="#selectTool"
+                          styleClass="tool-button">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <Image url="@/image/oval.png"/>
+                    </ImageView>
+                </graphic>
+            </ToggleButton>
+            <ToggleButton fx:id="circleToggleButton" text="Circle" onAction="#selectTool"
+                          styleClass="tool-button">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <Image url="@/image/circle.png"/>
+                    </ImageView>
+                </graphic>
+            </ToggleButton>
+            <ToggleButton fx:id="textToggleButton" text="Text" onAction="#selectTool"
+                          styleClass="tool-button">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <Image url="@/image/text.png"/>
+                    </ImageView>
+                </graphic>
+            </ToggleButton>
+            <Separator prefHeight="10" prefWidth="30"/>
+            <Button fx:id="saveButton" styleClass="tool-button" onAction="#saveCanvas">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <Image url="@/image/save.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button fx:id="saveAsButton" styleClass="tool-button" onAction="#saveCanvasAs">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <Image url="@/image/save_as.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button fx:id="importButton" styleClass="tool-button" onAction="#importCanvas">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <Image url="@/image/open.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button fx:id="resetButton" styleClass="tool-button" onAction="#resetCanvas">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <Image url="@/image/new.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button fx:id="exitButton" styleClass="tool-button" onAction="#showLogoutDialog">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <Image url="@/image/exit.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+        </VBox>
+    </right>
+    <stylesheets>
+        <URL value="@styles.css"/>
+    </stylesheets>
+</BorderPane>

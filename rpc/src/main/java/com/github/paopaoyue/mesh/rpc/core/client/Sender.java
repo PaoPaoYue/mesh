@@ -1,9 +1,10 @@
 package com.github.paopaoyue.mesh.rpc.core.client;
 
+import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.api.CallOption;
-import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.exception.TimeoutException;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
+import com.github.paopaoyue.mesh.rpc.util.Flag;
 
 import java.time.Duration;
 import java.util.concurrent.locks.Lock;
@@ -34,18 +35,7 @@ public class Sender {
 
             ConnectionHandler connectionHandler = null;
             if (option.isKeepAlive()) {
-                connectionHandler = reactor.getConnection(serviceName, option.getConnectionTag());
-                if (connectionHandler == null) {
-                    lock.lock();
-                    try {
-                        connectionHandler = reactor.getConnection(serviceName, option.getConnectionTag());
-                        if (connectionHandler == null) {
-                            connectionHandler = reactor.createConnection(option.isKeepAlive(), serviceName, option.getConnectionTag());
-                        }
-                    } finally {
-                        lock.unlock();
-                    }
-                }
+                connectionHandler = reactor.getOrCreateConnection(serviceName, option.getConnectionTag(), (packet.getHeader().getFlag() & Flag.SYSTEM_CALL) != 0);
             } else {
                 connectionHandler = reactor.createConnection(option.isKeepAlive(), serviceName, option.getConnectionTag());
             }

@@ -20,6 +20,10 @@ jar {
     archiveClassifier = ''
 }
 
+test {
+    useJUnitPlatform()
+}
+
 repositories {
     mavenCentral()
 }
@@ -32,13 +36,9 @@ dependencyManagement {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.springframework.boot:spring-boot-starter-validation:3.2.3'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     implementation 'com.google.protobuf:protobuf-java:4.26.0'
     implementation 'org.awaitility:awaitility:4.2.1'
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.compilerArgs.add("-parameters")
 }

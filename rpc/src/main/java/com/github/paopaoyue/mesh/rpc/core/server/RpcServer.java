@@ -1,7 +1,7 @@
 package com.github.paopaoyue.mesh.rpc.core.server;
 
+import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.config.Properties;
-import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.stub.IServerStub;
 import com.github.paopaoyue.mesh.rpc.stub.SystemServerStub;
 import jakarta.annotation.PostConstruct;
@@ -22,7 +22,7 @@ public class RpcServer {
     private SubReactor[] subReactors;
     private Acceptor acceptor;
     private ExecutorService threadPool;
-    private Timer timer;
+    private Sentinel sentinel;
 
     public RpcServer(IServerStub serviceStub) {
         Properties prop = RpcAutoConfiguration.getProp();
@@ -34,8 +34,8 @@ public class RpcServer {
         for (int i = 0; i < subReactors.length; i++) {
             this.subReactors[i] = new SubReactor();
         }
-        this.acceptor = new Acceptor(this.subReactors);
-        this.timer = new Timer();
+        this.sentinel = new Sentinel();
+        this.acceptor = new Acceptor(this.subReactors, this.sentinel);
 
         this.threadPool = new ThreadPoolExecutor(1 + prop.getServerNetworkThreads() + prop.getServerWorkerThreads(),
                 prop.getServerWorkerThreads() != 0 ? 1 + prop.getServerNetworkThreads() + prop.getServerWorkerThreads() : Integer.MAX_VALUE, // main reactor + sub reactors + worker threads
@@ -60,7 +60,7 @@ public class RpcServer {
         for (SubReactor subReactor : subReactors) {
             threadPool.execute(subReactor);
         }
-        timer.scheduleAtFixedRate(new Sentinel(), prop.getKeepAliveInterval() * 1000L, prop.getKeepAliveInterval() * 1000L);
+        new Timer().scheduleAtFixedRate(sentinel, prop.getKeepAliveInterval() * 1000L, prop.getKeepAliveInterval() * 1000L);
         logger.info("Rpc server up!!!");
     }
 

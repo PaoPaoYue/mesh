@@ -1,7 +1,7 @@
 package ${info.rootPackage}.stub;
 
 import com.github.paopaoyue.mesh.rpc.api.CallOption;
-import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
+import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
 import com.github.paopaoyue.mesh.rpc.stub.IClientStub;
 import com.github.paopaoyue.mesh.rpc.stub.ServiceClientStub;

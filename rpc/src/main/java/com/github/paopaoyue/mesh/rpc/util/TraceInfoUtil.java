@@ -1,6 +1,6 @@
 package com.github.paopaoyue.mesh.rpc.util;
 
-import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
+import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.config.ServiceProperties;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
 

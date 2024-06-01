@@ -1,0 +1,165 @@
+syntax = "proto3";
+
+package rpc;
+
+import "rpc/base.proto";
+
+option java_package = "com.github.paopaoyue.mesh.canvas_application.proto";
+option java_outer_classname = "CanvasProto";
+
+message User {
+  string userId = 1;
+  string username = 2;
+  bool isHost = 3;
+}
+
+message TextMessage {
+  string userId = 1;
+  int64 timestamp = 2;
+  string message = 3;
+}
+
+message CanvasPosition {
+  double x = 1;
+  double y = 2;
+}
+
+message CanvasColor {
+  double r = 1;
+  double g = 2;
+  double b = 3;
+}
+
+message CanvasItem {
+  oneof item {
+    CanvasDraw draw = 1;
+    CanvasEraser eraser = 2;
+    CanvasLine line = 3;
+    CanvasRect rect = 4;
+    CanvasOval oval = 5;
+    CanvasCircle circle = 6;
+    CanvasText text = 7;
+  }
+}
+
+message CanvasDraw {
+  repeated CanvasPosition positions = 1;
+  CanvasColor color = 2;
+  double width = 3;
+}
+
+message CanvasEraser {
+  repeated CanvasPosition positions = 1;
+  double width = 2;
+}
+
+message CanvasLine {
+  CanvasPosition start = 1;
+  CanvasPosition end = 2;
+  CanvasColor color = 3;
+  double width = 4;
+}
+
+message CanvasRect {
+  CanvasPosition start = 1;
+  CanvasPosition end = 2;
+  CanvasColor color = 3;
+}
+
+message CanvasOval {
+  CanvasPosition start = 1;
+  CanvasPosition end = 2;
+  CanvasColor color = 3;
+}
+
+message CanvasCircle {
+  CanvasPosition pos = 1;
+  double radius = 2;
+  CanvasColor color = 3;
+}
+
+message CanvasText {
+  CanvasPosition pos = 1;
+  string text = 2;
+  CanvasColor color = 3;
+  double fontSize = 4;
+}
+
+message LoginRequest {
+  string username = 1;
+
+  bool isHost = 11;
+}
+
+message LoginResponse {
+  string userId = 1; // generated userId of the client
+  string username = 2;
+
+  RespBase base = 255;
+}
+
+message SyncRequest {
+  string userId = 1; // userId of the client
+  int64 syncId = 2;  // mark the sync position of the client
+
+  repeated CanvasItem items = 51; // items that the client has staged to sync
+  optional CanvasItem transientItem = 52; // item that the client is editing
+
+  bool reset = 101; // reset all client's data -- only host
+  bool terminate = 102; // terminate all client -- only host
+}
+
+message SyncResponse {
+  string userId = 1; // userId of the client
+  int64 syncId = 2;  // mark the next sync position of the client
+
+  repeated User users = 11; // all users in the room
+
+  repeated TextMessage textMessages = 21; // all text messages in the room
+
+  repeated CanvasItem items = 51; // new items that the client should sync
+  map<string, CanvasItem> transientItemMap = 52; // the live editing items of all clients
+
+  bool reset = 101; // whether to reset the client's data
+  bool terminate = 102; // whether to terminate the client
+
+  RespBase base = 255;
+}
+
+message SendTextMessageRequest {
+  string userId = 1;
+  string message = 2;
+}
+
+message SendTextMessageResponse {
+  string userId = 1;
+
+  RespBase base = 255;
+}
+
+message KickUserRequest {
+  string userId = 1;
+  string targetUserId = 2;
+}
+
+message KickUserResponse {
+  string userId = 1;
+
+  RespBase base = 255;
+}
+
+enum ServiceStatusCode {
+  SERVICE_OK = 0;
+
+  USER_NOT_FOUND = 120001;
+  USER_NAME_DUPLICATE = 120011;
+  USER_BLOCKED = 120041;
+  USER_NO_PERMISSION = 120042;
+}
+
+service DictionaryService {
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc Sync(SyncRequest) returns (SyncResponse);
+  rpc SendTextMessage(SendTextMessageRequest) returns (SendTextMessageResponse);
+  rpc KickUser(KickUserRequest) returns (KickUserResponse);
+}

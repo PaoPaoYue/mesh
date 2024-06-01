@@ -1,6 +1,6 @@
 package com.github.paopaoyue.mesh.rpc.core.server;
 
-import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
+import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,13 +28,8 @@ public class Sentinel extends TimerTask {
             cancel();
             return;
         }
-        for (ConnectionHandler connectionHandler : connectionHandlers) {
-            if (connectionHandler.getStatus() == ConnectionHandler.Status.TERMINATING || connectionHandler.getStatus() == ConnectionHandler.Status.TERMINATED) {
-                this.connectionHandlers.remove(connectionHandler);
-            } else if (!connectionHandler.checkAlive()) {
-                connectionHandler.stopNow();
-                this.connectionHandlers.remove(connectionHandler);
-            }
-        }
+        connectionHandlers.removeIf(connectionHandler -> connectionHandler.getStatus() == ConnectionHandler.Status.TERMINATING ||
+                connectionHandler.getStatus() == ConnectionHandler.Status.TERMINATED ||
+                connectionHandler.checkKeepAliveTimeout());
     }
 }
