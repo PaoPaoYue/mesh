@@ -36,10 +36,10 @@ public class Properties {
     private int keepAliveTimeout = 6;
     @Range(min = 1, max = 3)
     private int keepAliveInterval = 2;
-    // unsupported right now, need to send go away packet from server to client
-    // TODO: need to implement this go away packet -- high priority
     @Range(min = 10, max = 60)
     private int keepAliveIdleTimeout = 10;
+    @Range(min = 1, max = 3)
+    private int keepAliveHeartbeatTimeout = 1;
 
     public boolean isServerEnabled() {
         return serverEnabled;
@@ -145,22 +145,41 @@ public class Properties {
         this.keepAliveIdleTimeout = keepAliveIdleTimeout;
     }
 
+    public int getKeepAliveHeartbeatTimeout() {
+        return keepAliveHeartbeatTimeout;
+    }
+
+    public void setKeepAliveHeartbeatTimeout(int keepAliveHeartbeatTimeout) {
+        this.keepAliveHeartbeatTimeout = keepAliveHeartbeatTimeout;
+    }
+
     @Override
     public String toString() {
-        return "Properties{" +
-                "serverEnabled=" + serverEnabled +
-                ", serverService=" + serverService +
-                ", serverNetworkThreads=" + serverNetworkThreads +
-                ", serverWorkerThreads=" + serverWorkerThreads +
-                ", serverWorkerKeepAliveTimeout=" + serverWorkerKeepAliveTimeout +
-                ", serverShutDownTimeout=" + serverShutDownTimeout +
-                ", clientEnabled=" + clientEnabled +
-                ", clientServices=" + Arrays.toString(clientServices.stream().map(ServiceProperties::toString).toArray()) +
-                ", clientShutDownTimeout=" + clientShutDownTimeout +
-                ", packetMaxSize=" + packetMaxSize +
-                ", keepAliveTimeout=" + keepAliveTimeout +
-                ", keepAliveInterval=" + keepAliveInterval +
-                ", keepAliveIdleTimeout=" + keepAliveIdleTimeout +
-                '}';
+        StringBuilder sb = new StringBuilder();
+        if (serverEnabled) {
+            sb.append(", serverService=").append(serverService);
+            sb.append(", serverNetworkThreads=").append(serverNetworkThreads);
+            sb.append(", serverWorkerThreads=").append(serverWorkerThreads);
+            sb.append(", serverWorkerKeepAliveTimeout=").append(serverWorkerKeepAliveTimeout);
+            sb.append(", serverShutDownTimeout=").append(serverShutDownTimeout);
+        } else {
+            sb.append(", serverEnabled=false");
+        }
+        if (clientEnabled) {
+            sb.append(", clientServices=").append(Arrays.toString(clientServices.stream().map(ServiceProperties::toString).toArray()));
+            sb.append(", clientShutDownTimeout=").append(clientShutDownTimeout);
+        } else {
+            sb.append(", clientEnabled=false");
+        }
+        if (clientEnabled || serverEnabled) {
+            sb.append(", packetMaxSize=").append(packetMaxSize);
+            sb.append(", keepAliveTimeout=").append(keepAliveTimeout);
+            sb.append(", keepAliveInterval=").append(keepAliveInterval);
+            sb.append(", keepAliveIdleTimeout=").append(keepAliveIdleTimeout);
+            sb.append(", keepAliveHeartbeatTimeout=").append(keepAliveHeartbeatTimeout);
+        } else {
+            return "Properties{serverEnabled=false, clientEnabled=false}";
+        }
+        return "Properties{" + sb.substring(2) + '}';
     }
 }

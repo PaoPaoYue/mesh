@@ -1,8 +1,8 @@
 package com.github.paopaoyue.mesh.rpc.core.server;
 
 
+import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.config.Properties;
-import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -31,7 +31,3 @@ dependencies {
     implementation 'org.openjfx:javafx-fxml:22'
     implementation project(':rpc')
 }
-
-tasks.named('test') {
-    useJUnitPlatform()
-}

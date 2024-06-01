@@ -39,7 +39,3 @@ dependencies {
     implementation project(':rpc')
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
-}
-

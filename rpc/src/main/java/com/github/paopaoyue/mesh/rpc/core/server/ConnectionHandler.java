@@ -1,7 +1,7 @@
 package com.github.paopaoyue.mesh.rpc.core.server;
 
+import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.config.Properties;
-import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.exception.HandlerException;
 import com.github.paopaoyue.mesh.rpc.exception.HandlerNotFoundException;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
@@ -38,7 +38,7 @@ public class ConnectionHandler {
     private ModeByteBuffer writeBuffer;
     private LinkedBlockingQueue<Protocol.Packet> writeQueue;
     private volatile Status status;
-    private long lastActiveTime;
+    private volatile long lastActiveTime;
     private AtomicInteger activeWorkerNum;
 
     public ConnectionHandler(SubReactor reactor, SelectionKey key) {
@@ -206,15 +206,17 @@ public class ConnectionHandler {
         }
     }
 
-    // not thread safe, called by other thread only when the connection is idle for a long time
-    public boolean checkAlive() {
+    // not thread safe, called by other thread can result in interrupting processing thread
+    // called only when the connection is idle for a long time
+    public boolean checkKeepAliveTimeout() {
         int keepAliveTimeout = RpcAutoConfiguration.getProp().getKeepAliveTimeout();
         long current = System.currentTimeMillis();
-        if (this.status == Status.IDLE && current - lastActiveTime > keepAliveTimeout) {
+        if (this.status == Status.IDLE && current - lastActiveTime > keepAliveTimeout * 1000L) {
             logger.warn("{} inactive for {} ms, closing connection", this, current - lastActiveTime);
-            return false;
+            this.stopNow();
+            return true;
         }
-        return true;
+        return false;
     }
 
     public void stop() {

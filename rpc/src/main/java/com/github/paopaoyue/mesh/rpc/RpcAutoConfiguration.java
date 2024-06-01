@@ -1,6 +1,8 @@
-package com.github.paopaoyue.mesh.rpc.config;
+package com.github.paopaoyue.mesh.rpc;
 
 import com.github.paopaoyue.mesh.rpc.api.RpcCaller;
+import com.github.paopaoyue.mesh.rpc.config.Properties;
+import com.github.paopaoyue.mesh.rpc.config.ServiceProperties;
 import com.github.paopaoyue.mesh.rpc.core.client.RpcClient;
 import com.github.paopaoyue.mesh.rpc.core.server.RpcServer;
 import com.github.paopaoyue.mesh.rpc.service.MockRpcService;
@@ -15,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanInitializationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -25,12 +26,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Order(2)
 @AutoConfigureOrder(Ordered.LOWEST_PRECEDENCE)
 @Configuration
 @ComponentScan(basePackages = "com.github.paopaoyue.mesh")
@@ -43,13 +46,12 @@ public class RpcAutoConfiguration implements ApplicationContextAware {
     private static RpcServer rpcServer;
     private static RpcClient rpcClient;
 
-    public static Properties getProp() {
-        return prop;
+    public RpcAutoConfiguration(Properties prop) {
+        RpcAutoConfiguration.prop = prop;
     }
 
-    @Autowired
-    public void setProp(Properties prop) {
-        RpcAutoConfiguration.prop = prop;
+    public static Properties getProp() {
+        return prop;
     }
 
     public static RpcServer getRpcServer() {
@@ -67,7 +69,7 @@ public class RpcAutoConfiguration implements ApplicationContextAware {
 
     @PostConstruct
     public void afterConstruct() {
-        logger.info("rpc framework starts with properties:" + prop.toString());
+        logger.info("rpc framework starts with properties:{}", prop.toString());
         context.getBeansWithAnnotation(ServiceServerStub.class).values().forEach(this::injectRpcService);
         context.getBeansWithAnnotation(RpcCaller.class).values().forEach(this::injectRpcStub);
     }

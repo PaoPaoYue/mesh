@@ -1,31 +1,27 @@
-package ${info.rootPackage}.stub;
+package com.github.paopaoyue.mesh.rpc.stub;
 
-import com.github.paopaoyue.mesh.rpc.api.CallOption;
 import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
+import com.github.paopaoyue.mesh.rpc.api.CallOption;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
-import com.github.paopaoyue.mesh.rpc.stub.IClientStub;
-import com.github.paopaoyue.mesh.rpc.stub.ServiceClientStub;
+import com.github.paopaoyue.mesh.rpc.proto.RpcTest;
 import com.github.paopaoyue.mesh.rpc.util.Context;
 import com.github.paopaoyue.mesh.rpc.util.Flag;
 import com.github.paopaoyue.mesh.rpc.util.RespBaseUtil;
 import com.github.paopaoyue.mesh.rpc.util.TraceInfoUtil;
-import ${info.rootPackage}.proto.${info.protoObject};
 import com.google.protobuf.Any;
 import com.google.protobuf.GeneratedMessage;
 
-@ServiceClientStub(serviceName = "${info.service}")
-public class ${info.serviceClass}ClientStub implements IClientStub {
+@ServiceClientStub(serviceName = "test")
+public class TestClientStub implements IClientStub {
 
-    private static final String SERVICE_NAME = "${info.service}";
+    private static final String SERVICE_NAME = "test";
 
     public <RESP extends GeneratedMessage, REQ extends GeneratedMessage> RESP process(Class<RESP> respClass, REQ request, CallOption option) {
         Context context = Context.getContext();
 
         String handlerName =
                 switch (request.getClass().getSimpleName()) {
-                <#list info.methodMap?keys as key>
-                    case "${info.methodMap[key].input.structName}" -> "${key}";
-                </#list>
+                    case "EchoRequest" -> "echo";
                     default ->
                             throw new IllegalArgumentException("Invalid request type: " + request.getClass().getSimpleName());
                 };
@@ -46,10 +42,8 @@ public class ${info.serviceClass}ClientStub implements IClientStub {
             return respClass.cast(RpcAutoConfiguration.getRpcClient().getSender().send(packet, option).getBody().unpack(respClass));
         } catch (Exception e) {
             return switch (handlerName) {
-            <#list info.methodMap?keys as key>
-                case "${key}" ->
-                        respClass.cast(${info.protoObject}.${info.methodMap[key].output.structName}.newBuilder().setBase(RespBaseUtil.ErrorRespBase(e)).build());
-            </#list>
+                case "echo" ->
+                        respClass.cast(RpcTest.EchoResponse.newBuilder().setBase(RespBaseUtil.ErrorRespBase(e)).build());
                 default ->
                         throw new IllegalArgumentException("Invalid request type: " + request.getClass().getSimpleName());
             };

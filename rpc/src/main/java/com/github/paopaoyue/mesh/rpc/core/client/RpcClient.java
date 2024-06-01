@@ -1,7 +1,7 @@
 package com.github.paopaoyue.mesh.rpc.core.client;
 
+import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.config.Properties;
-import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.config.ServiceProperties;
 import com.github.paopaoyue.mesh.rpc.stub.SystemClientStub;
 import jakarta.annotation.PostConstruct;
@@ -25,7 +25,7 @@ public class RpcClient {
     private CountDownLatch latch;
     private Reactor reactor;
     private Sender sender;
-    private Timer timer;
+    private Sentinel sentinel;
 
     public RpcClient() {
         Properties prop = RpcAutoConfiguration.getProp();
@@ -35,8 +35,7 @@ public class RpcClient {
 
         this.reactor = new Reactor(latch);
         this.sender = new Sender(reactor);
-
-        this.timer = new Timer();
+        this.sentinel = new Sentinel();
 
         this.servicePropMap = prop.getClientServices().stream().collect(Collectors.toMap(ServiceProperties::getName, s -> s));
         this.systemStub = new SystemClientStub();
@@ -49,7 +48,7 @@ public class RpcClient {
 
         status = Status.RUNNING;
         new Thread(reactor).start();
-        timer.scheduleAtFixedRate(new Sentinel(), prop.getKeepAliveInterval() * 1000L, prop.getKeepAliveInterval() * 1000L);
+        new Timer().scheduleAtFixedRate(sentinel, prop.getKeepAliveInterval() * 1000L, prop.getKeepAliveInterval() * 1000L);
         logger.info("Rpc client up!!!");
     }
 

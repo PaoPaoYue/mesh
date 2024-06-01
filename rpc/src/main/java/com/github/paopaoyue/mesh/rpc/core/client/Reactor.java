@@ -1,6 +1,6 @@
 package com.github.paopaoyue.mesh.rpc.core.client;
 
-import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
+import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.config.ServiceProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 public class Reactor implements Runnable {
@@ -25,11 +27,13 @@ public class Reactor implements Runnable {
     private CountDownLatch latch;
     private Selector selector;
     private Map<String, ConnectionHandler> connectionPool;
+    private Lock lock;
 
     public Reactor(CountDownLatch latch) {
         this.serviceLookupTable = RpcAutoConfiguration.getProp().getClientServices().stream().collect(Collectors.toMap(ServiceProperties::getName, prop -> prop));
         this.latch = latch;
         this.connectionPool = new ConcurrentHashMap<>();
+        this.lock = new ReentrantLock();
     }
 
     private static String getKeyForConnection(String serviceName, String tag) {
@@ -113,6 +117,34 @@ public class Reactor implements Runnable {
         return null;
     }
 
+    public ConnectionHandler getOrCreateConnection(String serviceName, String tag, boolean isSystem) {
+        String key = getKeyForConnection(serviceName, tag);
+        ConnectionHandler connectionHandler = connectionPool.get(key);
+        if (connectionHandler == null ||
+                connectionHandler.getStatus() == ConnectionHandler.Status.TERMINATED ||
+                connectionHandler.getStatus() == ConnectionHandler.Status.TERMINATING ||
+                (!isSystem && connectionHandler.updateAndCheckIdleTimeout())) {
+            lock.lock();
+            try {
+                connectionHandler = connectionPool.get(key);
+                if (connectionHandler == null) {
+                    connectionHandler = createConnection(true, serviceName, tag);
+                    connectionPool.put(key, connectionHandler);
+                } else if (connectionHandler.getStatus() == ConnectionHandler.Status.TERMINATING ||
+                        connectionHandler.getStatus() == ConnectionHandler.Status.TERMINATED ||
+                        (!isSystem && connectionHandler.updateAndCheckIdleTimeout())) {
+                    // lazy remove and recreate
+                    connectionPool.remove(key);
+                    connectionHandler = createConnection(true, serviceName, tag);
+                    connectionPool.put(key, connectionHandler);
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
+        return connectionHandler;
+    }
+
     public void shutdown() {
         for (SelectionKey key : selector.keys()) {
             ConnectionHandler connectionHandler = (ConnectionHandler) key.attachment();
@@ -127,18 +159,6 @@ public class Reactor implements Runnable {
 
     public Map<String, ConnectionHandler> getConnectionPool() {
         return connectionPool;
-    }
-
-    public void addConnection(String serviceName, String tag, ConnectionHandler connectionHandler) {
-        connectionPool.put(getKeyForConnection(serviceName, tag), connectionHandler);
-    }
-
-    public ConnectionHandler getConnection(String serviceName, String tag) {
-        return connectionPool.get(getKeyForConnection(serviceName, tag));
-    }
-
-    public void removeConnection(String serviceName, String tag) {
-        connectionPool.remove(getKeyForConnection(serviceName, tag));
     }
 
 }

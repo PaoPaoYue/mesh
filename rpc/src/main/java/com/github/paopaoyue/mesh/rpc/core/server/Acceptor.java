@@ -8,8 +8,11 @@ public class Acceptor {
 
     private SubReactor[] subReactors;
 
-    public Acceptor(SubReactor[] subReactors) {
+    private Sentinel sentinel;
+
+    public Acceptor(SubReactor[] subReactors, Sentinel sentinel) {
         this.subReactors = subReactors;
+        this.sentinel = sentinel;
     }
 
     public void accept(SocketChannel channel) {
@@ -17,7 +20,8 @@ public class Acceptor {
         // Frequency estimated via the active listening keys
         SubReactor lfu_subReactor = Arrays.stream(subReactors).reduce((a, b) -> a.getSelector().keys().size() < b.getSelector().keys().size() ? a : b).orElse(null);
         if (lfu_subReactor != null) {
-            lfu_subReactor.dispatch(channel);
+            ConnectionHandler connectionHandler = lfu_subReactor.dispatch(channel);
+            sentinel.watch(connectionHandler);
         }
     }
 }

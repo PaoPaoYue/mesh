@@ -1,7 +1,8 @@
 package com.github.paopaoyue.mesh.canvas_application.stub;
 
+import com.github.paopaoyue.mesh.canvas_application.proto.CanvasProto;
+import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.api.CallOption;
-import com.github.paopaoyue.mesh.rpc.config.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
 import com.github.paopaoyue.mesh.rpc.stub.IClientStub;
 import com.github.paopaoyue.mesh.rpc.stub.ServiceClientStub;
@@ -9,7 +10,6 @@ import com.github.paopaoyue.mesh.rpc.util.Context;
 import com.github.paopaoyue.mesh.rpc.util.Flag;
 import com.github.paopaoyue.mesh.rpc.util.RespBaseUtil;
 import com.github.paopaoyue.mesh.rpc.util.TraceInfoUtil;
-import com.github.paopaoyue.mesh.canvas_application.proto.CanvasProto;
 import com.google.protobuf.Any;
 import com.google.protobuf.GeneratedMessage;
 
