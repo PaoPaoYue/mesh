@@ -95,7 +95,7 @@ mesh.rpc.client-services[0].port=8080
 ## Mock Test
 The framework has provided `@MockRpcService` and `@MockRpcCaller` annotations so that the user can use Mockito library to mock the service as well as the caller in their unit-test or integration test.
 ```Java
-@SpringBootTest(classes = DemoApplication.class)
+@SpringBootTest
 class DemoApplicationTests {
 
     @Autowired
@@ -104,17 +104,20 @@ class DemoApplicationTests {
     @Test
     void MockTest() {
         var response = demoCaller.echo(DemoProto.EchoRequest.newBuilder().setText("hello world").build(), new CallOption());
-        assertThat(response.getText()).isEqualTo("hello world");
+        assertThat(response.getText()).isEqualTo("noop!");
     }
 
     @TestConfiguration
     public static class TestConfig {
-        @MockRpcService(serviceName = "dictionary-application")
+
+        ApplicationContext context;
+
+        @MockRpcService(serviceName = "demo-service")
         public IDemoService mockDemoService() {
             IDemoService service = mock(DemoService.class);
             when(service.echo(any())).thenAnswer(invocation -> {
                 DemoProto.EchoRequest request = invocation.getArgument(0);
-                return DemoProto.EchoResponse.newBuilder().setText(request.getText()).build();
+                return DemoProto.EchoResponse.newBuilder().setText("noop!").build();
             });
             return service;
         }
