@@ -1,4 +1,3 @@
 rootProject.name = 'framework'
 
 include 'rpc'
-include 'rpc-generator'
