@@ -1,6 +1,6 @@
 # YPP-RPC
-
-> ypp-rpc is a lightweight RPC framework based on Springboot implemented with native Java socket interface.
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.paopaoyue/ypp-rpc.svg)](https://search.maven.org/artifact/io.github.paopaoyue/ypp-rpc) </br>
+YPP-RPC is a lightweight RPC framework based on Springboot implemented with native Java socket interface.
 
 ## Features
 
