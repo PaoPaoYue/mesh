@@ -1,0 +1,105 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.0' apply false
+    id 'io.spring.dependency-management' version '1.1.5'
+    id 'com.google.protobuf' version '0.9.4'
+    id 'maven-publish'
+    id 'org.jreleaser' version '1.12.0'
+}
+
+group = 'com.github.paopaoyue'
+version = '0.0.3'
+
+java {
+    sourceCompatibility = '21'
+    withJavadocJar()
+    withSourcesJar()
+}
+
+test {
+    useJUnitPlatform()
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom SpringBootPlugin.BOM_COORDINATES
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    implementation 'com.google.protobuf:protobuf-java:4.26.0'
+    implementation 'org.awaitility:awaitility:4.2.1'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'io.github.paopaoyue'
+            artifactId = 'ypp-rpc'
+
+            from components.java
+
+            pom {
+                name = 'ypp-rpc'
+                description = 'A lightweight RPC framework'
+                url = 'https://github.com/PaoPaoYue/mesh'
+                inceptionYear = '2024'
+                licenses {
+                    license {
+                        name = 'Apache-2.0'
+                        url = 'https://spdx.org/licenses/Apache-2.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'PaoPaoYue'
+                        name = 'Yue Peng'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/PaoPaoYue/mesh.git'
+                    developerConnection = 'scm:git:ssh://github.com/PaoPaoYue/mesh.git'
+                    url = 'http://github.com/PaoPaoYue/mesh'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir('staging-deploy')
+        }
+    }
+}
+
+jreleaser {
+    configurations {
+        gitRootSearch = true
+    }
+    signing {
+        active = 'ALWAYS'
+        armored = true
+    }
+    deploy {
+        maven {
+            mavenCentral {
+                sonatype {
+                    active = 'ALWAYS'
+                    url = 'https://central.sonatype.com/api/v1/publisher'
+                    stagingRepository('build/staging-deploy')
+                }
+            }
+
+        }
+    }
+}

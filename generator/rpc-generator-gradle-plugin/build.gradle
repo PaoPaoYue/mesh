@@ -1,0 +1,111 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'io.spring.dependency-management' version '1.1.5'
+    id 'com.gradle.plugin-publish' version '1.2.1'
+    id 'org.jreleaser' version '1.12.0'
+}
+
+group = 'com.github.paopaoyue'
+version = '0.0.3'
+
+java {
+    sourceCompatibility = '21'
+    withJavadocJar()
+    withSourcesJar()
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.junit:junit-bom:5.7.1'
+    }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+    implementation 'org.freemarker:freemarker:2.3.30'
+}
+
+gradlePlugin {
+    plugins {
+        rpcGenerator {
+            id = 'io.github.paopaoyue.ypp-rpc-generator'
+            implementationClass = 'com.github.paopaoyue.rpc_generator_gradle_plugin.RpcGeneratorPlugin'
+            displayName = 'ypp-rpc code generator'
+            description = 'A code generator for ypp-rpc framework'
+            tags.set(['code generator', 'rpc'])
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'io.github.paopaoyue'
+            artifactId = 'rpc-generator-gradle-plugin'
+
+            from components.java
+
+            pom {
+                name = 'ypp-rpc-generator-gradle-plugin'
+                description = 'A code generator for ypp-rpc framework'
+                url = 'https://github.com/PaoPaoYue/mesh'
+                inceptionYear = '2024'
+                licenses {
+                    license {
+                        name = 'Apache-2.0'
+                        url = 'https://spdx.org/licenses/Apache-2.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'PaoPaoYue'
+                        name = 'Yue Peng'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/PaoPaoYue/mesh.git'
+                    developerConnection = 'scm:git:ssh://github.com/PaoPaoYue/mesh.git'
+                    url = 'http://github.com/PaoPaoYue/mesh'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir('staging-deploy')
+        }
+    }
+}
+
+jreleaser {
+    configurations {
+        gitRootSearch = true
+    }
+    signing {
+        active = 'ALWAYS'
+        armored = true
+    }
+    deploy {
+        maven {
+            mavenCentral {
+                sonatype {
+                    active = 'ALWAYS'
+                    url = 'https://central.sonatype.com/api/v1/publisher'
+                    stagingRepository('build/staging-deploy')
+                }
+            }
+
+        }
+    }
+}

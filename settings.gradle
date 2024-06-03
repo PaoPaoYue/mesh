@@ -1,7 +1,0 @@
-rootProject.name = 'mesh'
-
-include 'rpc'
-include 'rpc-generator'
-include 'grpc-test'
-include 'dictionary-application'
-include 'canvas-application'

@@ -1,0 +1,5 @@
+rootProject.name = 'legacy'
+
+include 'grpc-test'
+include 'dictionary-application'
+include 'canvas-application'
