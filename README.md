@@ -53,7 +53,7 @@ rpcGenerator {
 ```
 
 4. Run `gradlew generateIdl` to generate the idl files and modify the idl files to define your service.
-5. Run `gradlew generateRpc` to generate the rpc files
+5. Run `gradlew generateRpc` to generate the rpc files.
 6. Configure the service endpoints in your `application.properties file:
 ```properties
 mesh.rpc.server-enabled=true
@@ -90,6 +90,36 @@ mesh.rpc.client-services[0].port=8080
             System.out.println(response.getText()); // should print "hello world"
         }
     }
+```
+
+## Mock Test
+The framework has provided `@MockRpcService` and `@MockRpcCaller` annotations so that the user can use Mockito library to mock the service as well as the caller in their unit-test or integration test.
+```Java
+@SpringBootTest(classes = DemoApplication.class)
+class DemoApplicationTests {
+
+    @Autowired
+    IDemoCaller demoCaller;
+
+    @Test
+    void MockTest() {
+        var response = demoCaller.echo(DemoProto.EchoRequest.newBuilder().setText("hello world").build(), new CallOption());
+        assertThat(response.getText()).isEqualTo("hello world");
+    }
+
+    @TestConfiguration
+    public static class TestConfig {
+        @MockRpcService(serviceName = "dictionary-application")
+        public IDemoService mockDemoService() {
+            IDemoService service = mock(DemoService.class);
+            when(service.echo(any())).thenAnswer(invocation -> {
+                DemoProto.EchoRequest request = invocation.getArgument(0);
+                return DemoProto.EchoResponse.newBuilder().setText(request.getText()).build();
+            });
+            return service;
+        }
+    }
+}
 ```
 
 ## Roadmap
