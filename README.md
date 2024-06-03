@@ -29,7 +29,6 @@
 
 1. Create a new Springboot project
 You can create a new Springboot project by using the [Spring Initializr](https://start.spring.io/).
-</br>
 <b> Note: Springboot version should be 3.3.0 or later, java version should be 21 or later. </b>
 2. Add the following to the <b>TOP</b> of your `gradle.settings` file:
 ```groovy
