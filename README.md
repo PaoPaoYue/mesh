@@ -110,8 +110,6 @@ class DemoApplicationTests {
     @TestConfiguration
     public static class TestConfig {
 
-        ApplicationContext context;
-
         @MockRpcService(serviceName = "demo-service")
         public IDemoService mockDemoService() {
             IDemoService service = mock(DemoService.class);
