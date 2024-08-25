@@ -1,5 +1,6 @@
 package com.github.paopaoyue.mesh.rpc.util;
 
+import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
 
 import java.util.Date;
@@ -10,41 +11,44 @@ public class Context {
 
     private String service;
     private String handler;
-    private Flag flag;
+    private String env;
     private long requestId;
     private long traceId;
     private long startTime;
     private String upperService;
     private String upperHandler;
+    private String upperEnv;
     private String upperDevice;
     private String upperHost;
     private int upperPort;
 
     public Context() {
-        service = "";
+        env = RpcAutoConfiguration.getEnv();
+        service = RpcAutoConfiguration.getProp().isServerEnabled() ?
+                RpcAutoConfiguration.getProp().getServerService().getName() : "";
         handler = "";
-        flag = new Flag(0);
-        requestId = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
-        traceId = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
-        startTime = System.currentTimeMillis();
+        requestId = 0;
+        traceId = 0;
+        startTime = 0;
         upperService = "";
         upperHandler = "";
+        upperEnv = "";
         upperDevice = "";
         upperHost = "";
         upperPort = 0;
     }
 
     public Context(Protocol.Packet packet) {
+        this();
         if (packet != null) {
             Protocol.PacketHeader header = packet.getHeader();
             Protocol.TraceInfo traceInfo = packet.getTraceInfo();
-            service = header.getService();
             handler = header.getHandler();
-            flag = new Flag(header.getFlag());
             requestId = header.getRequestId();
             traceId = traceInfo.getTraceId();
             startTime = traceInfo.getStartTime();
             upperService = traceInfo.getUpperService();
+            upperEnv = traceInfo.getUpperEnv();
             upperHandler = traceInfo.getUpperHandler();
             upperDevice = traceInfo.getUpperDevice();
             upperHost = traceInfo.getUpperHost();
@@ -80,12 +84,12 @@ public class Context {
         this.handler = handler;
     }
 
-    public Flag getFlag() {
-        return flag;
+    public String getEnv() {
+        return env;
     }
 
-    public void setFlag(Flag flag) {
-        this.flag = flag;
+    public void setEnv(String env) {
+        this.env = env;
     }
 
     public long getRequestId() {
@@ -136,6 +140,14 @@ public class Context {
         this.upperHandler = upperHandler;
     }
 
+    public String getUpperEnv() {
+        return upperEnv;
+    }
+
+    public void setUpperEnv(String upperEnv) {
+        this.upperEnv = upperEnv;
+    }
+
     public String getUpperDevice() {
         return upperDevice;
     }
@@ -165,15 +177,17 @@ public class Context {
         return "Context{" +
                 "service='" + service + '\'' +
                 ", handler='" + handler + '\'' +
-                ", flag='" + Integer.toBinaryString(flag.getValue()) + '\'' +
+                ", env='" + env + '\'' +
                 ", requestId=" + requestId +
                 ", traceId=" + traceId +
                 ", startTime=" + getReadableStartTime() +
                 ", upperService='" + upperService + '\'' +
                 ", upperHandler='" + upperHandler + '\'' +
+                ", upperEnv='" + upperEnv + '\'' +
                 ", upperDevice='" + upperDevice + '\'' +
                 ", upperHost='" + upperHost + '\'' +
                 ", upperPort=" + upperPort +
                 '}';
     }
+
 }

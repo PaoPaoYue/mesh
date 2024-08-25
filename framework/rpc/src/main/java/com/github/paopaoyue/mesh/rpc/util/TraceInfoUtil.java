@@ -4,22 +4,23 @@ import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.config.ServiceProperties;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
 
+import java.net.Socket;
 import java.util.UUID;
 
 public class TraceInfoUtil {
 
     private static final String DEFAULT_DEVICE_NAME = "unknown";
 
-    public static Protocol.TraceInfo createTraceInfo(Context context) {
-        ServiceProperties prop = RpcAutoConfiguration.getProp().getServerService();
+    public static Protocol.TraceInfo createTraceInfo(Context context, Socket socket) {
         return Protocol.TraceInfo.newBuilder()
-                .setTraceId(context.getTraceId() == 0 ? UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE : context.getTraceId())
+                .setTraceId(context.getTraceId() == 0 ? IDGenerator.generateTraceId() : context.getTraceId())
                 .setStartTime(context.getStartTime() == 0 ? System.currentTimeMillis() : context.getStartTime())
-                .setUpperService(context.getService().isEmpty() ? prop.getName() : context.getService())
+                .setUpperService(context.getService())
                 .setUpperHandler(context.getHandler())
+                .setUpperEnv(context.getEnv())
                 .setUpperDevice(getDeviceName())
-                .setUpperHost(prop.getHost())
-                .setUpperPort(prop.getPort())
+                .setUpperHost(socket.getLocalAddress().getHostAddress())
+                .setUpperPort(socket.getLocalPort())
                 .build();
     }
 

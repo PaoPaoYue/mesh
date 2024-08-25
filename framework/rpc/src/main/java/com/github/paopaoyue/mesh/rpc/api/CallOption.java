@@ -4,11 +4,13 @@ import java.time.Duration;
 
 public class CallOption {
 
+    private static final String DEFAULT_ENV = "";
     private static final String DEFAULT_CONNECTION_TAG = "default";
     private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(1);
     private static final int DEFAULT_RETRY_TIMES = 0;
     private static final Duration DEFAULT_RETRY_INTERVAL = Duration.ofSeconds(0);
 
+    private String env;
     private String connectionTag;
     private boolean keepAlive;
     private boolean fin;
@@ -18,6 +20,7 @@ public class CallOption {
     private Duration overallTimeout;
 
     public CallOption() {
+        this.env = DEFAULT_ENV;
         this.connectionTag = DEFAULT_CONNECTION_TAG;
         this.keepAlive = true;
         this.fin = false;
@@ -25,6 +28,19 @@ public class CallOption {
         this.retryTimes = DEFAULT_RETRY_TIMES;
         this.retryInterval = DEFAULT_RETRY_INTERVAL;
         this.overallTimeout = DEFAULT_TIMEOUT;
+    }
+
+    public String getEnv() {
+        return env;
+    }
+
+    public CallOption setEnv(String env) {
+        if (env == null || env.isEmpty())
+            throw new IllegalArgumentException("Env must not be empty");
+        if (env.length() > 15)
+            throw new IllegalArgumentException("Env must not be longer than 15");
+        this.env = env;
+        return this;
     }
 
     public String getConnectionTag() {

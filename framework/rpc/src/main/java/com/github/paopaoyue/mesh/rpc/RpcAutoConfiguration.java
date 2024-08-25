@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanInitializationException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -27,6 +28,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -42,12 +44,19 @@ public class RpcAutoConfiguration implements ApplicationContextAware {
 
     private static final Logger logger = LoggerFactory.getLogger(RpcAutoConfiguration.class);
     private static ApplicationContext context;
+    private static String env;
     private static Properties prop;
     private static RpcServer rpcServer;
     private static RpcClient rpcClient;
 
-    public RpcAutoConfiguration(Properties prop) {
+
+    public RpcAutoConfiguration(Environment env, Properties prop) {
+        RpcAutoConfiguration.env = env.getActiveProfiles().length == 0 ? "default" : env.getActiveProfiles()[0];
         RpcAutoConfiguration.prop = prop;
+    }
+
+    public static String getEnv() {
+        return env;
     }
 
     public static Properties getProp() {

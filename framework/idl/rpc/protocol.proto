@@ -19,6 +19,7 @@ message PacketHeader {
   int64 requestId = 5;
   string service = 10;
   string handler = 11;
+  string env = 21;
 }
 
 message TraceInfo {
@@ -26,6 +27,7 @@ message TraceInfo {
   int64 startTime = 11;
   string upper_service = 12;
   string upper_handler = 13;
+  string upper_env = 14;
   string upper_device = 21;
   string upper_host = 22;
   int32 upper_port = 23;

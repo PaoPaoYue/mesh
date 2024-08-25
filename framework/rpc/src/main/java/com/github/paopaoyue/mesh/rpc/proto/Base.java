@@ -25,6 +25,10 @@ public final class Base {
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
   /**
+   * <pre>
+   * should define your own service status code at &gt;= 100000
+   * </pre>
+   *
    * Protobuf enum {@code rpc.StatusCode}
    */
   public enum StatusCode
@@ -234,6 +238,10 @@ public final class Base {
         getMessageBytes();
   }
   /**
+   * <pre>
+   * include this in any rpc response
+   * </pre>
+   *
    * Protobuf type {@code rpc.RespBase}
    */
   public static final class RespBase extends
@@ -489,6 +497,10 @@ public final class Base {
       return builder;
     }
     /**
+     * <pre>
+     * include this in any rpc response
+     * </pre>
+     *
      * Protobuf type {@code rpc.RespBase}
      */
     public static final class Builder extends

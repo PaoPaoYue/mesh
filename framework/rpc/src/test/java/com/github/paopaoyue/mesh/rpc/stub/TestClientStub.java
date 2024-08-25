@@ -26,20 +26,9 @@ public class TestClientStub implements IClientStub {
                             throw new IllegalArgumentException("Invalid request type: " + request.getClass().getSimpleName());
                 };
 
-        Protocol.Packet packet = Protocol.Packet.newBuilder()
-                .setHeader(Protocol.PacketHeader.newBuilder()
-                        .setLength(1)
-                        .setService(SERVICE_NAME)
-                        .setHandler(handlerName)
-                        .setRequestId(context.getRequestId())
-                        .setFlag(Flag.SERVICE_CALL | (option.isKeepAlive() ? Flag.KEEP_ALIVE : 0) | (option.isFin() ? Flag.FIN : 0))
-                        .build())
-                .setTraceInfo(TraceInfoUtil.createTraceInfo(context))
-                .setBody(Any.pack(request))
-                .build();
-
         try {
-            return respClass.cast(RpcAutoConfiguration.getRpcClient().getSender().send(packet, option).getBody().unpack(respClass));
+            return respClass.cast(RpcAutoConfiguration.getRpcClient().getSender()
+                    .send(SERVICE_NAME, handlerName, Any.pack(request), false, option).getBody().unpack(respClass));
         } catch (Exception e) {
             return switch (handlerName) {
                 case "echo" ->

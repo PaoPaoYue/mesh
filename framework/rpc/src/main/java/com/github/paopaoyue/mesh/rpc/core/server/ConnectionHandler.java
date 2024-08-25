@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.net.SocketException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
@@ -252,6 +253,10 @@ public class ConnectionHandler {
         } catch (IOException e) {
             logger.error("{} connection stop failure: {}", this, e.getMessage(), e);
         }
+    }
+
+    public Socket getSocket() {
+        return socketChannel.socket();
     }
 
     public Status getStatus() {

@@ -7,10 +7,7 @@ import com.github.paopaoyue.mesh.rpc.exception.TimeoutException;
 import com.github.paopaoyue.mesh.rpc.exception.TransportErrorException;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
 import com.github.paopaoyue.mesh.rpc.proto.System;
-import com.github.paopaoyue.mesh.rpc.util.Context;
-import com.github.paopaoyue.mesh.rpc.util.Flag;
-import com.github.paopaoyue.mesh.rpc.util.ModeByteBuffer;
-import com.github.paopaoyue.mesh.rpc.util.TraceInfoUtil;
+import com.github.paopaoyue.mesh.rpc.util.*;
 import com.google.protobuf.Any;
 import com.google.protobuf.CodedOutputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -18,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.net.SocketException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
@@ -274,10 +272,11 @@ public class ConnectionHandler {
                             .setLength(1)
                             .setService(serviceName)
                             .setHandler("ping")
-                            .setRequestId(context.getRequestId())
+                            .setEnv(context.getEnv())
+                            .setRequestId(IDGenerator.generateRequestId())
                             .setFlag(Flag.SYSTEM_CALL | Flag.FIN | (keepAlive ? Flag.KEEP_ALIVE : 0))
                             .build())
-                    .setTraceInfo(TraceInfoUtil.createTraceInfo(context))
+                    .setTraceInfo(TraceInfoUtil.createTraceInfo(context, getSocket()))
                     .setBody(Any.pack(System.PingRequest.newBuilder().setMessage("FIN").build())).build());
             try {
                 waiter.getResponse(Duration.ofSeconds(1));
@@ -308,6 +307,10 @@ public class ConnectionHandler {
         } catch (IOException e) {
             logger.error("{} connection stop failure: {}", this, e.getMessage(), e);
         }
+    }
+
+    public Socket getSocket() {
+        return socketChannel.socket();
     }
 
     public boolean isKeepAlive() {

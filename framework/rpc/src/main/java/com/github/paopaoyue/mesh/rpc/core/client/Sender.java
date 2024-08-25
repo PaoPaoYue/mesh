@@ -4,7 +4,11 @@ import com.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import com.github.paopaoyue.mesh.rpc.api.CallOption;
 import com.github.paopaoyue.mesh.rpc.exception.TimeoutException;
 import com.github.paopaoyue.mesh.rpc.proto.Protocol;
+import com.github.paopaoyue.mesh.rpc.util.Context;
 import com.github.paopaoyue.mesh.rpc.util.Flag;
+import com.github.paopaoyue.mesh.rpc.util.IDGenerator;
+import com.github.paopaoyue.mesh.rpc.util.TraceInfoUtil;
+import com.google.protobuf.Any;
 
 import java.time.Duration;
 import java.util.concurrent.locks.Lock;
@@ -22,11 +26,14 @@ public class Sender {
         this.lock = new ReentrantLock();
     }
 
-    public Protocol.Packet send(Protocol.Packet packet, CallOption option) throws Exception {
-        String serviceName = packet.getHeader().getService();
+    public Protocol.Packet send(String serviceName, String handlerName, Any request, boolean isSystem, CallOption option) throws Exception {
         if (serviceName.isEmpty()) {
             throw new IllegalArgumentException("Service name is empty");
         }
+        if (handlerName.isEmpty()) {
+            throw new IllegalArgumentException("Handler name is empty");
+        }
+        Context context = Context.getContext();
         Duration overallTimeout = option.getOverallTimeout();
         for (int i = 0; i <= option.getRetryTimes(); i++) {
             if (RpcAutoConfiguration.getRpcClient().getStatus() != RpcClient.Status.RUNNING) {
@@ -35,7 +42,7 @@ public class Sender {
 
             ConnectionHandler connectionHandler = null;
             if (option.isKeepAlive()) {
-                connectionHandler = reactor.getOrCreateConnection(serviceName, option.getConnectionTag(), (packet.getHeader().getFlag() & Flag.SYSTEM_CALL) != 0);
+                connectionHandler = reactor.getOrCreateConnection(serviceName, option.getConnectionTag(), isSystem);
             } else {
                 connectionHandler = reactor.createConnection(option.isKeepAlive(), serviceName, option.getConnectionTag());
             }
@@ -43,6 +50,21 @@ public class Sender {
             if (connectionHandler == null) {
                 throw new IllegalStateException("Unable to create connection to service: " + serviceName);
             }
+
+            Protocol.Packet packet = Protocol.Packet.newBuilder()
+                    .setHeader(Protocol.PacketHeader.newBuilder()
+                            .setLength(1)
+                            .setService(serviceName)
+                            .setHandler(handlerName)
+                            .setEnv(option.getEnv().isEmpty() ? context.getEnv() : option.getEnv())
+                            .setRequestId(IDGenerator.generateRequestId())
+                            .setFlag((isSystem ? Flag.SYSTEM_CALL : Flag.SERVICE_CALL) |
+                                    (option.isKeepAlive() ? Flag.KEEP_ALIVE : 0) |
+                                    (option.isFin() ? Flag.FIN : 0))
+                            .build())
+                    .setTraceInfo(TraceInfoUtil.createTraceInfo(context, connectionHandler.getSocket()))
+                    .setBody(request)
+                    .build();
 
             ConnectionHandler.Waiter waiter = connectionHandler.sendPacket(packet);
             try {
