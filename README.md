@@ -17,7 +17,7 @@ YPP-RPC is a lightweight RPC framework based on Springboot implemented with nati
 
 ## Quick Start
 
-> Your can find the example under `examples/demo` directory.
+> ✨ Your can find the example under `examples/demo` directory.
 
 ### Prerequisites
 
@@ -27,14 +27,18 @@ YPP-RPC is a lightweight RPC framework based on Springboot implemented with nati
 | Gradle(Gradle wrapper) | 8.6 or later     |
 | protoc                 | 26.0 or later    |
 
+> 💡Legacy **JDK 8** support is also available. While The **Gradle** and **protoc** version should be the same as the above.
+> 
+> In this case, please use **Springboot 2.X** along with the `jdk8` suffix version of the Gradle plugin `io.github.paopaoyue.ypp-rpc-generator`.
+
 1. Create a new Springboot project
-You can create a new Springboot project by using the [Spring Initializr](https://start.spring.io/).
-<b> Note: Springboot version should be 3.3.0 or later, java version should be 21 or later. </b>
+You can create a new Springboot project by using the [Spring Initializr](https://start.spring.io/). <br>
+<b> ❗Springboot version should be 3.3.0 or later, java version should be 21 or later. </b>
 
 2. Add the following to your `build.gradle` file:
 ```groovy
 plugins {
-    id 'io.github.paopaoyue.ypp-rpc-generator' version '0.0.5'
+    id 'io.github.paopaoyue.ypp-rpc-generator' version '0.0.8' // or 0.0.8-jdk8 for java 8 
 }
 
 rpcGenerator {
