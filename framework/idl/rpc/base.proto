@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package rpc;
 
-option java_package = "com.github.paopaoyue.mesh.rpc.proto";
+option java_package = "io.github.paopaoyue.mesh.rpc.proto";
 option java_outer_classname = "Base";
 
 // include this in any rpc response
