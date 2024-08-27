@@ -1,11 +1,11 @@
 package ${info.rootPackage}.stub;
 
-import com.github.paopaoyue.mesh.rpc.exception.HandlerException;
-import com.github.paopaoyue.mesh.rpc.exception.HandlerNotFoundException;
-import com.github.paopaoyue.mesh.rpc.proto.Protocol;
-import com.github.paopaoyue.mesh.rpc.stub.IServerStub;
-import com.github.paopaoyue.mesh.rpc.stub.ServiceServerStub;
-import com.github.paopaoyue.mesh.rpc.util.Context;
+import io.github.paopaoyue.mesh.rpc.exception.HandlerException;
+import io.github.paopaoyue.mesh.rpc.exception.HandlerNotFoundException;
+import io.github.paopaoyue.mesh.rpc.proto.Protocol;
+import io.github.paopaoyue.mesh.rpc.stub.IServerStub;
+import io.github.paopaoyue.mesh.rpc.stub.ServiceServerStub;
+import io.github.paopaoyue.mesh.rpc.util.Context;
 import ${info.rootPackage}.proto.${info.protoObject};
 import ${info.rootPackage}.service.I${info.serviceClass}Service;
 import com.google.protobuf.Any;

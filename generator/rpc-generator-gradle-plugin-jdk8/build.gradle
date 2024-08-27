@@ -1,0 +1,48 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id 'com.gradle.plugin-publish' version '1.2.1'
+}
+
+group = 'io.github.paopaoyue'
+version = '0.0.8-jdk8'
+
+java {
+    sourceCompatibility = '1.8'
+    withJavadocJar()
+    withSourcesJar()
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.junit:junit-bom:5.7.1'
+    }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+    implementation 'org.freemarker:freemarker:2.3.30'
+}
+
+gradlePlugin {
+    website.set("https://github.com/PaoPaoYue/mesh")
+    vcsUrl.set("https://github.com/PaoPaoYue/mesh")
+    plugins {
+        rpcGenerator {
+            id = 'io.github.paopaoyue.ypp-rpc-generator'
+            implementationClass = 'io.github.paopaoyue.rpc_generator_gradle_plugin.RpcGeneratorPlugin'
+            displayName = 'ypp-rpc code generator'
+            description = 'A code generator for ypp-rpc framework'
+            tags.set(['code generator', 'rpc'])
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}

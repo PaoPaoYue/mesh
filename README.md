@@ -17,7 +17,7 @@ YPP-RPC is a lightweight RPC framework based on Springboot implemented with nati
 
 ## Quick Start
 
-> Your can find the example under `examples/demo` directory.
+> ✨ Your can find the example under `examples/demo` directory.
 
 ### Prerequisites
 
@@ -27,22 +27,18 @@ YPP-RPC is a lightweight RPC framework based on Springboot implemented with nati
 | Gradle(Gradle wrapper) | 8.6 or later     |
 | protoc                 | 26.0 or later    |
 
+> 💡Legacy **JDK 8** support is also available. While The **Gradle** and **protoc** version should be the same as the above.
+> 
+> In this case, please use **Springboot 2.X** along with the `jdk8` suffix version of the Gradle plugin `io.github.paopaoyue.ypp-rpc-generator`.
+
 1. Create a new Springboot project
-You can create a new Springboot project by using the [Spring Initializr](https://start.spring.io/).
-<b> Note: Springboot version should be 3.3.0 or later, java version should be 21 or later. </b>
-2. Add the following to the <b>TOP</b> of your `gradle.settings` file:
-```groovy
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        mavenCentral()
-    }
-}
-```
-3. Add the following to your `build.gradle` file:
+You can create a new Springboot project by using the [Spring Initializr](https://start.spring.io/). <br>
+<b> ❗Springboot version should be 3.3.0 or later, java version should be 21 or later. </b>
+
+2. Add the following to your `build.gradle` file:
 ```groovy
 plugins {
-    id 'io.github.paopaoyue.ypp-rpc-generator' version '0.0.3'
+    id 'io.github.paopaoyue.ypp-rpc-generator' version '0.0.8' // or 0.0.8-jdk8 for java 8 
 }
 
 rpcGenerator {
@@ -52,9 +48,9 @@ rpcGenerator {
 }
 ```
 
-4. Run `gradlew generateIdl` to generate the idl files and modify the idl files to define your service.
-5. Run `gradlew generateRpc` to generate the rpc files.
-6. Configure the service endpoints in your `application.properties file:
+3. Run `gradlew generateIdl` to generate the idl files and modify the idl files to define your service.
+4. Run `gradlew generateRpc` to generate the rpc files.
+5. Configure the service endpoints in your `application.properties file:
 ```properties
 mesh.rpc.server-enabled=true
 mesh.rpc.server-service.name=demo-service
@@ -66,7 +62,7 @@ mesh.rpc.client-services[0].name=demo-service
 mesh.rpc.client-services[0].host=localhost
 mesh.rpc.client-services[0].port=8080
 ```
-7. Modify the generated `RpcService` class to implement your service logic.
+6. Modify the generated `RpcService` class to implement your service logic.
 ```Java
     @RpcService(serviceName = "demo-service")
     public class DemoService implements IDemoService {
@@ -77,7 +73,7 @@ mesh.rpc.client-services[0].port=8080
         }
     }
 ```
-8. Run your Springboot application with `gradlew bootRun` and you are ready to go!
+7. Run your Springboot application with `gradlew bootRun` and you are ready to go!
 ```Java
     @Component
     public static class DemoRunner {
