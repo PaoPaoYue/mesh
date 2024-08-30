@@ -6,15 +6,15 @@ import io.github.paopaoyue.mesh.rpc.stub.IServerStub;
 import io.github.paopaoyue.mesh.rpc.stub.SystemServerStub;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Timer;
 import java.util.concurrent.*;
 
 public class RpcServer {
 
-    private static Logger logger = LoggerFactory.getLogger(RpcServer.class);
+    private static Logger logger = LogManager.getLogger(RpcServer.class);
     private SystemServerStub systemStub;
     private IServerStub serviceStub;
     private volatile Status status;

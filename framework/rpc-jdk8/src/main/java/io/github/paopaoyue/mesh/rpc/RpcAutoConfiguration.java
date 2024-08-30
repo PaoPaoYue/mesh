@@ -11,8 +11,8 @@ import io.github.paopaoyue.mesh.rpc.stub.IClientStub;
 import io.github.paopaoyue.mesh.rpc.stub.IServerStub;
 import io.github.paopaoyue.mesh.rpc.stub.ServiceClientStub;
 import io.github.paopaoyue.mesh.rpc.stub.ServiceServerStub;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -25,8 +25,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.core.env.Environment;
 import org.springframework.util.ReflectionUtils;
 
 import javax.annotation.PostConstruct;
@@ -34,28 +32,20 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Order(2)
 @AutoConfigureOrder(Ordered.LOWEST_PRECEDENCE)
 @Configuration
 @ComponentScan(basePackages = "io.github.paopaoyue.mesh")
 @EnableConfigurationProperties(Properties.class)
 public class RpcAutoConfiguration implements ApplicationContextAware {
 
-    private static final Logger logger = LoggerFactory.getLogger(RpcAutoConfiguration.class);
+    private static final Logger logger = LogManager.getLogger(RpcAutoConfiguration.class);
     private static ApplicationContext context;
-    private static String env;
     private static Properties prop;
     private static RpcServer rpcServer;
     private static RpcClient rpcClient;
 
-
-    public RpcAutoConfiguration(Environment env, Properties prop) {
-        RpcAutoConfiguration.env = env.getActiveProfiles().length == 0 ? "default" : env.getActiveProfiles()[0];
+    public RpcAutoConfiguration(Properties prop) {
         RpcAutoConfiguration.prop = prop;
-    }
-
-    public static String getEnv() {
-        return env;
     }
 
     public static Properties getProp() {
@@ -103,7 +93,7 @@ public class RpcAutoConfiguration implements ApplicationContextAware {
             throw new BeanCreationException("No service stub found, please add @ServiceServerStub to your service stub implementation");
         }
         if (!serviceServerStubs.containsKey(serviceProperties.getName())) {
-            throw new BeanCreationException("Service stub not found for service properties, please check the service name in @ServiceClientStub");
+            throw new BeanCreationException("Service properties not found for service stub, please check the service name in @ServiceClientStub and corresponding properties");
         }
         return rpcServer;
     }
@@ -121,15 +111,15 @@ public class RpcAutoConfiguration implements ApplicationContextAware {
             serviceClientStubs = stubs.values().stream().collect(Collectors.toMap(o -> o.getClass().getAnnotation(ServiceClientStub.class).serviceName(), IClientStub.class::cast));
             rpcClient = new RpcClient();
         } catch (ClassCastException e) {
-            throw new BeanCreationException("Please add @ServiceClientStub to your service stub implementing IClientStub", e);
+            throw new BeanCreationException("Please add @ServiceClientStub to your client stub implementing IClientStub", e);
         } catch (Exception e) {
             throw new BeanCreationException("Error creating rpc client", e);
         }
         if (serviceClientStubs.isEmpty()) {
-            throw new BeanCreationException("No service stub found, please add @ServiceClientStub to your service stub implementation");
+            throw new BeanCreationException("No client stub found, please add @ServiceClientStub to your service stub implementation");
         }
-        if (serviceProperties.keySet().stream().anyMatch(s -> !serviceClientStubs.containsKey(s))) {
-            throw new BeanCreationException("Service stub not found for service properties, please check the service name in @ServiceClientStub");
+        if (serviceClientStubs.keySet().stream().anyMatch(s -> !serviceProperties.containsKey(s))) {
+            throw new BeanCreationException("Clients' properties not found for client stub, please check the service name in @ServiceClientStub and corresponding properties");
         }
         return rpcClient;
     }

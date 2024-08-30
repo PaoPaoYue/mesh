@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'io.github.paopaoyue'
-version = '0.0.8-jdk8'
+version = '0.0.17-jdk8'
 
 java {
     sourceCompatibility = '1.8'

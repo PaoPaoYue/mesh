@@ -22,7 +22,7 @@ public class Context {
     private int upperPort;
 
     public Context() {
-        env = RpcAutoConfiguration.getEnv();
+        env = RpcAutoConfiguration.getProp().getEnv();
         service = RpcAutoConfiguration.getProp().isServerEnabled() ?
                 RpcAutoConfiguration.getProp().getServerService().getName() : "";
         handler = "";

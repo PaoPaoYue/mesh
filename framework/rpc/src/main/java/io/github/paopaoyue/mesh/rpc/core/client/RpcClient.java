@@ -6,8 +6,8 @@ import io.github.paopaoyue.mesh.rpc.config.ServiceProperties;
 import io.github.paopaoyue.mesh.rpc.stub.SystemClientStub;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 import java.util.Timer;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class RpcClient {
 
-    private static Logger logger = LoggerFactory.getLogger(RpcClient.class);
+    private static Logger logger = LogManager.getLogger(RpcClient.class);
 
     Map<String, ServiceProperties> servicePropMap;
     private SystemClientStub systemStub;

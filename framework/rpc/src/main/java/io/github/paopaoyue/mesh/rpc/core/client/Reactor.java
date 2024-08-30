@@ -2,8 +2,8 @@ package io.github.paopaoyue.mesh.rpc.core.client;
 
 import io.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import io.github.paopaoyue.mesh.rpc.config.ServiceProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class Reactor implements Runnable {
 
-    private static Logger logger = LoggerFactory.getLogger(Reactor.class);
+    private static Logger logger = LogManager.getLogger(Reactor.class);
 
     private Map<String, ServiceProperties> serviceLookupTable;
     private CountDownLatch latch;
@@ -34,6 +34,13 @@ public class Reactor implements Runnable {
         this.latch = latch;
         this.connectionPool = new ConcurrentHashMap<>();
         this.lock = new ReentrantLock();
+
+        try {
+            this.selector = Selector.open();
+        } catch (IOException e) {
+            logger.error("Client reactor initialize failure, check configuration: {}", e.getMessage(), e);
+            RpcAutoConfiguration.getRpcClient().shutdown();
+        }
     }
 
     private static String getKeyForConnection(String serviceName, String tag) {
@@ -44,23 +51,19 @@ public class Reactor implements Runnable {
     public void run() {
         RpcClient rpcClient = RpcAutoConfiguration.getRpcClient();
 
-        try {
-            this.selector = Selector.open();
-        } catch (IOException e) {
-            logger.error("Client reactor initialize failure, check configuration: {}", e.getMessage(), e);
-            rpcClient.shutdown();
-        }
-
         while (true) {
             try {
+                // prevent blocking register new connection
+                lock.lock();
+                lock.unlock();
                 selector.select();
             } catch (IOException e) {
                 logger.error("Client reactor select() failed: {}", e.getMessage(), e);
-                RpcAutoConfiguration.getRpcClient().shutdown();
+                rpcClient.shutdown();
                 break;
             } catch (ClosedSelectorException e) {
                 logger.error("Client reactor selector closed: {}", e.getMessage(), e);
-                RpcAutoConfiguration.getRpcClient().shutdown();
+                rpcClient.shutdown();
                 break;
             }
             if (Thread.interrupted() || rpcClient.getStatus() != RpcClient.Status.RUNNING) {
@@ -105,6 +108,7 @@ public class Reactor implements Runnable {
             InetSocketAddress address = new InetSocketAddress(prop.getHost(), prop.getPort());
             SocketChannel channel = SocketChannel.open(address);
             channel.configureBlocking(false);
+            selector.wakeup();
             SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
             ConnectionHandler connectionHandler = new ConnectionHandler(this, keepAlive, serviceName, tag, key);
             logger.debug("Client new connection established: {}", connectionHandler);

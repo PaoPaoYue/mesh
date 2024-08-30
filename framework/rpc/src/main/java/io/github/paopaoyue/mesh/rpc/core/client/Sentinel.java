@@ -4,8 +4,8 @@ import io.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import io.github.paopaoyue.mesh.rpc.api.CallOption;
 import io.github.paopaoyue.mesh.rpc.proto.System;
 import io.github.paopaoyue.mesh.rpc.util.RespBaseUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.Duration;
 import java.util.Map;
@@ -13,7 +13,7 @@ import java.util.TimerTask;
 
 public class Sentinel extends TimerTask {
 
-    private static final Logger logger = LoggerFactory.getLogger(Sentinel.class);
+    private static final Logger logger = LogManager.getLogger(Sentinel.class);
 
     private static final String PING_MESSAGE = "HEARTBEAT";
     private static final System.PingRequest HEARTBEAT_REQUEST = System.PingRequest.newBuilder().setMessage(PING_MESSAGE).build();

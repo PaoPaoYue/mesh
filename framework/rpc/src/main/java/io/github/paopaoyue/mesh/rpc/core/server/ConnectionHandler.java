@@ -6,11 +6,11 @@ import io.github.paopaoyue.mesh.rpc.exception.HandlerException;
 import io.github.paopaoyue.mesh.rpc.exception.HandlerNotFoundException;
 import io.github.paopaoyue.mesh.rpc.proto.Protocol;
 import io.github.paopaoyue.mesh.rpc.util.Flag;
-import io.github.paopaoyue.mesh.rpc.util.ModeByteBuffer;
+import io.github.paopaoyue.mesh.rpc.core.util.ModeByteBuffer;
 import com.google.protobuf.CodedOutputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -25,7 +25,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class ConnectionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConnectionHandler.class);
+    private static final Logger logger = LogManager.getLogger(ConnectionHandler.class);
 
     private static final int LENGTH_FIELD_OFFSET = 3;
     private static final int LENGTH_FIELD_LENGTH = 4;

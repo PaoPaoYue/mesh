@@ -4,8 +4,8 @@ import io.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import io.github.paopaoyue.mesh.rpc.config.Properties;
 import io.github.paopaoyue.mesh.rpc.stub.IServerStub;
 import io.github.paopaoyue.mesh.rpc.stub.SystemServerStub;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -14,7 +14,7 @@ import java.util.concurrent.*;
 
 public class RpcServer {
 
-    private static Logger logger = LoggerFactory.getLogger(RpcServer.class);
+    private static Logger logger = LogManager.getLogger(RpcServer.class);
     private SystemServerStub systemStub;
     private IServerStub serviceStub;
     private volatile Status status;

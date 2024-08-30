@@ -2,8 +2,8 @@ package io.github.paopaoyue.mesh.rpc.core.server;
 
 import io.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import io.github.paopaoyue.mesh.rpc.config.Properties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.channels.ClosedSelectorException;
@@ -11,14 +11,17 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SubReactor implements Runnable {
 
-    private static Logger logger = LoggerFactory.getLogger(SubReactor.class);
+    private static Logger logger = LogManager.getLogger(SubReactor.class);
     private Selector selector;
-
+    private Lock lock;
 
     public SubReactor() {
+        lock = new ReentrantLock();
     }
 
     @Override
@@ -35,6 +38,9 @@ public class SubReactor implements Runnable {
 
         while (true) {
             try {
+                // prevent blocking register new connection
+                lock.lock();
+                lock.unlock();
                 selector.select();
             } catch (IOException e) {
                 logger.error("Sub reactor select() failure: {}", e.getMessage(), e);
@@ -76,8 +82,10 @@ public class SubReactor implements Runnable {
 
 
     public ConnectionHandler dispatch(SelectableChannel channel) {
+        lock.lock();
         try {
             channel.configureBlocking(false);
+            selector.wakeup();
             SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
             ConnectionHandler connectionHandler = new ConnectionHandler(this, key);
             logger.debug("Server new connection established: {}", connectionHandler);
@@ -87,6 +95,8 @@ public class SubReactor implements Runnable {
         } catch (IOException e) {
             logger.error("Sub reactor dispatch failure: {}", e.getMessage(), e);
             RpcAutoConfiguration.getRpcServer().shutdown();
+        } finally {
+            lock.unlock();
         }
         return null;
     }

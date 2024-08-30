@@ -2,11 +2,12 @@ package io.github.paopaoyue.mesh.rpc.core.client;
 
 import io.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import io.github.paopaoyue.mesh.rpc.api.CallOption;
+import io.github.paopaoyue.mesh.rpc.core.util.DurationPatch;
 import io.github.paopaoyue.mesh.rpc.exception.TimeoutException;
 import io.github.paopaoyue.mesh.rpc.proto.Protocol;
 import io.github.paopaoyue.mesh.rpc.util.Context;
 import io.github.paopaoyue.mesh.rpc.util.Flag;
-import io.github.paopaoyue.mesh.rpc.util.IDGenerator;
+import io.github.paopaoyue.mesh.rpc.core.util.IDGenerator;
 import io.github.paopaoyue.mesh.rpc.util.TraceInfoUtil;
 import com.google.protobuf.Any;
 
@@ -75,12 +76,12 @@ public class Sender {
                 }
             }
             overallTimeout = overallTimeout.minus(option.getTimeout());
-            if (option.getRetryInterval().isPositive()) {
+            if (DurationPatch.isPositive(option.getRetryInterval())) {
                 await().atMost(overallTimeout.compareTo(option.getRetryInterval()) >= 0 ? option.getRetryInterval() : overallTimeout);
             }
             overallTimeout = overallTimeout.minus(option.getRetryInterval());
         }
-        if (!overallTimeout.isPositive()) {
+        if (!DurationPatch.isPositive(overallTimeout)) {
             throw new TimeoutException("Overall timeout");
         }
 

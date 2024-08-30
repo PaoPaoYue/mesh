@@ -8,10 +8,11 @@ plugins {
 }
 
 group = 'io.github.paopaoyue'
-version = '0.0.7-jdk8'
+version = '0.0.16-jdk8'
 
 java {
     sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
     withJavadocJar()
     withSourcesJar()
 }

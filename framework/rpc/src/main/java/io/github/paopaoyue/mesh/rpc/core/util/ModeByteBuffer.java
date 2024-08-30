@@ -1,4 +1,4 @@
-package io.github.paopaoyue.mesh.rpc.util;
+package io.github.paopaoyue.mesh.rpc.core.util;
 
 import java.nio.ByteBuffer;
 

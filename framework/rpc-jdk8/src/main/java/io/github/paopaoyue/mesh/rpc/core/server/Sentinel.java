@@ -1,8 +1,8 @@
 package io.github.paopaoyue.mesh.rpc.core.server;
 
 import io.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,7 +10,7 @@ import java.util.TimerTask;
 
 public class Sentinel extends TimerTask {
 
-    private static final Logger logger = LoggerFactory.getLogger(Sentinel.class);
+    private static final Logger logger = LogManager.getLogger(Sentinel.class);
 
     private final Set<ConnectionHandler> connectionHandlers;
 

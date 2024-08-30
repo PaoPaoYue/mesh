@@ -12,8 +12,8 @@ import io.github.paopaoyue.mesh.rpc.stub.IServerStub;
 import io.github.paopaoyue.mesh.rpc.stub.ServiceClientStub;
 import io.github.paopaoyue.mesh.rpc.stub.ServiceServerStub;
 import jakarta.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -26,8 +26,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.core.env.Environment;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -40,21 +38,14 @@ import java.util.stream.Collectors;
 @EnableConfigurationProperties(Properties.class)
 public class RpcAutoConfiguration implements ApplicationContextAware {
 
-    private static final Logger logger = LoggerFactory.getLogger(RpcAutoConfiguration.class);
+    private static final Logger logger = LogManager.getLogger(RpcAutoConfiguration.class);
     private static ApplicationContext context;
-    private static String env;
     private static Properties prop;
     private static RpcServer rpcServer;
     private static RpcClient rpcClient;
 
-
-    public RpcAutoConfiguration(Environment env, Properties prop) {
-        RpcAutoConfiguration.env = env.getActiveProfiles().length == 0 ? "default" : env.getActiveProfiles()[0];
+    public RpcAutoConfiguration(Properties prop) {
         RpcAutoConfiguration.prop = prop;
-    }
-
-    public static String getEnv() {
-        return env;
     }
 
     public static Properties getProp() {
