@@ -2,6 +2,7 @@ package io.github.paopaoyue.mesh.rpc.core.client;
 
 import io.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import io.github.paopaoyue.mesh.rpc.config.ServiceProperties;
+import io.github.paopaoyue.mesh.rpc.exception.ServiceUnavailableException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -117,8 +118,8 @@ public class Reactor implements Runnable {
             return connectionHandler;
         } catch (IOException e) {
             logger.error("Client reactor dispatch failure: {}", e.getMessage(), e);
+            throw new ServiceUnavailableException("Unable to connect to service: " + serviceName, e);
         }
-        return null;
     }
 
     public ConnectionHandler getOrCreateConnection(String serviceName, String tag, boolean isSystem) {
