@@ -1,10 +1,9 @@
 package io.github.paopaoyue.mesh.rpc.core.server;
 
-
 import io.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import io.github.paopaoyue.mesh.rpc.config.Properties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -16,7 +15,7 @@ import java.util.Set;
 
 public class MainReactor implements Runnable {
 
-    private static Logger logger = LoggerFactory.getLogger(MainReactor.class);
+    private static Logger logger = LogManager.getLogger(MainReactor.class);
     private Selector selector;
     private SelectionKey key;
     private ServerSocketChannel socketChannel;

@@ -1,10 +1,12 @@
 package io.github.paopaoyue.mesh.rpc.config;
 
 import org.hibernate.validator.constraints.Range;
+import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
+@Validated
 public class ServiceProperties {
     @NotBlank
     private String name = "default-application";

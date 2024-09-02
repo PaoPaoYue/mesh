@@ -4,8 +4,8 @@ import io.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import io.github.paopaoyue.mesh.rpc.config.Properties;
 import io.github.paopaoyue.mesh.rpc.config.ServiceProperties;
 import io.github.paopaoyue.mesh.rpc.stub.SystemClientStub;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class RpcClient {
 
-    private static Logger logger = LoggerFactory.getLogger(RpcClient.class);
+    private static Logger logger = LogManager.getLogger(RpcClient.class);
 
     Map<String, ServiceProperties> servicePropMap;
     private SystemClientStub systemStub;
@@ -46,9 +46,10 @@ public class RpcClient {
         logger.info("Starting rpc client...");
         Properties prop = RpcAutoConfiguration.getProp();
 
-        status = Status.RUNNING;
         new Thread(reactor).start();
         new Timer().scheduleAtFixedRate(sentinel, prop.getKeepAliveInterval() * 1000L, prop.getKeepAliveInterval() * 1000L);
+
+        status = Status.RUNNING;
         logger.info("Rpc client up!!!");
     }
 

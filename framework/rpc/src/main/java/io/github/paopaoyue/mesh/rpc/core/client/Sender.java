@@ -6,7 +6,7 @@ import io.github.paopaoyue.mesh.rpc.exception.TimeoutException;
 import io.github.paopaoyue.mesh.rpc.proto.Protocol;
 import io.github.paopaoyue.mesh.rpc.util.Context;
 import io.github.paopaoyue.mesh.rpc.util.Flag;
-import io.github.paopaoyue.mesh.rpc.util.IDGenerator;
+import io.github.paopaoyue.mesh.rpc.core.util.IDGenerator;
 import io.github.paopaoyue.mesh.rpc.util.TraceInfoUtil;
 import com.google.protobuf.Any;
 

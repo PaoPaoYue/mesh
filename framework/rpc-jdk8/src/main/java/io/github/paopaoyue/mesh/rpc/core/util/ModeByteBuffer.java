@@ -1,5 +1,6 @@
-package io.github.paopaoyue.mesh.rpc.util;
+package io.github.paopaoyue.mesh.rpc.core.util;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
 public class ModeByteBuffer {
@@ -24,29 +25,29 @@ public class ModeByteBuffer {
     }
 
     public void flip() {
-        this.buffer.flip();
+        ((Buffer)this.buffer).flip();
         this.readMode = !this.readMode;
     }
 
     public void clear() {
-        this.buffer.clear();
+        ((Buffer)this.buffer).clear();
         this.readMode = false;
     }
 
     public boolean hasReadRemaining() {
-        return this.readMode && this.buffer.hasRemaining();
+        return this.readMode && ((Buffer)this.buffer).hasRemaining();
     }
 
     public boolean hasWriteRemaining() {
-        return !this.readMode && this.buffer.hasRemaining();
+        return !this.readMode && ((Buffer)this.buffer).hasRemaining();
     }
 
     public int readRemaining() {
-        return this.readMode ? this.buffer.remaining() : 0;
+        return this.readMode ? ((Buffer)this.buffer).remaining() : 0;
     }
 
     public int writeRemaining() {
-        return !this.readMode ? this.buffer.remaining() : 0;
+        return !this.readMode ? ((Buffer)this.buffer).remaining() : 0;
     }
 
     public void compact() {
@@ -55,19 +56,19 @@ public class ModeByteBuffer {
     }
 
     public int position() {
-        return this.buffer.position();
+        return ((Buffer)this.buffer).position();
     }
 
     public int limit() {
-        return this.buffer.limit();
+        return ((Buffer)this.buffer).limit();
     }
 
     public void position(int newPosition) {
-        this.buffer.position(newPosition);
+        ((Buffer)this.buffer).position(newPosition);
     }
 
     public void limit(int newLimit) {
-        this.buffer.limit(newLimit);
+        ((Buffer)this.buffer).limit(newLimit);
     }
 
     public byte[] array() {

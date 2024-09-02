@@ -2,6 +2,8 @@ package io.github.paopaoyue.mesh.rpc.core.client;
 
 import io.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import io.github.paopaoyue.mesh.rpc.config.Properties;
+import io.github.paopaoyue.mesh.rpc.core.util.IDGenerator;
+import io.github.paopaoyue.mesh.rpc.core.util.ModeByteBuffer;
 import io.github.paopaoyue.mesh.rpc.exception.ServiceUnavailableException;
 import io.github.paopaoyue.mesh.rpc.exception.TimeoutException;
 import io.github.paopaoyue.mesh.rpc.exception.TransportErrorException;
@@ -11,8 +13,8 @@ import io.github.paopaoyue.mesh.rpc.util.*;
 import com.google.protobuf.Any;
 import com.google.protobuf.CodedOutputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -32,7 +34,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class ConnectionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConnectionHandler.class);
+    private static final Logger logger = LogManager.getLogger(ConnectionHandler.class);
 
     private static final int LENGTH_FIELD_OFFSET = 3;
     private static final int LENGTH_FIELD_LENGTH = 4;

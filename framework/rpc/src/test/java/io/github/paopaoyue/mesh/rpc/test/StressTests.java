@@ -5,9 +5,9 @@ import io.github.paopaoyue.mesh.rpc.api.CallOption;
 import io.github.paopaoyue.mesh.rpc.api.ITestCaller;
 import io.github.paopaoyue.mesh.rpc.proto.RpcTest;
 import io.github.paopaoyue.mesh.rpc.util.RespBaseUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,7 +23,7 @@ import static org.assertj.core.api.Fail.fail;
 @SpringBootTest(classes = RpcAutoConfiguration.class)
 class StressTests {
 
-    private static final Logger logger = LoggerFactory.getLogger(StressTests.class);
+    private static final Logger logger = LogManager.getLogger(StressTests.class);
 
     @Autowired
     ITestCaller testCaller;

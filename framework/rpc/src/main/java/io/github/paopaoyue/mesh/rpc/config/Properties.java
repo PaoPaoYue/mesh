@@ -1,15 +1,20 @@
 package io.github.paopaoyue.mesh.rpc.config;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.Arrays;
 import java.util.Set;
 
+@Validated
 @ConfigurationProperties(prefix = "mesh.rpc")
 public class Properties {
+    @NotBlank
+    private String env = "default";
     @NotNull
     private boolean serverEnabled = false;
     @NestedConfigurationProperty
@@ -40,6 +45,14 @@ public class Properties {
     private int keepAliveIdleTimeout = 10;
     @Range(min = 1, max = 3)
     private int keepAliveHeartbeatTimeout = 1;
+
+    public String getEnv() {
+        return env;
+    }
+
+    public void setEnv(String env) {
+        this.env = env;
+    }
 
     public boolean isServerEnabled() {
         return serverEnabled;

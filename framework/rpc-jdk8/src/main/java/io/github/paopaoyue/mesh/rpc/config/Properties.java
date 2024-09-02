@@ -3,13 +3,19 @@ package io.github.paopaoyue.mesh.rpc.config;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
+@Validated
 @ConfigurationProperties(prefix = "mesh.rpc")
 public class Properties {
+    @NotBlank
+    private String env = "default";
     @NotNull
     private boolean serverEnabled = false;
     @NestedConfigurationProperty
@@ -26,7 +32,7 @@ public class Properties {
     @NotNull
     private boolean clientEnabled = false;
     @NestedConfigurationProperty
-    private Set<ServiceProperties> clientServices = Set.of();
+    private Set<ServiceProperties> clientServices = new HashSet<>();
     @Range(min = 1, max = 60)
     private int clientShutDownTimeout = 10;
 
@@ -40,6 +46,14 @@ public class Properties {
     private int keepAliveIdleTimeout = 10;
     @Range(min = 1, max = 3)
     private int keepAliveHeartbeatTimeout = 1;
+
+    public String getEnv() {
+        return env;
+    }
+
+    public void setEnv(String env) {
+        this.env = env;
+    }
 
     public boolean isServerEnabled() {
         return serverEnabled;

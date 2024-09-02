@@ -1,5 +1,6 @@
 package io.github.paopaoyue.mesh.rpc.util;
 
+import io.github.paopaoyue.mesh.rpc.core.util.IDGenerator;
 import io.github.paopaoyue.mesh.rpc.proto.Protocol;
 
 import java.net.Socket;

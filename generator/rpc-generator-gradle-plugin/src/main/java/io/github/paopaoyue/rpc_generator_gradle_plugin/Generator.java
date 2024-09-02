@@ -97,7 +97,8 @@ public class Generator {
         info.put("service", inputInfo.serviceName);
         info.put("serviceClass", convertSnakeToCamel(inputInfo.serviceShortAlias));
         info.put("methodMap", parseInfo.methodMap);
-        info.put("protoObject", parseInfo.methodMap.values().stream().findAny().orElseThrow().objectName);
+        info.put("protoObject", parseInfo.methodMap.values().stream().findAny()
+                .orElseThrow(() -> new IllegalArgumentException("No rpc method specified!")).objectName);
 
         Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
         cfg.setClassForTemplateLoading(this.getClass(), "/templates");

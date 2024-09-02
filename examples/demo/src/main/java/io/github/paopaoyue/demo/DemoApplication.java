@@ -4,8 +4,8 @@ import io.github.paopaoyue.demo.api.IDemoCaller;
 import io.github.paopaoyue.demo.proto.DemoProto;
 import io.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import io.github.paopaoyue.mesh.rpc.api.CallOption;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,7 +27,7 @@ public class DemoApplication {
     @ConditionalOnBean(IDemoCaller.class)
     public static class DemoRunner {
 
-        Logger logger = LoggerFactory.getLogger(DemoRunner.class);
+        Logger logger = LogManager.getLogger(DemoRunner.class);
 
         @Autowired
         private IDemoCaller demoCaller;
