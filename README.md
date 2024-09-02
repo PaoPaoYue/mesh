@@ -38,7 +38,7 @@ You can create a new Springboot project by using the [Spring Initializr](https:/
 2. Add the following to your `build.gradle` file:
 ```groovy
 plugins {
-    id 'io.github.paopaoyue.ypp-rpc-generator' version '0.0.17' // or 0.0.8-jdk8 for java 8 
+    id 'io.github.paopaoyue.ypp-rpc-generator' version '0.0.18' // or 0.0.18-jdk8 for java 8 
 }
 
 rpcGenerator {
