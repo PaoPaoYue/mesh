@@ -12,7 +12,7 @@ public class RpcGeneratorPlugin implements Plugin<Project> {
 
     public void apply(Project project) {
         project.getDependencies().add("implementation", "com.google.protobuf:protobuf-java:4.26.0");
-        project.getDependencies().add("implementation", "io.github.paopaoyue:ypp-rpc:0.0.18-jdk8");
+        project.getDependencies().add("implementation", "io.github.paopaoyue:ypp-rpc:0.0.19-jdk8");
 
         RpcGeneratorPluginExtension extension = project.getExtensions()
                 .create("rpcGenerator", RpcGeneratorPluginExtension.class);

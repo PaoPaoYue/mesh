@@ -169,6 +169,7 @@ public class Properties {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("env=").append(env);
         if (serverEnabled) {
             sb.append(", serverService=").append(serverService);
             sb.append(", serverNetworkThreads=").append(serverNetworkThreads);
@@ -193,6 +194,6 @@ public class Properties {
         } else {
             return "Properties{serverEnabled=false, clientEnabled=false}";
         }
-        return "Properties{" + sb.substring(2) + '}';
+        return "Properties{" + sb.toString() + '}';
     }
 }
