@@ -1,59 +1,39 @@
 package main
 
 import (
-	"context"
+	xds "github.com/cncf/xds/go/xds/type/v3"
 	"github.com/envoyproxy/envoy/contrib/golang/filters/network/source/go/pkg/network"
-	"github.com/paopaoyue/mesh/envoy-proxy/config"
+	config2 "github.com/paopaoyue/mesh/envoy-proxy/config"
 	"github.com/paopaoyue/mesh/envoy-proxy/discovery"
 	"github.com/paopaoyue/mesh/envoy-proxy/filter"
-	"log/slog"
-	"strings"
-	"sync"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 func init() {
-	network.RegisterNetworkFilterConfigFactory("ypp-rpc-go-proxy", cf)
-	network.RegisterNetworkFilterConfigParser(&config.Parser{})
+	network.RegisterNetworkFilterConfigFactory("ypp-rpc-proxy", cf)
 }
 
 var cf = &configFactory{}
 
-type configFactory struct {
-	ff   *filter.StreamFilterFactory
-	once sync.Once
-}
+type configFactory struct{}
 
-func (f *configFactory) CreateFactoryFromConfig(any interface{}) network.FilterFactory {
-	f.once.Do(func() {
-		prop, ok := any.(*config.Properties)
-		if !ok {
-			panic("invalid config")
-		}
+func (f *configFactory) CreateFactoryFromConfig(config interface{}) network.FilterFactory {
+	a := config.(*anypb.Any)
+	configStruct := &xds.TypedStruct{}
+	_ = a.UnmarshalTo(configStruct)
 
-		switch strings.ToLower(prop.LogLevel) {
-		case "debug":
-			slog.SetLogLoggerLevel(slog.LevelDebug)
-		case "info":
-			slog.SetLogLoggerLevel(slog.LevelInfo)
-		case "warn":
-			slog.SetLogLoggerLevel(slog.LevelWarn)
-		case "error":
-			slog.SetLogLoggerLevel(slog.LevelError)
-		}
+	prop := config2.NewProperties()
+	_ = prop.LoadFromConfig(configStruct)
 
-		slog.Info("Initiating YPP RPC Go Proxy Plugin", "properties", prop)
-
-		f.ff = filter.NewStreamFilterFactory(prop)
-		if prop.StaticServices != nil {
-			f.ff.RegisterDiscovery(discovery.NewStaticServiceDiscovery(prop.StaticServices))
-		} else {
-			sd := discovery.NewK8sServiceDiscovery()
-			sd.Watch(context.Background())
-			f.ff.RegisterDiscovery(sd)
-		}
-		f.ff.StartSentinel()
-	})
-	return f.ff
+	ff := filter.NewStreamFilterFactory(prop)
+	ff.RegisterDiscovery(discovery.NewStaticServiceDiscovery("demo", "default", []discovery.Endpoint{
+		{
+			Addr: "localhost",
+			Port: 8080,
+		},
+	}))
+	ff.StartSentinel()
+	return ff
 }
 
 func main() {
