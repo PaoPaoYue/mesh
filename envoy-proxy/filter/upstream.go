@@ -4,7 +4,6 @@ import (
 	"github.com/envoyproxy/envoy/contrib/golang/common/go/api"
 	"github.com/paopaoyue/mesh/envoy-proxy/discovery"
 	"github.com/paopaoyue/mesh/envoy-proxy/proto"
-	"github.com/paopaoyue/mesh/envoy-proxy/util"
 	pb "google.golang.org/protobuf/proto"
 	"log/slog"
 	"sync"
@@ -14,7 +13,6 @@ import (
 type Request struct {
 	packet     *proto.Packet
 	downFilter *DownFilter
-	resend     int // times redirected back to downFilter
 }
 
 type UpFilter struct {
@@ -32,17 +30,16 @@ type UpFilter struct {
 }
 
 func NewUpFilter(ff *StreamFilterFactory, ep discovery.Endpoint) *UpFilter {
-	slog.Debug("upFilter NewUpFilter", "upFilter", ep)
 	return &UpFilter{
 		ff:         ff,
 		ep:         ep,
 		ch:         make(chan Request),
-		parser:     NewStreamParser(ff.Prop.PacketMaxSize),
+		parser:     NewStreamParser(),
 		lastActive: time.Now(),
 	}
 }
 
-func (f *UpFilter) SendRequest(packet *proto.Packet, downFilter *DownFilter, resend int) {
+func (f *UpFilter) SendRequest(packet *proto.Packet, downFilter *DownFilter) bool {
 	f.lock.RLock()
 	defer f.lock.RUnlock()
 	if !f.closed {
@@ -50,42 +47,24 @@ func (f *UpFilter) SendRequest(packet *proto.Packet, downFilter *DownFilter, res
 		if downFilter != nil {
 			f.requests.Store(packet.Header.RequestId, downFilter)
 		}
-		select {
-		case f.ch <- Request{
+		f.ch <- Request{
 			packet:     packet,
 			downFilter: downFilter,
-			resend:     resend,
-		}:
-		case <-time.After(time.Duration(f.ff.Prop.UpstreamConnectionTimeout) * time.Millisecond):
-			slog.Warn("upFilter SendRequest, connection timeout", "upFilter", f.ep, "packet", packet)
 		}
-	} else {
-		slog.Warn("upFilter SendRequest, connection closed and resending", "upFilter", f.ep, "packet", packet)
-		if util.IsServiceCall(packet.Header.Flag) {
-			downFilter.SendRequest(packet, resend+1)
-		}
+		return true
 	}
+	return false
 }
 
-func (f *UpFilter) Close(now bool) {
+func (f *UpFilter) Close() {
 	f.lock.Lock()
+	defer f.lock.Unlock()
 	if !f.closed {
-		slog.Debug("upFilter closing", "upFilter", f.ep)
-		f.ff.UpFilters.CompareAndDelete(f.ep, f)
+		slog.Debug("upFilter %v closing", f.ep)
+		f.ff.UpFilters.Delete(f.ep)
 		close(f.ch)
+		f.cb.Close(api.FlushWrite)
 		f.closed = true
-		f.lock.Unlock()
-		if !now {
-			data, err := pb.Marshal(util.FinRequestPacket)
-			if err != nil {
-				slog.Error("upFilter marshal fin request packet error, skipping", "upFilter", f.ep, "error", err.Error())
-			} else {
-				slog.Debug("upFilter sending fin request", "upFilter", f.ep)
-				f.cb.Write(data, true)
-			}
-		}
-	} else {
-		f.lock.Unlock()
 	}
 }
 
@@ -94,10 +73,8 @@ func (f *UpFilter) CheckActive(duration time.Duration) {
 		return
 	}
 	if time.Since(f.lastActive) > duration {
-		slog.Debug("upFilter inactive, closing", "upFilter", f.ep, "duration", time.Since(f.lastActive))
-		go f.Close(false)
-	} else {
-		go f.SendRequest(util.PingRequestPacket, nil, 0)
+		slog.Debug("upFilter %v inactive for %v, closing", f.ep, duration)
+		f.Close()
 	}
 }
 
@@ -106,32 +83,20 @@ func (f *UpFilter) OnPoolReady(cb api.ConnectionCallback) {
 	f.cb.EnableHalfClose(false)
 	localAddr, _ := f.cb.StreamInfo().UpstreamLocalAddress()
 	remoteAddr, _ := f.cb.StreamInfo().UpstreamRemoteAddress()
-	slog.Debug("upFilter OnPoolReady", "upFilter", f.ep, "localAddr", localAddr, "remoteAddr", remoteAddr)
+	slog.Debug("upFilter %v OnPoolReady, local: %v, remote: %v", f.ep, localAddr, remoteAddr)
 	go func() {
-		defer func() {
-			if r := recover(); r != nil {
-				slog.Error("upFilter OnPoolReady panic recovered", "upFilter", f.ep, "error", r)
-			}
-		}()
 		for request := range f.ch {
 			f.lock.RLock()
-			if f.closed && util.IsServiceCall(request.packet.Header.Flag) {
+			if f.closed {
 				downFilter, ok := f.requests.Load(request.packet.Header.RequestId)
 				if ok {
-					slog.Warn("upFilter closed, resending request", "upFilter", f.ep, "packet", request.packet)
-					downFilter.(*DownFilter).SendRequest(request.packet, request.resend+1)
-				} else {
-					slog.Error("upFilter closed, resending request but downFilter not found", "upFilter", f.ep, "packet", request.packet)
+					downFilter.(*DownFilter).SendRequest(request.packet)
 				}
 			} else {
-				if util.IsServiceCall(request.packet.Header.Flag) {
-					f.lastActive = time.Now()
-				}
 				data, err := pb.Marshal(request.packet)
 				if err != nil {
-					slog.Error("upFilter marshal request packet error, skipping", "upFilter", f.ep, "error", err.Error())
+					slog.Error("upFilter %v marshal request packet error: %v, skipping", f.ep, err)
 				} else {
-					slog.Debug("upFilter request sending", "upFilter", f.ep, "packet", request.packet)
 					f.cb.Write(data, false)
 				}
 			}
@@ -141,48 +106,31 @@ func (f *UpFilter) OnPoolReady(cb api.ConnectionCallback) {
 }
 
 func (f *UpFilter) OnPoolFailure(poolFailureReason api.PoolFailureReason, transportFailureReason string) {
-	slog.Error("upFilter OnPoolFailure", "upFilter", f.ep, "poolFailureReason", poolFailureReason, "transportFailureReason", transportFailureReason)
-	go func() {
-		defer func() {
-			if r := recover(); r != nil {
-				slog.Error("upFilter OnPoolFailure panic recovered", "upFilter", f.ep, "error", r)
-			}
-		}()
-		for request := range f.ch {
-			downFilter, ok := f.requests.Load(request.packet.Header.RequestId)
-			if ok {
-				slog.Warn("upFilter OnPoolFailure, resending request", "upFilter", f.ep, "request", request.packet.Header.RequestId)
-				downFilter.(*DownFilter).SendRequest(request.packet, request.resend+1)
-			} else {
-				slog.Error("upFilter OnPoolFailure, resending request but downFilter not found", "upFilter", f.ep, "packet", request.packet)
-			}
-		}
-	}()
-	f.lock.Lock()
-	defer f.lock.Unlock()
-	f.ff.UpFilters.CompareAndDelete(f.ep, f)
+	slog.Error("upFilter %v OnPoolFailure, reason: %v, transportFailureReason: %v", f.ep, poolFailureReason, transportFailureReason)
+	f.ff.UpFilters.Delete(f.ep)
 	f.closed = true
 	close(f.ch)
+	for request := range f.ch {
+		downFilter, ok := f.requests.Load(request.packet.Header.RequestId)
+		if ok {
+			downFilter.(*DownFilter).SendRequest(request.packet)
+		}
+	}
 }
 
 func (f *UpFilter) OnData(buffer []byte, endOfStream bool) {
+	slog.Debug("upFilter %v OnData,  buffer: %v, endOfStream: %v", f.ep, string(buffer), endOfStream)
 	packets, err := f.parser.Parse(buffer)
 	if err != nil {
-		slog.Error("upFilter parse stream data error, closing connection", "upFilter", f.ep, "error", err.Error())
-		f.cb.Close(api.NoFlush)
+		slog.Error("upFilter %v parse stream data error: %v, closing connection", f.ep, err)
+		f.Close()
 		return
 	}
 	for _, packet := range packets {
-		slog.Debug("upFilter received response", "upFilter", f.ep, "packet", packet)
-		if util.IsSystemCall(packet.Header.Flag) {
-			continue
-		}
-		downFilter, ok := f.requests.Load(packet.Header.RequestId)
-		if ok {
+		if downFilter, ok := f.requests.Load(packet.Header.RequestId); ok {
+			f.lastActive = time.Now()
 			f.requests.Delete(packet.Header.RequestId)
 			downFilter.(*DownFilter).SendResponse(packet)
-		} else {
-			slog.Error("upFilter sending response but downFilter not found", "upFilter", f.ep, "packet", packet)
 		}
 	}
 
@@ -190,8 +138,8 @@ func (f *UpFilter) OnData(buffer []byte, endOfStream bool) {
 
 func (f *UpFilter) OnEvent(event api.ConnectionEvent) {
 	remoteAddr, _ := f.cb.StreamInfo().UpstreamRemoteAddress()
-	slog.Debug("upFilter OnEvent", "upFilter", f.ep, "event", event, "remoteAddr", remoteAddr)
+	slog.Debug("upFilter %v OnEvent, addr: %v, event: %v", f.ep, remoteAddr, event)
 	if event == api.LocalClose || event == api.RemoteClose {
-		f.Close(true)
+		f.Close()
 	}
 }
