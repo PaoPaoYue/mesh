@@ -54,21 +54,13 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 Create the name of the service account to use
 */}}
 {{- define "mesh-proxy.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
 {{- default (include "mesh-proxy.fullname" .) .Values.serviceAccount.name }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.name }}
 {{- end }}
+
 {{- define "mesh-proxy.serviceAccountRoleName" -}}
-{{- if .Values.serviceAccount.create }}
 {{- default (include "mesh-proxy.fullname" .) .Values.serviceAccount.roleName }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.roleBindingName }}
 {{- end }}
-{{- define "mesh-proxy.serviceAccountRoleName" -}}
-{{- if .Values.serviceAccount.create }}
+
+{{- define "mesh-proxy.serviceAccountRoleBindingName" -}}
 {{- default (include "mesh-proxy.fullname" .) .Values.serviceAccount.roleBindingName }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.roleBindingName }}
-{{- end }}
 {{- end }}

@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . /app
 
 # Build the application
-RUN gradle :demo:bootJar
+RUN gradle bootJar
 
 # Use a lighter base image for the final build
 FROM openjdk:21-slim
