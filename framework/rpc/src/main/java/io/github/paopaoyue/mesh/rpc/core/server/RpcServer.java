@@ -74,6 +74,7 @@ public class RpcServer {
 
         status = Status.TERMINATING;
         try {
+            Thread.sleep(prop.getServerShutDownDelay() * 1000L); // wait for pod delete event broadcast to all clients
             mainReactor.shutdown();
             for (SubReactor subReactor : subReactors) {
                 subReactor.shutdown();

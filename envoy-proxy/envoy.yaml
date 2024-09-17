@@ -12,13 +12,14 @@ static_resources:
         typed_config:
           "@type": type.googleapis.com/envoy.extensions.filters.network.golang.v3alpha.Config
           is_terminal_filter: true
-          library_id: simple
-          library_path: "/lib/simple.so"
-          plugin_name: simple
+          library_id: ypp-rpc-go-proxy
+          library_path: "/lib/ypp-rpc-go-proxy.so"
+          plugin_name: ypp-rpc-go-proxy
           plugin_config:
             "@type": type.googleapis.com/xds.type.v3.TypedStruct
             value:
-              echo_server_addr: echo_service
+              log.level: info
+
   clusters:
   - name: plainText
     type: ORIGINAL_DST

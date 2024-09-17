@@ -51,7 +51,7 @@ public class ConnectionHandler {
         this.readBuffer = new ModeByteBuffer(bufferLen);
         this.writeBuffer = new ModeByteBuffer(bufferLen);
         this.writeQueue = new LinkedBlockingQueue<>();
-        this.lastActiveTime = 0;
+        this.lastActiveTime = System.currentTimeMillis();
         this.activeWorkerNum = new AtomicInteger(0);
 
         this.key = key;

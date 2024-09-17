@@ -5,6 +5,7 @@ public class Flag {
     public static final int SERVICE_CALL = 1 << 6;
     public static final int KEEP_ALIVE = 1;
     public static final int FIN = 1 << 1;
+    public static final int PROXY_FAILED = 1 << 2;
 
     private int value;
 
