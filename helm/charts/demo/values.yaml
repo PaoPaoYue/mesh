@@ -33,7 +33,9 @@ env:
 podAnnotations: {}
 # This is for setting Kubernetes Labels to a Pod.
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-podLabels: {}
+podLabels:
+  ypp-rpc: "true"
+  ypp-rpc-service: "demo-service"
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -71,14 +73,14 @@ resources:
 livenessProbe:
   tcpSocket:
     port: 50051
-  initialDelaySeconds: 30
-  periodSeconds: 10
+  initialDelaySeconds: 900
+  periodSeconds: 30
 
 readinessProbe:
   tcpSocket:
     port: 50051
-  initialDelaySeconds: 5
-  periodSeconds: 10
+  initialDelaySeconds: 900
+  periodSeconds: 30
 
 
 # Additional volumes on the output Deployment definition.
