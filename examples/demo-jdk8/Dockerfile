@@ -17,7 +17,7 @@ FROM openjdk:8-jdk-alpine
 WORKDIR /app
 
 # Copy the JAR file from the build stage
-COPY --from=build /app/demo/build/libs/*.jar app.jar
+COPY --from=build /app/build/libs/*.jar app.jar
 
 # Expose the application port
 EXPOSE 8080
