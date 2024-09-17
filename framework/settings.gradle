@@ -1,4 +1,0 @@
-rootProject.name = 'framework'
-
-include 'rpc'
-include 'rpc-jdk8'

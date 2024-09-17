@@ -1,4 +1,0 @@
-rootProject.name = 'generator'
-
-include 'rpc-generator-gradle-plugin'
-include 'rpc-generator-gradle-plugin-jdk8'
