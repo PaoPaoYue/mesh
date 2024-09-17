@@ -45,7 +45,7 @@ func (sd *K8sServiceDiscovery) listEndpoints(ctx context.Context, serviceName, e
 		LabelSelector: fmt.Sprintf("%s=%s", RpcServiceLabel, serviceName),
 	})
 	if err != nil {
-		slog.Error("Failed to list pods using k8s api: %v", err)
+		slog.Error("Failed to list pods using k8s api", "err", err.Error())
 		return []Endpoint{}
 	}
 
@@ -53,7 +53,7 @@ func (sd *K8sServiceDiscovery) listEndpoints(ctx context.Context, serviceName, e
 	for _, pod := range pods.Items {
 		if pod.Status.Phase == "Running" && pod.DeletionTimestamp == nil {
 			if ep, ok := getEndpointFromPodSpec(&pod); ok {
-				slog.Info("Adding pod %v Endpoint {host: %v, port: %v} to service %s", pod.Name, ep.Addr, ep.Port, serviceName)
+				slog.Info("Adding pod Endpoint", "name", pod.Name, "host", ep.Addr, "port", ep.Port, "service", serviceName, "env", env)
 				sd.addEndpoint(ctx, serviceName, env, ep)
 			}
 		}
@@ -77,17 +77,18 @@ func (sd *K8sServiceDiscovery) SelectEndpoint(ctx context.Context, serviceName, 
 	}
 }
 
-func (sd *K8sServiceDiscovery) Watch(ctx context.Context, serviceName, env string) {
+func (sd *K8sServiceDiscovery) Watch(ctx context.Context) {
 
 	sigCh := make(chan os.Signal)
 	stopCh := make(chan struct{})
 	signal.Notify(sigCh, syscall.SIGTERM, syscall.SIGINT)
 	// close the stopCh when the system exits
 	go func() {
-		r := recover()
-		if r != nil {
-			slog.Error("Recovered from panic: %v", r)
-		}
+		defer func() {
+			if r := recover(); r != nil {
+				slog.Error("Recovered from panic", "error", r)
+			}
+		}()
 		defer close(stopCh)
 		<-sigCh
 	}()
@@ -100,29 +101,34 @@ func (sd *K8sServiceDiscovery) Watch(ctx context.Context, serviceName, env strin
 			oldState := oldObj.(*v1.Pod)
 			newState := newObj.(*v1.Pod)
 
+			var serviceName, env string
 			if isRpc, ok := newState.Labels[RpcLabel]; !ok || isRpc != "true" {
 				return
 			}
+			if serviceName = newState.Labels[RpcServiceLabel]; serviceName == "" {
+				return
+			}
+			env = newState.Namespace
 
 			if !isPodReady(oldState) && isPodReady(newState) {
 				if ep, ok := getEndpointFromPodSpec(newState); ok {
-					slog.Info("Adding pod %v Endpoint {host: %v, port: %v} to service %s",
-						newState.Name, ep.Addr, ep.Port, serviceName)
+					slog.Info("Adding pod Endpoint",
+						"name", newState.Name, "host", ep.Addr, "port", ep.Port, "service", serviceName, "env", env)
 					sd.addEndpoint(ctx, serviceName, env, ep)
 				}
 			}
 
 			if !isPodTerminating(oldState) && isPodTerminating(newState) {
 				if ep, ok := getEndpointFromPodSpec(newState); ok {
-					slog.Info("Deleting pod %v Endpoint {host: %v, port: %v} of service %s",
-						newState.Name, ep.Addr, ep.Port, serviceName)
+					slog.Info("Deleting pod Endpoint",
+						"name", newState.Name, "host", ep.Addr, "port", ep.Port, "service", serviceName, "env", env)
 					sd.removeEndpoint(ctx, serviceName, env, ep)
 				}
 			}
 		},
 	})
 	if err != nil {
-		slog.Error("Failed to add event handler to Pod informer: %v", err)
+		slog.Error("Failed to add event handler to Pod informer", err, err.Error())
 		return
 	}
 
