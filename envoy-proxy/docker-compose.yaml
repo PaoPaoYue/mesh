@@ -1,0 +1,12 @@
+services:
+
+  proxy:
+    build:
+        context: .
+        dockerfile: Dockerfile
+        args:
+        - ENVOY_CONFIG=local_test.yaml
+    image: envoy-proxy:latest
+    network_mode: host
+    ports:
+    - "${PORT_PROXY:-10000}:10000"

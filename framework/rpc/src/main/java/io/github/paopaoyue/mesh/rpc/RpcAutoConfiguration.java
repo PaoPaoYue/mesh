@@ -93,7 +93,7 @@ public class RpcAutoConfiguration implements ApplicationContextAware {
             throw new BeanCreationException("No service stub found, please add @ServiceServerStub to your service stub implementation");
         }
         if (!serviceServerStubs.containsKey(serviceProperties.getName())) {
-            throw new BeanCreationException("Service stub not found for service properties, please check the service name in @ServiceClientStub");
+            throw new BeanCreationException("Service stub not found for service properties, please check the service name in @ServiceClientStub and corresponding properties");
         }
         return rpcServer;
     }
@@ -119,7 +119,7 @@ public class RpcAutoConfiguration implements ApplicationContextAware {
             throw new BeanCreationException("No service stub found, please add @ServiceClientStub to your service stub implementation");
         }
         if (serviceProperties.keySet().stream().anyMatch(s -> !serviceClientStubs.containsKey(s))) {
-            throw new BeanCreationException("Service stub not found for service properties, please check the service name in @ServiceClientStub");
+            throw new BeanCreationException("Service stub not found for service properties, please check the service name in @ServiceClientStub and corresponding properties");
         }
         return rpcClient;
     }

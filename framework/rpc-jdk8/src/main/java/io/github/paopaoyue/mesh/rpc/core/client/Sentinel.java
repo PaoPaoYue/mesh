@@ -35,7 +35,7 @@ public class Sentinel extends TimerTask {
         connectionPool.forEach((key, connectionHandler) -> {
             System.PingResponse response = RpcAutoConfiguration.getRpcClient().getSystemStub().process(System.PingResponse.class, HEARTBEAT_REQUEST, connectionHandler.getServiceName(), HEARTBEAT_CALLOPTION);
             if (!RespBaseUtil.isOK(response.getBase())) {
-                logger.error("{} keep alive heart beat ping failed: code={}, {}", connectionHandler, response.getBase().getCode(), response.getBase().getMessage());
+                logger.error("{} keep alive heartbeat ping failed: code={}, {}", connectionHandler, response.getBase().getCode(), response.getBase().getMessage());
             }
         });
     }

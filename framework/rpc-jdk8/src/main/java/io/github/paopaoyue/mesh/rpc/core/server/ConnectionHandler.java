@@ -52,7 +52,7 @@ public class ConnectionHandler {
         this.readBuffer = new ModeByteBuffer(bufferLen);
         this.writeBuffer = new ModeByteBuffer(bufferLen);
         this.writeQueue = new LinkedBlockingQueue<>();
-        this.lastActiveTime = 0;
+        this.lastActiveTime = System.currentTimeMillis();
         this.activeWorkerNum = new AtomicInteger(0);
 
         this.key = key;
@@ -127,8 +127,9 @@ public class ConnectionHandler {
                 readBuffer.limit(readBuffer.position() + currentPacketLength);
                 currentPacket = Protocol.Packet.parseFrom(readBuffer.getBuffer());
             } catch (InvalidProtocolBufferException e) {
-                logger.error("{} request packet parsing failed, skip this packet: {}", this, e.getMessage(), e);
-                currentPacketLength = 0;
+                logger.error("{} request packet not following protocol, closing connection", this);
+                stopNow();
+                return;
             } finally {
                 readBuffer.limit(currentLimit);
                 readBuffer.position(readBuffer.position() + currentPacketLength);

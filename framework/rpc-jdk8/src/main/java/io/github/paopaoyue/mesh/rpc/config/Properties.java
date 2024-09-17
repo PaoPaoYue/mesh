@@ -28,6 +28,11 @@ public class Properties {
     private int serverWorkerKeepAliveTimeout = 60;
     @Range(min = 1, max = 60)
     private int serverShutDownTimeout = 10;
+    @Range(min = 0, max = 4)
+    private int ServerShutDownDelay = 0;
+    private boolean ServerHealthCheckEnabled = false;
+    @Range(min = 1000, max = 65535)
+    private int ServerHealthCheckPort = 50051;
 
     @NotNull
     private boolean clientEnabled = false;
@@ -103,6 +108,30 @@ public class Properties {
         this.serverShutDownTimeout = serverShutDownTimeout;
     }
 
+    public int getServerShutDownDelay() {
+        return ServerShutDownDelay;
+    }
+
+    public void setServerShutDownDelay(int ServerShutDownDelay) {
+        this.ServerShutDownDelay = ServerShutDownDelay;
+    }
+
+    public boolean isServerHealthCheckEnabled() {
+        return ServerHealthCheckEnabled;
+    }
+
+    public void setServerHealthCheckEnabled(boolean ServerHealthCheckEnabled) {
+        this.ServerHealthCheckEnabled = ServerHealthCheckEnabled;
+    }
+
+    public int getServerHealthCheckPort() {
+        return ServerHealthCheckPort;
+    }
+
+    public void setServerHealthCheckPort(int ServerHealthCheckPort) {
+        this.ServerHealthCheckPort = ServerHealthCheckPort;
+    }
+
     public boolean isClientEnabled() {
         return clientEnabled;
     }
@@ -170,12 +199,16 @@ public class Properties {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("env=").append(env);
         if (serverEnabled) {
             sb.append(", serverService=").append(serverService);
             sb.append(", serverNetworkThreads=").append(serverNetworkThreads);
             sb.append(", serverWorkerThreads=").append(serverWorkerThreads);
             sb.append(", serverWorkerKeepAliveTimeout=").append(serverWorkerKeepAliveTimeout);
             sb.append(", serverShutDownTimeout=").append(serverShutDownTimeout);
+            sb.append(", ServerShutDownDelay=").append(ServerShutDownDelay);
+            sb.append(", ServerHealthCheckEnabled=").append(ServerHealthCheckEnabled);
+            sb.append(", ServerHealthCheckPort=").append(ServerHealthCheckPort);
         } else {
             sb.append(", serverEnabled=false");
         }
@@ -194,6 +227,6 @@ public class Properties {
         } else {
             return "Properties{serverEnabled=false, clientEnabled=false}";
         }
-        return "Properties{" + sb.substring(2) + '}';
+        return "Properties{" + sb.toString() + '}';
     }
 }

@@ -381,6 +381,9 @@ public class ConnectionHandler {
         private void signal(Protocol.Packet packet) {
             lock.lock();
             try {
+                if ((packet.getHeader().getFlag() & Flag.PROXY_FAILED) != 0) {
+                    this.error = new ServiceUnavailableException("Service not found at forward proxy");
+                }
                 this.response = packet;
                 condition.signal();
             } finally {

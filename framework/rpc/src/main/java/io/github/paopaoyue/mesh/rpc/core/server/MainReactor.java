@@ -18,8 +18,9 @@ public class MainReactor implements Runnable {
     private static Logger logger = LogManager.getLogger(MainReactor.class);
     private Selector selector;
     private SelectionKey key;
+    private SelectionKey healthCheckKey;
     private ServerSocketChannel socketChannel;
-
+    private ServerSocketChannel healthCheckChannel;
 
     public MainReactor() {
     }
@@ -35,6 +36,12 @@ public class MainReactor implements Runnable {
             this.socketChannel.socket().bind(new InetSocketAddress(prop.getServerService().getHost(), prop.getServerService().getPort()));
             this.socketChannel.configureBlocking(false);
             this.key = this.socketChannel.register(selector, SelectionKey.OP_ACCEPT);
+            if (prop.isServerHealthCheckEnabled()) {
+                this.healthCheckChannel = ServerSocketChannel.open();
+                this.healthCheckChannel.socket().bind(new InetSocketAddress(prop.getServerService().getHost(), prop.getServerHealthCheckPort()));
+                this.healthCheckChannel.configureBlocking(false);
+                this.healthCheckKey = this.healthCheckChannel.register(selector, SelectionKey.OP_ACCEPT);
+            }
         } catch (IOException e) {
             logger.error("Main reactor initialize failure, check configuration: {}", e.getMessage(), e);
             RpcAutoConfiguration.getRpcServer().shutdown();
@@ -67,7 +74,12 @@ public class MainReactor implements Runnable {
             for (SelectionKey key : selected) {
                 if (key.isAcceptable()) {
                     try {
-                        acceptor.accept(socketChannel.accept());
+                        ServerSocketChannel channel = (ServerSocketChannel) key.channel();
+                        if (channel == socketChannel) {
+                            acceptor.accept(channel.accept());
+                        } else if (channel == healthCheckChannel) {
+                            channel.accept();
+                        }
                     } catch (IOException e) {
                         logger.error("Main reactor server socket accept() failed: {}", e.getMessage(), e);
                         RpcAutoConfiguration.getRpcServer().shutdown();
@@ -91,6 +103,12 @@ public class MainReactor implements Runnable {
 
     public void shutdown() {
         try {
+            if (RpcAutoConfiguration.getProp().isServerHealthCheckEnabled()) {
+                healthCheckChannel.socket().close();
+                healthCheckChannel.close();
+                healthCheckKey.cancel();
+            }
+
             socketChannel.socket().close();
             socketChannel.close();
             key.cancel();
