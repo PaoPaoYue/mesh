@@ -5,7 +5,7 @@ import (
 	"github.com/envoyproxy/envoy/contrib/golang/filters/network/source/go/pkg/network"
 	"github.com/paopaoyue/mesh/envoy-proxy/config"
 	"github.com/paopaoyue/mesh/envoy-proxy/discovery"
-	"github.com/paopaoyue/mesh/envoy-proxy/util"
+	"log/slog"
 	"sync"
 	"time"
 )
@@ -42,7 +42,7 @@ func (ff *StreamFilterFactory) CreateOrGetUpFilter(ep discovery.Endpoint) *UpFil
 		ff.lock.Lock()
 		defer ff.lock.Unlock()
 		upFilter, ok = ff.UpFilters.Load(ep)
-		if !!ok || upFilter.(*UpFilter).closed {
+		if !ok || upFilter.(*UpFilter).closed {
 			upFilter = NewUpFilter(ff, ep)
 			network.CreateUpstreamConn(ep.String(), upFilter.(*UpFilter))
 			ff.UpFilters.Store(ep, upFilter)
@@ -56,25 +56,29 @@ func (ff *StreamFilterFactory) RegisterDiscovery(discovery discovery.ServiceDisc
 }
 
 func (ff *StreamFilterFactory) StartSentinel() {
-	checkTimer := time.NewTimer(time.Duration(ff.Prop.KeepAliveInterval) * time.Second)
+	checkTicker := time.NewTicker(time.Duration(ff.Prop.KeepAliveInterval) * time.Second)
 	maxAlive := time.Duration(ff.Prop.KeepAliveTimeout) * time.Second
 	maxIdle := time.Duration(ff.Prop.KeepAliveIdleTimeout) * time.Second
 	go func() {
-		for {
-			select {
-			case <-checkTimer.C:
-				ff.DownFilters.Range(func(key, value interface{}) bool {
-					value.(*DownFilter).CheckAlive(maxAlive)
-					return true
-				})
-				ff.UpFilters.Range(func(key, value interface{}) bool {
-					value.(*UpFilter).CheckActive(maxIdle)
-					if !value.(*UpFilter).closed {
-						value.(*UpFilter).SendRequest(util.PingPacket, nil)
-					}
-					return true
-				})
+		// recover from panic
+		defer func() {
+			if r := recover(); r != nil {
+				slog.Error("Sentinel panic recovered", "err", r)
 			}
+		}()
+		for t := range checkTicker.C {
+			var downStreamCount, upStreamCount int
+			ff.DownFilters.Range(func(key, value interface{}) bool {
+				downStreamCount++
+				value.(*DownFilter).CheckAlive(maxAlive)
+				return true
+			})
+			ff.UpFilters.Range(func(key, value interface{}) bool {
+				upStreamCount++
+				value.(*UpFilter).CheckActive(maxIdle)
+				return true
+			})
+			slog.Debug("Sentinel check finished", "time", t, "downStreamCount", downStreamCount, "upStreamCount", upStreamCount)
 		}
 	}()
 }
