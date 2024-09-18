@@ -117,7 +117,7 @@ public class Reactor implements Runnable {
             selector.wakeup();
             return connectionHandler;
         } catch (Exception e) {
-            logger.error("Client reactor dispatch failure: {}", e);
+            logger.error("Client reactor dispatch failure: {}", e.getMessage(), e);
             throw new ServiceUnavailableException("Unable to connect to service: " + serviceName, e);
         }
     }

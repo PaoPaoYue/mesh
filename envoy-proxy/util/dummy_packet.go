@@ -10,7 +10,7 @@ var pingRequestBody, _ = anypb.New(&proto.PingRequest{
 })
 var PingRequestPacket = &proto.Packet{
 	Header: &proto.PacketHeader{
-		Length:    116,
+		Length:    1, // calculated on downFilter.SendResponse
 		Flag:      129,
 		RequestId: 0,
 		Service:   "proxy",
@@ -31,7 +31,7 @@ var finRequestBody, _ = anypb.New(&proto.PingRequest{
 })
 var FinRequestPacket = &proto.Packet{
 	Header: &proto.PacketHeader{
-		Length:    110,
+		Length:    1, // calculated on downFilter.SendResponse
 		Flag:      131,
 		RequestId: 0,
 		Service:   "proxy",

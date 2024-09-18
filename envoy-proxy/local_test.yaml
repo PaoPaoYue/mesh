@@ -20,14 +20,10 @@ static_resources:
             value:
               log.level: debug
               mesh.rpc.static_services:
-                - name: demo
+                - name: demo-service
                   env: default
                   host: 127.0.0.1
                   port: 8080
-                - name: demo
-                  env: default
-                  host: 127.0.0.1
-                  port: 9090
 
   clusters:
   - name: plainText
