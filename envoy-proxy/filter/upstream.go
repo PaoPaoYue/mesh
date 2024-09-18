@@ -80,6 +80,7 @@ func (f *UpFilter) Close(now bool) {
 			if err != nil {
 				slog.Error("upFilter marshal fin request packet error, skipping", "upFilter", f.ep, "error", err.Error())
 			} else {
+				f.parser.InjectPacketLength(data) // inject length field for dummy response
 				slog.Debug("upFilter sending fin request", "upFilter", f.ep)
 				f.cb.Write(data, true)
 			}
@@ -131,6 +132,9 @@ func (f *UpFilter) OnPoolReady(cb api.ConnectionCallback) {
 				if err != nil {
 					slog.Error("upFilter marshal request packet error, skipping", "upFilter", f.ep, "error", err.Error())
 				} else {
+					if request.packet.Header.Length <= lenFieldSize {
+						f.parser.InjectPacketLength(data) // inject length field for dummy response
+					}
 					slog.Debug("upFilter request sending", "upFilter", f.ep, "packet", request.packet)
 					f.cb.Write(data, false)
 				}
