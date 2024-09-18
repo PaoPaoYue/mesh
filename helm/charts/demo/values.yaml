@@ -11,7 +11,7 @@ image:
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.0.3"
+  tag: "0.0.4"
 
 # This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
@@ -74,13 +74,13 @@ livenessProbe:
   tcpSocket:
     port: 50051
   initialDelaySeconds: 30
-  periodSeconds: 30
+  periodSeconds: 10
 
 readinessProbe:
   tcpSocket:
     port: 50051
   initialDelaySeconds: 10
-  periodSeconds: 30
+  periodSeconds: 10
 
 
 # Additional volumes on the output Deployment definition.

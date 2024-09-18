@@ -34,6 +34,13 @@ public class DemoApplication {
         private IDemoCaller demoCaller;
 
         public void run() {
+            if (RpcAutoConfiguration.getProp().isServerHealthCheckEnabled()) {
+                try {
+                    Thread.sleep(10000); // wait for server health check pass to add to the service registry
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             var response = demoCaller.echo(DemoProto.EchoRequest.newBuilder().setText("hello world").build(), new CallOption());
             if (RespBaseUtil.isOK(response.getBase())) {
                 logger.info("echo response: {}", response.getText());
