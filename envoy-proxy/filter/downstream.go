@@ -120,6 +120,7 @@ func (f *DownFilter) OnData(buffer []byte, endOfStream bool) api.FilterStatus {
 		return api.NetworkFilterStopIteration
 	}
 	for _, packet := range packets {
+		slog.Debug("downFilter received request", "downFilter", f.ep, "packet", packet)
 		f.lastAlive = time.Now()
 		if util.IsServiceCall(packet.Header.Flag) {
 			f.SendRequest(packet, 0)
