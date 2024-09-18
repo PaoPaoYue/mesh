@@ -51,7 +51,7 @@ func (sd *K8sServiceDiscovery) listEndpoints(ctx context.Context, serviceName, e
 
 	// Loop through the pods and get IP addresses of running pods
 	for _, pod := range pods.Items {
-		if pod.Status.Phase == "Running" && pod.DeletionTimestamp == nil {
+		if isPodReady(&pod) {
 			if ep, ok := getEndpointFromPodSpec(&pod); ok {
 				slog.Info("Adding pod Endpoint", "name", pod.Name, "host", ep.Addr, "port", ep.Port, "service", serviceName, "env", env)
 				sd.BaseServiceDiscovery.addEndpoint(ctx, serviceName, env, ep)
@@ -66,6 +66,7 @@ func (sd *K8sServiceDiscovery) SelectEndpoint(ctx context.Context, serviceName, 
 	defer sd.lock.RUnlock()
 	key := getEndpointGroupKey(serviceName, env)
 	if eg, ok := sd.serviceMap[key]; !ok {
+		slog.Debug("Service not found in cache, listing endpoints", "service", serviceName, "env", env)
 		endpoints := sd.listEndpoints(ctx, serviceName, env)
 		if len(endpoints) == 0 {
 			return Endpoint{}, false
