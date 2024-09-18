@@ -4,6 +4,7 @@ import io.github.paopaoyue.demo_jdk8.api.IDemoCaller;
 import io.github.paopaoyue.demo_jdk8.proto.DemoProto;
 import io.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import io.github.paopaoyue.mesh.rpc.api.CallOption;
+import io.github.paopaoyue.mesh.rpc.util.RespBaseUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,11 @@ public class DemoApplication {
 
         public void run() {
             DemoProto.EchoResponse response = demoCaller.echo(DemoProto.EchoRequest.newBuilder().setText("hello world").build(), new CallOption());
-            logger.info("echo response: {}", response.getText());
+            if (RespBaseUtil.isOK(response.getBase())) {
+                logger.info("echo response: {}", response.getText());
+            } else {
+                logger.error("echo failed: {}", response.getBase().getMessage());
+            }
         }
     }
 

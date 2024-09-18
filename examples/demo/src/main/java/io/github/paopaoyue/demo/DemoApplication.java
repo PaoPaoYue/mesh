@@ -4,6 +4,7 @@ import io.github.paopaoyue.demo.api.IDemoCaller;
 import io.github.paopaoyue.demo.proto.DemoProto;
 import io.github.paopaoyue.mesh.rpc.RpcAutoConfiguration;
 import io.github.paopaoyue.mesh.rpc.api.CallOption;
+import io.github.paopaoyue.mesh.rpc.util.RespBaseUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +34,19 @@ public class DemoApplication {
         private IDemoCaller demoCaller;
 
         public void run() {
+            if (RpcAutoConfiguration.getProp().isServerHealthCheckEnabled()) {
+                try {
+                    Thread.sleep(10000); // wait for server health check pass to add to the service registry
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             var response = demoCaller.echo(DemoProto.EchoRequest.newBuilder().setText("hello world").build(), new CallOption());
-            logger.info("echo response: {}", response.getText());
+            if (RespBaseUtil.isOK(response.getBase())) {
+                logger.info("echo response: {}", response.getText());
+            } else {
+                logger.error("echo failed: {}", response.getBase().getMessage());
+            }
         }
     }
 
