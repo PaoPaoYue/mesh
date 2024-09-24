@@ -93,7 +93,7 @@ public class RpcAutoConfiguration implements ApplicationContextAware {
             throw new BeanCreationException("No service stub found, please add @ServiceServerStub to your service stub implementation");
         }
         if (!serviceServerStubs.containsKey(serviceProperties.getName())) {
-            throw new BeanCreationException("Service properties not found for service stub, please check the service name in @ServiceClientStub and corresponding properties");
+            throw new BeanCreationException("Service stub not found for service properties, please check the service name in @ServiceServerStub and corresponding properties");
         }
         return rpcServer;
     }
@@ -103,7 +103,7 @@ public class RpcAutoConfiguration implements ApplicationContextAware {
     public RpcClient rpcClient() {
         Map<String, Object> stubs = context.getBeansWithAnnotation(ServiceClientStub.class);
         Map<String, ServiceProperties> serviceProperties = prop.getClientServices().stream().collect(Collectors.toMap(ServiceProperties::getName, s -> s));
-        if (serviceProperties.isEmpty()) {
+        if (serviceProperties.isEmpty() && prop.getDefaultClientService() == null) {
             throw new BeanCreationException("No service properties found, please add client service properties to your configuration");
         }
         Map<String, IClientStub> serviceClientStubs;
@@ -118,8 +118,11 @@ public class RpcAutoConfiguration implements ApplicationContextAware {
         if (serviceClientStubs.isEmpty()) {
             throw new BeanCreationException("No client stub found, please add @ServiceClientStub to your service stub implementation");
         }
-        if (serviceClientStubs.keySet().stream().anyMatch(s -> !serviceProperties.containsKey(s))) {
+        if (serviceProperties.keySet().stream().anyMatch(s -> !serviceClientStubs.containsKey(s))) {
             throw new BeanCreationException("Clients' properties not found for client stub, please check the service name in @ServiceClientStub and corresponding properties");
+        }
+        if (serviceClientStubs.keySet().stream().anyMatch(s -> !serviceProperties.containsKey(s)) && prop.getDefaultClientService() == null) {
+            throw new BeanCreationException("Service properties not found for service stub, please check the corresponding properties or define default service properties");
         }
         return rpcClient;
     }

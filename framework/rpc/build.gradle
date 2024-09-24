@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'io.github.paopaoyue'
-version = '0.0.25'
+version = '0.0.26'
 
 java {
     sourceCompatibility = '21'
