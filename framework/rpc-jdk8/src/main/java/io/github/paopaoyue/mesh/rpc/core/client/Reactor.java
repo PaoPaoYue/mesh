@@ -102,7 +102,7 @@ public class Reactor implements Runnable {
 
     public ConnectionHandler createConnection(boolean keepAlive, String serviceName, String tag) {
         try {
-            ServiceProperties prop = serviceLookupTable.get(serviceName);
+            ServiceProperties prop = serviceLookupTable.getOrDefault(serviceName, RpcAutoConfiguration.getProp().getDefaultClientService());
             if (prop == null) {
                 throw new IllegalArgumentException("Service not found: " + serviceName);
             }

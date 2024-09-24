@@ -36,6 +36,8 @@ public class Properties {
     @NotNull
     private boolean clientEnabled = false;
     @NestedConfigurationProperty
+    private ServiceProperties defaultClientService = null;
+    @NestedConfigurationProperty
     private Set<ServiceProperties> clientServices = Set.of();
     @Range(min = 1, max = 60)
     private int clientShutDownTimeout = 10;
@@ -139,6 +141,14 @@ public class Properties {
         this.clientEnabled = clientEnabled;
     }
 
+    public ServiceProperties getDefaultClientService() {
+        return defaultClientService;
+    }
+
+    public void setDefaultClientService(ServiceProperties defaultClientService) {
+        this.defaultClientService = defaultClientService;
+    }
+
     public Set<ServiceProperties> getClientServices() {
         return clientServices;
     }
@@ -212,6 +222,7 @@ public class Properties {
             sb.append(", serverEnabled=false");
         }
         if (clientEnabled) {
+            sb.append(", defaultClientService=").append(defaultClientService);
             sb.append(", clientServices=").append(Arrays.toString(clientServices.stream().map(ServiceProperties::toString).toArray()));
             sb.append(", clientShutDownTimeout=").append(clientShutDownTimeout);
         } else {
