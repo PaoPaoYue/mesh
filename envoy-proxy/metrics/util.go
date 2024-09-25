@@ -3,7 +3,7 @@ package metrics
 import "github.com/paopaoyue/mesh/envoy-proxy/proto"
 
 func getMetricsNameFromPacket(packet *proto.Packet, suffix string) string {
-	return packet.Header.GetService() + packet.Header.GetHandler() + "." + suffix
+	return packet.Header.GetService() + "." + packet.Header.GetHandler() + "." + suffix
 }
 
 func getTagsFromPacket(packet *proto.Packet) []string {

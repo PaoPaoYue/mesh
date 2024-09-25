@@ -23,6 +23,7 @@ func AutoDiscoverMetrics() (Client, error) {
 
 	namespaces, err := clientSet.CoreV1().Namespaces().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
+		slog.Error("Failed to list namespaces using k8s api when auto discover datadog agent", "err", err.Error())
 		return NewDummyMetricsClient(), err
 	}
 
@@ -43,6 +44,7 @@ func AutoDiscoverMetrics() (Client, error) {
 			if len(service.Spec.Ports) > 0 {
 				port = int(service.Spec.Ports[0].Port)
 			}
+			slog.Info("Auto discovered datadog agent, using dogStatD metrics", "host", host, "port", port)
 			return NewDogStatsDClient(host, port)
 		}
 
