@@ -101,9 +101,9 @@ func (sd *BaseServiceDiscovery) removeEndpoint(ctx context.Context, serviceName,
 	key := getEndpointGroupKey(serviceName, env)
 	if eg, ok := sd.serviceMap[key]; ok {
 		eg.removeEndpoint(endpoint)
-	}
-	if len(sd.serviceMap[key].endpoints) == 0 {
-		delete(sd.serviceMap, key)
+		if len(sd.serviceMap[key].endpoints) == 0 {
+			delete(sd.serviceMap, key)
+		}
 	}
 }
 
