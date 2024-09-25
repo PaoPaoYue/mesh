@@ -4,6 +4,7 @@ module github.com/paopaoyue/mesh/envoy-proxy
 go 1.22.0
 
 require (
+	github.com/DataDog/datadog-go v4.8.3+incompatible
 	github.com/cncf/xds/go v0.0.0-20231128003011-0fa0005c9caa
 	github.com/envoyproxy/envoy v1.31.0
 	github.com/go-playground/validator/v10 v10.22.0
@@ -15,6 +16,7 @@ require (
 )
 
 require (
+	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.0.2 // indirect

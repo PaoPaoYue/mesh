@@ -30,12 +30,12 @@ func (p *StreamParser) Parse(data []byte) ([]*proto.Packet, error) {
 		data = p.buf
 	}
 	for {
-		if len(data) < lenFieldSize {
+		if len(data) < lenFieldSize+lenFieldOffset {
 			break
 		}
 		var pLen uint32
 		for i := 0; i < lenFieldSize; i++ {
-			pLen += uint32(data[i+lenFieldOffset] << (i * 8))
+			pLen += uint32(data[i+lenFieldOffset]) << (i * 8)
 		}
 		if pLen >= uint32(p.maxSize) {
 			slog.Warn("StreamParser Parse, packet size exceeds the limit", "pLen", pLen, "maxSize", p.maxSize)

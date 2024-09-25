@@ -17,6 +17,11 @@ type Request struct {
 	resend     int // times redirected back to downFilter
 }
 
+type requestRecord struct {
+	downFilter *DownFilter
+	timestamp  time.Time
+}
+
 type UpFilter struct {
 	api.EmptyUpstreamFilter
 
@@ -48,7 +53,10 @@ func (f *UpFilter) SendRequest(packet *proto.Packet, downFilter *DownFilter, res
 	if !f.closed {
 		// save the request id and downFilter, ignore proxy ping request which has no downFilter
 		if downFilter != nil {
-			f.requests.Store(packet.Header.RequestId, downFilter)
+			f.requests.Store(packet.Header.RequestId, requestRecord{
+				downFilter: downFilter,
+				timestamp:  time.Now(),
+			})
 		}
 		select {
 		case f.ch <- Request{
@@ -117,10 +125,10 @@ func (f *UpFilter) OnPoolReady(cb api.ConnectionCallback) {
 		for request := range f.ch {
 			f.lock.RLock()
 			if f.closed && util.IsServiceCall(request.packet.Header.Flag) {
-				downFilter, ok := f.requests.Load(request.packet.Header.RequestId)
+				record, ok := f.requests.Load(request.packet.Header.RequestId)
 				if ok {
 					slog.Warn("upFilter closed, resending request", "upFilter", f.ep, "packet", request.packet)
-					downFilter.(*DownFilter).SendRequest(request.packet, request.resend+1)
+					record.(requestRecord).downFilter.SendRequest(request.packet, request.resend+1)
 				} else {
 					slog.Error("upFilter closed, resending request but downFilter not found", "upFilter", f.ep, "packet", request.packet)
 				}
@@ -153,10 +161,10 @@ func (f *UpFilter) OnPoolFailure(poolFailureReason api.PoolFailureReason, transp
 			}
 		}()
 		for request := range f.ch {
-			downFilter, ok := f.requests.Load(request.packet.Header.RequestId)
+			record, ok := f.requests.Load(request.packet.Header.RequestId)
 			if ok {
 				slog.Warn("upFilter OnPoolFailure, resending request", "upFilter", f.ep, "request", request.packet.Header.RequestId)
-				downFilter.(*DownFilter).SendRequest(request.packet, request.resend+1)
+				record.(requestRecord).downFilter.SendRequest(request.packet, request.resend+1)
 			} else {
 				slog.Error("upFilter OnPoolFailure, resending request but downFilter not found", "upFilter", f.ep, "packet", request.packet)
 			}
@@ -181,10 +189,12 @@ func (f *UpFilter) OnData(buffer []byte, endOfStream bool) {
 		if util.IsSystemCall(packet.Header.Flag) {
 			continue
 		}
-		downFilter, ok := f.requests.Load(packet.Header.RequestId)
+		record, ok := f.requests.Load(packet.Header.RequestId)
 		if ok {
+			f.ff.MetricsClient.GaugeLatency(packet, float64(time.Since(record.(requestRecord).timestamp).Milliseconds()))
+			f.ff.MetricsClient.IncrSuccess(packet)
 			f.requests.Delete(packet.Header.RequestId)
-			downFilter.(*DownFilter).SendResponse(packet)
+			record.(requestRecord).downFilter.SendResponse(packet)
 		} else {
 			slog.Error("upFilter sending response but downFilter not found", "upFilter", f.ep, "packet", packet)
 		}

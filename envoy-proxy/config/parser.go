@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	xds "github.com/cncf/xds/go/xds/type/v3"
 	"github.com/go-playground/validator/v10"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -22,9 +23,23 @@ func (p *Parser) ParseConfig(raw *anypb.Any) any {
 	prop.KeepAliveIdleTimeout = getIntFromMap(m, "mesh.rpc.KeepAliveIdleTimeout", prop.KeepAliveIdleTimeout)
 	prop.UpstreamMaxResend = getIntFromMap(m, "mesh.rpc.UpstreamMaxResend", prop.UpstreamMaxResend)
 	prop.UpstreamConnectionTimeout = getIntFromMap(m, "mesh.rpc.UpstreamConnectionTimeout", prop.UpstreamConnectionTimeout)
+	prop.DiscoveryType = getStringFromMap(m, "mesh.rpc.DiscoveryType", prop.DiscoveryType)
+	prop.MetricsType = getStringFromMap(m, "mesh.rpc.MetricsType", prop.MetricsType)
 
 	if staticServices, ok := m["mesh.rpc.static_services"].([]any); ok {
 		prop.StaticServices = staticServices
+	}
+
+	// discoveryType must be one of "Static" or "K8s"
+	if prop.DiscoveryType != StaticDiscovery && prop.DiscoveryType != K8sDiscovery {
+		slog.Error("Invalid discovery type", "type", prop.DiscoveryType)
+		return errors.New("invalid discovery type")
+	}
+
+	// metricsType must be one of "None" or "Auto"
+	if prop.MetricsType != NoneMetric && prop.MetricsType != AutoMetric {
+		slog.Error("Invalid metrics type", "type", prop.MetricsType)
+		return errors.New("invalid metrics type")
 	}
 
 	validate := validator.New()
