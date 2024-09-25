@@ -62,8 +62,6 @@ func (sd *K8sServiceDiscovery) listEndpoints(ctx context.Context, serviceName, e
 }
 
 func (sd *K8sServiceDiscovery) SelectEndpoint(ctx context.Context, serviceName, env string) (Endpoint, bool) {
-	sd.lock.RLock()
-	defer sd.lock.RUnlock()
 	key := getEndpointGroupKey(serviceName, env)
 	if eg, ok := sd.serviceMap[key]; !ok {
 		slog.Debug("Service not found in cache, listing endpoints", "service", serviceName, "env", env)

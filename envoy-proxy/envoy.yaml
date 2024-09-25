@@ -18,7 +18,7 @@ static_resources:
           plugin_config:
             "@type": type.googleapis.com/xds.type.v3.TypedStruct
             value:
-              log.level: debug
+              log.level: info
               mesh.rpc.DiscoveryType: k8s
               mesh.rpc.MetricsType: auto
 
