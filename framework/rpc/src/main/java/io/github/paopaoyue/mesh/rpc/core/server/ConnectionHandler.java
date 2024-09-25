@@ -272,7 +272,7 @@ public class ConnectionHandler {
                     ", status=" + status +
                     '}';
         } catch (IOException e) {
-            logger.error("Client {} get remote address failed: {}", this, e.getMessage(), e);
+            logger.error("failed to get remote address", e);
             return "ServerConnectionHandler{" +
                     "status=" + status +
                     '}';
