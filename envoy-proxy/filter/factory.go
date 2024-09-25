@@ -1,10 +1,12 @@
 package filter
 
 import (
+	"context"
 	"github.com/envoyproxy/envoy/contrib/golang/common/go/api"
 	"github.com/envoyproxy/envoy/contrib/golang/filters/network/source/go/pkg/network"
 	"github.com/paopaoyue/mesh/envoy-proxy/config"
 	"github.com/paopaoyue/mesh/envoy-proxy/discovery"
+	"github.com/paopaoyue/mesh/envoy-proxy/metrics"
 	"log/slog"
 	"sync"
 	"time"
@@ -13,7 +15,8 @@ import (
 type StreamFilterFactory struct {
 	Prop *config.Properties
 
-	Discovery discovery.ServiceDiscovery
+	Discovery     discovery.ServiceDiscovery
+	MetricsClient metrics.Client
 
 	lock        sync.Mutex
 	UpFilters   sync.Map
@@ -51,8 +54,22 @@ func (ff *StreamFilterFactory) CreateOrGetUpFilter(ep discovery.Endpoint) *UpFil
 	return upFilter.(*UpFilter)
 }
 
-func (ff *StreamFilterFactory) RegisterDiscovery(discovery discovery.ServiceDiscovery) {
-	ff.Discovery = discovery
+func (ff *StreamFilterFactory) RegisterDiscovery() {
+	if ff.Prop.DiscoveryType == config.K8sDiscovery {
+		sd := discovery.NewK8sServiceDiscovery()
+		sd.Watch(context.Background())
+		ff.Discovery = sd
+	} else {
+		ff.Discovery = discovery.NewStaticServiceDiscovery(ff.Prop.StaticServices)
+	}
+}
+
+func (ff *StreamFilterFactory) RegisterMetrics() {
+	if ff.Prop.MetricsType == config.AutoMetric {
+		ff.MetricsClient, _ = metrics.AutoDiscoverMetrics()
+	} else {
+		ff.MetricsClient = &metrics.DummyMetricsClient{}
+	}
 }
 
 func (ff *StreamFilterFactory) StartSentinel() {

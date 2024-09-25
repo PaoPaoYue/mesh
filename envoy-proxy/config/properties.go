@@ -1,5 +1,15 @@
 package config
 
+const (
+	NoneMetric = "none"
+	AutoMetric = "auto"
+)
+
+const (
+	StaticDiscovery = "static"
+	K8sDiscovery    = "k8s"
+)
+
 type Properties struct {
 	LogLevel                  string
 	PacketMaxSize             int `validate:"min=1,max=2097152"` // 2 * 1024 * 1024
@@ -8,7 +18,10 @@ type Properties struct {
 	KeepAliveIdleTimeout      int `validate:"min=10,max=60"`     // seconds
 	UpstreamMaxResend         int `validate:"min=0,max=3"`       // times
 	UpstreamConnectionTimeout int `validate:"min=10,max=500"`    // milliseconds
-	StaticServices            []any
+
+	MetricsType    string
+	DiscoveryType  string
+	StaticServices []any
 }
 
 func NewProperties() *Properties {
@@ -19,6 +32,9 @@ func NewProperties() *Properties {
 		KeepAliveInterval:         2,           // Default: 2
 		KeepAliveIdleTimeout:      10,          // Default: 10
 		UpstreamMaxResend:         1,           // Default: 1
-		UpstreamConnectionTimeout: 10,          // Default: 10
+		UpstreamConnectionTimeout: 200,         // Default: 200
+		MetricsType:               NoneMetric,
+		DiscoveryType:             StaticDiscovery,
+		StaticServices:            []any{},
 	}
 }

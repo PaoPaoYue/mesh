@@ -1,10 +1,8 @@
 package main
 
 import (
-	"context"
 	"github.com/envoyproxy/envoy/contrib/golang/filters/network/source/go/pkg/network"
 	"github.com/paopaoyue/mesh/envoy-proxy/config"
-	"github.com/paopaoyue/mesh/envoy-proxy/discovery"
 	"github.com/paopaoyue/mesh/envoy-proxy/filter"
 	"log/slog"
 	"strings"
@@ -44,13 +42,8 @@ func (f *configFactory) CreateFactoryFromConfig(any interface{}) network.FilterF
 		slog.Info("Initiating YPP RPC Go Proxy Plugin", "properties", prop)
 
 		f.ff = filter.NewStreamFilterFactory(prop)
-		if prop.StaticServices != nil {
-			f.ff.RegisterDiscovery(discovery.NewStaticServiceDiscovery(prop.StaticServices))
-		} else {
-			sd := discovery.NewK8sServiceDiscovery()
-			sd.Watch(context.Background())
-			f.ff.RegisterDiscovery(sd)
-		}
+		f.ff.RegisterDiscovery()
+		f.ff.RegisterMetrics()
 		f.ff.StartSentinel()
 	})
 	return f.ff

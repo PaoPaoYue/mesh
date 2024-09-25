@@ -50,6 +50,7 @@ func (f *DownFilter) SendRequest(packet *proto.Packet, resend int) {
 	if resend > f.ff.Prop.UpstreamMaxResend {
 		slog.Warn("downFilter SendRequest, max resend reached", "downFilter",
 			f.ep, "resend", resend, "maxResend", f.ff.Prop.UpstreamMaxResend)
+		f.ff.MetricsClient.IncrFailed(packet)
 		go f.SendResponse(util.NewServiceNotFoundResponsePacket(packet.Header.RequestId))
 		return
 	}
@@ -62,6 +63,7 @@ func (f *DownFilter) SendRequest(packet *proto.Packet, resend int) {
 	ep, found := f.ff.Discovery.SelectEndpoint(context.Background(), serviceName, env)
 	if !found {
 		slog.Warn("downFilter SendRequest, but service not found", "downFilter", f.ep, "serviceName", serviceName, "env", env)
+		f.ff.MetricsClient.IncrFailed(packet)
 		go f.SendResponse(util.NewServiceNotFoundResponsePacket(packet.Header.RequestId))
 	} else {
 		upFilter := f.ff.CreateOrGetUpFilter(ep)
@@ -123,6 +125,7 @@ func (f *DownFilter) OnData(buffer []byte, endOfStream bool) api.FilterStatus {
 		slog.Debug("downFilter received request", "downFilter", f.ep, "packet", packet)
 		f.lastAlive = time.Now()
 		if util.IsServiceCall(packet.Header.Flag) {
+			f.ff.MetricsClient.IncrRequest(packet)
 			f.SendRequest(packet, 0)
 		} else if util.IsSystemCall(packet.Header.Flag) {
 			if util.IsFin(packet.Header.Flag) {
