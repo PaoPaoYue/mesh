@@ -115,9 +115,6 @@ public class RpcAutoConfiguration implements ApplicationContextAware {
         } catch (Exception e) {
             throw new BeanCreationException("Error creating rpc client", e);
         }
-        if (serviceClientStubs.isEmpty()) {
-            throw new BeanCreationException("No client stub found, please add @ServiceClientStub to your service stub implementation");
-        }
         if (serviceProperties.keySet().stream().anyMatch(s -> !serviceClientStubs.containsKey(s))) {
             throw new BeanCreationException("Clients' properties not found for client stub, please check the service name in @ServiceClientStub and corresponding properties");
         }
