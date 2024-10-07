@@ -7,10 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.ClosedSelectorException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.*;
 import java.util.Set;
 
 public class MainReactor implements Runnable {
@@ -78,7 +75,9 @@ public class MainReactor implements Runnable {
                         if (channel == socketChannel) {
                             acceptor.accept(channel.accept());
                         } else if (channel == healthCheckChannel) {
-                            channel.accept();
+                           SocketChannel probChannel = channel.accept();
+                           probChannel.socket().close();
+                           probChannel.close();
                         }
                     } catch (IOException e) {
                         logger.error("Main reactor server socket accept() failed: {}", e.getMessage(), e);
