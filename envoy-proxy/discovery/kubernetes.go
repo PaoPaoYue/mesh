@@ -126,6 +126,29 @@ func (sd *K8sServiceDiscovery) Watch(ctx context.Context) {
 				}
 			}
 		},
+		DeleteFunc: func(obj interface{}) {
+			defer func() {
+				if r := recover(); r != nil {
+					slog.Error("Discovery recovered from panic", "error", r)
+				}
+			}()
+
+			state := obj.(*v1.Pod)
+			var serviceName, env string
+			if isRpc, ok := state.Labels[RpcLabel]; !ok || isRpc != "true" {
+				return
+			}
+			if serviceName = state.Labels[RpcServiceLabel]; serviceName == "" {
+				return
+			}
+			env = state.Namespace
+
+			if ep, ok := getEndpointFromPodSpec(state); ok {
+				slog.Info("Deleting pod Endpoint",
+					"name", state.Name, "host", ep.Addr, "port", ep.Port, "service", serviceName, "env", env)
+				sd.BaseServiceDiscovery.removeEndpoint(ctx, serviceName, env, ep)
+			}
+		},
 	})
 	if err != nil {
 		slog.Error("Failed to add event handler to Pod informer", err, err.Error())

@@ -18,7 +18,7 @@ public class Sentinel extends TimerTask {
         this.connectionHandlers = new HashSet<>();
     }
 
-    public void watch(ConnectionHandler connectionHandler) {
+    public synchronized void watch(ConnectionHandler connectionHandler) {
         connectionHandlers.add(connectionHandler);
     }
 
@@ -28,8 +28,10 @@ public class Sentinel extends TimerTask {
             cancel();
             return;
         }
-        connectionHandlers.removeIf(connectionHandler -> connectionHandler.getStatus() == ConnectionHandler.Status.TERMINATING ||
-                connectionHandler.getStatus() == ConnectionHandler.Status.TERMINATED ||
-                connectionHandler.checkKeepAliveTimeout());
+        synchronized (this) {
+            connectionHandlers.removeIf(connectionHandler -> connectionHandler.getStatus() == ConnectionHandler.Status.TERMINATING ||
+                    connectionHandler.getStatus() == ConnectionHandler.Status.TERMINATED ||
+                    connectionHandler.checkKeepAliveTimeout());
+        }
     }
 }
