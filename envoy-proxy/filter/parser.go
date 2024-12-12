@@ -1,7 +1,9 @@
 package filter
 
 import (
+	"errors"
 	"github.com/paopaoyue/mesh/envoy-proxy/proto"
+	"github.com/paopaoyue/mesh/envoy-proxy/util"
 	pb "google.golang.org/protobuf/proto"
 	"log/slog"
 )
@@ -39,7 +41,7 @@ func (p *StreamParser) Parse(data []byte) ([]*proto.Packet, error) {
 		}
 		if pLen >= uint32(p.maxSize) {
 			slog.Warn("StreamParser Parse, packet size exceeds the limit", "pLen", pLen, "maxSize", p.maxSize)
-			return packets, nil
+			return packets, errors.New("packet size exceeds the limit")
 		}
 		if len(data) < int(pLen) || pLen == 0 {
 			break
@@ -49,6 +51,10 @@ func (p *StreamParser) Parse(data []byte) ([]*proto.Packet, error) {
 		if err != nil {
 			slog.Warn("StreamParser Parse, unmarshal packet failed", "err", err.Error())
 			return packets, err
+		}
+		if !util.IsSystemCall(packet.Header.Flag) && !util.IsServiceCall(packet.Header.Flag) {
+			slog.Warn("StreamParser Parse, invalid packet flag", "flag", packet.Header.Flag)
+			return packets, errors.New("invalid packet flag")
 		}
 		packets = append(packets, &packet)
 		data = data[pLen:]

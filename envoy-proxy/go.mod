@@ -9,6 +9,8 @@ require (
 	github.com/envoyproxy/envoy v1.31.0
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/google/uuid v1.6.0
+	github.com/hashicorp/golang-lru/v2 v2.0.7
+	golang.org/x/time v0.3.0
 	google.golang.org/protobuf v1.34.2
 	k8s.io/api v0.31.0
 	k8s.io/apimachinery v0.31.0
@@ -47,7 +49,6 @@ require (
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/term v0.21.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
-	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240102182953-50ed04b92917 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240102182953-50ed04b92917 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
