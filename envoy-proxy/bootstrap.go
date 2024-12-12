@@ -2,11 +2,13 @@ package main
 
 import (
 	"github.com/envoyproxy/envoy/contrib/golang/filters/network/source/go/pkg/network"
+	"github.com/hashicorp/golang-lru/v2/expirable"
 	"github.com/paopaoyue/mesh/envoy-proxy/config"
 	"github.com/paopaoyue/mesh/envoy-proxy/filter"
 	"log/slog"
 	"strings"
 	"sync"
+	"time"
 )
 
 func init() {
@@ -21,9 +23,9 @@ type configFactory struct {
 	once sync.Once
 }
 
-func (f *configFactory) CreateFactoryFromConfig(any interface{}) network.FilterFactory {
+func (f *configFactory) CreateFactoryFromConfig(c interface{}) network.FilterFactory {
 	f.once.Do(func() {
-		prop, ok := any.(*config.Properties)
+		prop, ok := c.(*config.Properties)
 		if !ok {
 			panic("invalid config")
 		}
@@ -41,10 +43,13 @@ func (f *configFactory) CreateFactoryFromConfig(any interface{}) network.FilterF
 
 		slog.Info("Initiating YPP RPC Go Proxy Plugin", "properties", prop)
 
+		filter.DownstreamBlockList = expirable.NewLRU[string, any](prop.BlockListSize, nil, time.Duration(prop.BlockExpireTime)*time.Second)
+
 		f.ff = filter.NewStreamFilterFactory(prop)
 		f.ff.RegisterDiscovery()
 		f.ff.RegisterMetrics()
 		f.ff.StartSentinel()
+
 	})
 	return f.ff
 }

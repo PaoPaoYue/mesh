@@ -18,7 +18,7 @@ type Properties struct {
 	KeepAliveIdleTimeout      int `validate:"min=10,max=60"`     // seconds
 	UpstreamMaxResend         int `validate:"min=0,max=3"`       // times
 	UpstreamConnectionTimeout int `validate:"min=10,max=500"`    // milliseconds
-	ParseErrorLimit           int `validate:"min=0,max=100"`     // times per second
+	DownstreamErrorLimit      int `validate:"min=0,max=100"`     // times per second
 	BlockListSize             int `validate:"min=0"`             // size
 	BlockExpireTime           int `validate:"min=0"`             // seconds
 
@@ -36,7 +36,7 @@ func NewProperties() *Properties {
 		KeepAliveIdleTimeout:      10,          // Default: 10
 		UpstreamMaxResend:         1,           // Default: 1
 		UpstreamConnectionTimeout: 200,         // Default: 200
-		ParseErrorLimit:           3,           // Default: 3
+		DownstreamErrorLimit:      3,           // Default: 3
 		BlockListSize:             1000,        // Default: 1000
 		BlockExpireTime:           600,         // Default: 600
 		MetricsType:               NoneMetric,

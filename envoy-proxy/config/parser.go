@@ -23,7 +23,7 @@ func (p *Parser) ParseConfig(raw *anypb.Any) any {
 	prop.KeepAliveIdleTimeout = getIntFromMap(m, "mesh.rpc.KeepAliveIdleTimeout", prop.KeepAliveIdleTimeout)
 	prop.UpstreamMaxResend = getIntFromMap(m, "mesh.rpc.UpstreamMaxResend", prop.UpstreamMaxResend)
 	prop.UpstreamConnectionTimeout = getIntFromMap(m, "mesh.rpc.UpstreamConnectionTimeout", prop.UpstreamConnectionTimeout)
-	prop.ParseErrorLimit = getIntFromMap(m, "mesh.rpc.ParseErrorLimit", prop.ParseErrorLimit)
+	prop.DownstreamErrorLimit = getIntFromMap(m, "mesh.rpc.DownstreamErrorLimit", prop.DownstreamErrorLimit)
 	prop.BlockListSize = getIntFromMap(m, "mesh.rpc.BlockListSize", prop.BlockListSize)
 	prop.BlockExpireTime = getIntFromMap(m, "mesh.rpc.BlockExpireTime", prop.BlockExpireTime)
 	prop.DiscoveryType = getStringFromMap(m, "mesh.rpc.DiscoveryType", prop.DiscoveryType)

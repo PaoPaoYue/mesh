@@ -14,18 +14,21 @@ import (
 	"time"
 )
 
+var (
+	DownstreamErrorLimiters sync.Map
+	DownstreamBlockList     *expirable.LRU[string, any]
+)
+
 type DownFilter struct {
 	api.EmptyDownstreamFilter
 
-	ff         *StreamFilterFactory
-	ep         discovery.Endpoint
-	cb         api.ConnectionCallback
-	lock       sync.RWMutex
-	closed     bool
-	parser     *StreamParser
-	lastAlive  time.Time
-	errLimiter *rate.Limiter
-	blockList  *expirable.LRU[string, any]
+	ff        *StreamFilterFactory
+	ep        discovery.Endpoint
+	cb        api.ConnectionCallback
+	lock      sync.RWMutex
+	closed    bool
+	parser    *StreamParser
+	lastAlive time.Time
 }
 
 func NewDownFilter(ff *StreamFilterFactory, cb api.ConnectionCallback) *DownFilter {
@@ -41,13 +44,11 @@ func NewDownFilter(ff *StreamFilterFactory, cb api.ConnectionCallback) *DownFilt
 	}
 	slog.Debug("downFilter NewDownFilter", "downFilter", ep)
 	return &DownFilter{
-		ff:         ff,
-		ep:         ep,
-		cb:         cb,
-		parser:     NewStreamParser(ff.Prop.PacketMaxSize),
-		lastAlive:  time.Now(),
-		errLimiter: rate.NewLimiter(rate.Limit(ff.Prop.ParseErrorLimit), 1),
-		blockList:  expirable.NewLRU[string, any](ff.Prop.BlockListSize, nil, time.Duration(ff.Prop.BlockExpireTime)*time.Second),
+		ff:        ff,
+		ep:        ep,
+		cb:        cb,
+		parser:    NewStreamParser(ff.Prop.PacketMaxSize),
+		lastAlive: time.Now(),
 	}
 }
 
@@ -102,8 +103,19 @@ func (f *DownFilter) Close() {
 	if !f.closed {
 		slog.Debug("downFilter closing", "downFilter", f.ep)
 		f.ff.DownFilters.CompareAndDelete(f.ep, f)
+		if limiter, ok := DownstreamErrorLimiters.Load(f.ep.Addr); ok {
+			DownstreamErrorLimiters.CompareAndDelete(f.ep.Addr, limiter)
+		}
 		f.closed = true
 	}
+}
+
+func (f *DownFilter) CheckErrorLimit() bool {
+	limiter, ok := DownstreamErrorLimiters.Load(f.ep.Addr)
+	if !ok {
+		limiter, _ = DownstreamErrorLimiters.LoadOrStore(f.ep.Addr, rate.NewLimiter(rate.Limit(f.ff.Prop.DownstreamErrorLimit), 1))
+	}
+	return limiter.(*rate.Limiter).Allow()
 }
 
 func (f *DownFilter) CheckAlive(duration time.Duration) {
@@ -117,9 +129,10 @@ func (f *DownFilter) OnNewConnection() api.FilterStatus {
 	localAddr, _ := f.cb.StreamInfo().UpstreamLocalAddress()
 	remoteAddr, _ := f.cb.StreamInfo().UpstreamRemoteAddress()
 	slog.Debug("downFilter OnNewConnection", "downFilter", f.ep, "localAddr", localAddr, "remoteAddr", remoteAddr)
-	if f.blockList.Contains(remoteAddr) {
-		slog.Warn("downFilter OnNewConnection, remote address in block list, closing connection", "downFilter", f.ep)
+	if DownstreamBlockList.Contains(remoteAddr) {
+		slog.Warn("downFilter OnNewConnection, remote address in blacklist, closing connection", "downFilter", f.ep)
 		f.cb.Close(api.NoFlush)
+		return api.NetworkFilterStopIteration
 	}
 	return api.NetworkFilterContinue
 }
@@ -128,9 +141,9 @@ func (f *DownFilter) OnData(buffer []byte, endOfStream bool) api.FilterStatus {
 	packets, err := f.parser.Parse(buffer)
 	if err != nil {
 		slog.Error("downFilter parse stream data error, closing connection", "downFilter", f.ep, "error", err.Error())
-		if !f.errLimiter.Allow() {
-			slog.Error("downFilter parse stream data error reaching limit, adding to blacklist", "downFilter", f.ep)
-			f.blockList.Add(f.ep.Addr, nil)
+		if !f.CheckErrorLimit() {
+			slog.Error("downFilter error limit reached, adding to blacklist", "downFilter", f.ep)
+			DownstreamBlockList.Add(f.ep.Addr, nil)
 		}
 		f.cb.Close(api.NoFlush)
 		return api.NetworkFilterStopIteration
