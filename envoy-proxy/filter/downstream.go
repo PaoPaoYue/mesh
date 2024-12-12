@@ -118,7 +118,7 @@ func (f *DownFilter) OnNewConnection() api.FilterStatus {
 	remoteAddr, _ := f.cb.StreamInfo().UpstreamRemoteAddress()
 	slog.Debug("downFilter OnNewConnection", "downFilter", f.ep, "localAddr", localAddr, "remoteAddr", remoteAddr)
 	if f.blockList.Contains(remoteAddr) {
-		slog.Debug("downFilter OnNewConnection, remote address in block list, closing connection", "downFilter", f.ep)
+		slog.Warn("downFilter OnNewConnection, remote address in block list, closing connection", "downFilter", f.ep)
 		f.cb.Close(api.NoFlush)
 	}
 	return api.NetworkFilterContinue
