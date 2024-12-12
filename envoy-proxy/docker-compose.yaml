@@ -11,5 +11,3 @@ services:
     container_name: proxy
     restart: always
     network_mode: host
-    ports:
-    - "${PORT_PROXY:-10000}:10000"
