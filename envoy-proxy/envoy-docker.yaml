@@ -21,7 +21,7 @@ static_resources:
               log.level: debug
               mesh.rpc.DiscoveryType: static
               mesh.rpc.static_services:
-                - name: metrics
+                - name: myservice
                   env: default
                   host: 127.0.0.1
                   port: 8080

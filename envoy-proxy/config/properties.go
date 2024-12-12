@@ -18,6 +18,8 @@ type Properties struct {
 	KeepAliveIdleTimeout      int `validate:"min=10,max=60"`     // seconds
 	UpstreamMaxResend         int `validate:"min=0,max=3"`       // times
 	UpstreamConnectionTimeout int `validate:"min=10,max=500"`    // milliseconds
+	BlockListSize             int `validate:"min=0"`             // size
+	BlockExpireTime           int `validate:"min=0"`             // seconds
 
 	MetricsType    string
 	DiscoveryType  string
@@ -33,6 +35,8 @@ func NewProperties() *Properties {
 		KeepAliveIdleTimeout:      10,          // Default: 10
 		UpstreamMaxResend:         1,           // Default: 1
 		UpstreamConnectionTimeout: 200,         // Default: 200
+		BlockListSize:             1000,        // Default: 1000
+		BlockExpireTime:           600,         // Default: 600
 		MetricsType:               NoneMetric,
 		DiscoveryType:             StaticDiscovery,
 		StaticServices:            []any{},

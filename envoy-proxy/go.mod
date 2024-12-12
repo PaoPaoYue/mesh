@@ -9,6 +9,7 @@ require (
 	github.com/envoyproxy/envoy v1.31.0
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/google/uuid v1.6.0
+	github.com/hashicorp/golang-lru/v2 v2.0.7
 	google.golang.org/protobuf v1.34.2
 	k8s.io/api v0.31.0
 	k8s.io/apimachinery v0.31.0

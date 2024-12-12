@@ -3,6 +3,7 @@ package filter
 import (
 	"context"
 	"github.com/envoyproxy/envoy/contrib/golang/common/go/api"
+	"github.com/hashicorp/golang-lru/v2/expirable"
 	"github.com/paopaoyue/mesh/envoy-proxy/discovery"
 	"github.com/paopaoyue/mesh/envoy-proxy/proto"
 	"github.com/paopaoyue/mesh/envoy-proxy/util"
@@ -10,6 +11,10 @@ import (
 	"log/slog"
 	"sync"
 	"time"
+)
+
+var (
+	DownstreamBlockList *expirable.LRU[string, any]
 )
 
 type DownFilter struct {
@@ -108,16 +113,20 @@ func (f *DownFilter) CheckAlive(duration time.Duration) {
 }
 
 func (f *DownFilter) OnNewConnection() api.FilterStatus {
-	localAddr, _ := f.cb.StreamInfo().UpstreamLocalAddress()
-	remoteAddr, _ := f.cb.StreamInfo().UpstreamRemoteAddress()
-	slog.Debug("downFilter OnNewConnection", "downFilter", f.ep, "localAddr", localAddr, "remoteAddr", remoteAddr)
+	slog.Debug("downFilter OnNewConnection", "downFilter", f.ep)
+	if DownstreamBlockList.Contains(f.ep.Addr) {
+		slog.Warn("downFilter OnNewConnection, remote address in blacklist, closing connection", "downFilter", f.ep)
+		f.cb.Close(api.NoFlush)
+		return api.NetworkFilterStopIteration
+	}
 	return api.NetworkFilterContinue
 }
 
 func (f *DownFilter) OnData(buffer []byte, endOfStream bool) api.FilterStatus {
 	packets, err := f.parser.Parse(buffer)
 	if err != nil {
-		slog.Error("downFilter parse stream data error, closing connection", "downFilter", f.ep, "error", err.Error())
+		slog.Error("downFilter parse stream data error, closing connection and add to block list", "downFilter", f.ep, "error", err.Error())
+		DownstreamBlockList.Add(f.ep.Addr, nil)
 		f.cb.Close(api.NoFlush)
 		return api.NetworkFilterStopIteration
 	}

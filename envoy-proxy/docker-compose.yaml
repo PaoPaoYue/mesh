@@ -1,12 +1,13 @@
 services:
 
   proxy:
+
     build:
         context: .
         dockerfile: Dockerfile
         args:
-        - ENVOY_CONFIG=local_test.yaml
-    image: envoy-proxy:latest
+        - ENVOY_CONFIG=envoy-docker.yaml
+    image: ypp-rpc-mesh-proxy:latest
+    container_name: proxy
+    restart: always
     network_mode: host
-    ports:
-    - "${PORT_PROXY:-10000}:10000"
