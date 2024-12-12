@@ -7,7 +7,6 @@ import (
 	"github.com/paopaoyue/mesh/envoy-proxy/discovery"
 	"github.com/paopaoyue/mesh/envoy-proxy/proto"
 	"github.com/paopaoyue/mesh/envoy-proxy/util"
-	"golang.org/x/time/rate"
 	pb "google.golang.org/protobuf/proto"
 	"log/slog"
 	"sync"
@@ -15,8 +14,7 @@ import (
 )
 
 var (
-	DownstreamErrorLimiters sync.Map
-	DownstreamBlockList     *expirable.LRU[string, any]
+	DownstreamBlockList *expirable.LRU[string, any]
 )
 
 type DownFilter struct {
@@ -103,19 +101,8 @@ func (f *DownFilter) Close() {
 	if !f.closed {
 		slog.Debug("downFilter closing", "downFilter", f.ep)
 		f.ff.DownFilters.CompareAndDelete(f.ep, f)
-		if limiter, ok := DownstreamErrorLimiters.Load(f.ep.Addr); ok {
-			DownstreamErrorLimiters.CompareAndDelete(f.ep.Addr, limiter)
-		}
 		f.closed = true
 	}
-}
-
-func (f *DownFilter) CheckErrorLimit() bool {
-	limiter, ok := DownstreamErrorLimiters.Load(f.ep.Addr)
-	if !ok {
-		limiter, _ = DownstreamErrorLimiters.LoadOrStore(f.ep.Addr, rate.NewLimiter(rate.Limit(f.ff.Prop.DownstreamErrorLimit), 1))
-	}
-	return limiter.(*rate.Limiter).Allow()
 }
 
 func (f *DownFilter) CheckAlive(duration time.Duration) {
@@ -140,11 +127,8 @@ func (f *DownFilter) OnNewConnection() api.FilterStatus {
 func (f *DownFilter) OnData(buffer []byte, endOfStream bool) api.FilterStatus {
 	packets, err := f.parser.Parse(buffer)
 	if err != nil {
-		slog.Error("downFilter parse stream data error, closing connection", "downFilter", f.ep, "error", err.Error())
-		if !f.CheckErrorLimit() {
-			slog.Error("downFilter error limit reached, adding to blacklist", "downFilter", f.ep)
-			DownstreamBlockList.Add(f.ep.Addr, nil)
-		}
+		slog.Error("downFilter parse stream data error, closing connection and add to block list", "downFilter", f.ep, "error", err.Error())
+		DownstreamBlockList.Add(f.ep.Addr, nil)
 		f.cb.Close(api.NoFlush)
 		return api.NetworkFilterStopIteration
 	}
