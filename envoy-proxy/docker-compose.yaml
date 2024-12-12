@@ -6,7 +6,7 @@ services:
         context: .
         dockerfile: Dockerfile
         args:
-        - ENVOY_CONFIG=local.yaml
+        - ENVOY_CONFIG=envoy-docker.yaml
     image: ypp-rpc-mesh-proxy:latest
     container_name: proxy
     restart: always
