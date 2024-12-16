@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"context"
+	"github.com/paopaoyue/mesh/envoy-proxy/discovery"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -45,7 +46,7 @@ func AutoDiscoverMetrics() (Client, error) {
 				port = int(service.Spec.Ports[0].Port)
 			}
 			slog.Info("Auto discovered datadog agent, using dogStatD metrics", "host", host, "port", port)
-			return NewDogStatsDClient(host, port)
+			return NewDogStatsDClient(discovery.Endpoint{Host: host, Port: port})
 		}
 
 	}

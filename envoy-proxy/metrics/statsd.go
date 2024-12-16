@@ -3,16 +3,16 @@ package metrics
 import (
 	"fmt"
 	"github.com/DataDog/datadog-go/statsd"
+	"github.com/paopaoyue/mesh/envoy-proxy/discovery"
 	"github.com/paopaoyue/mesh/envoy-proxy/proto"
 )
 
-// DogStatsDClient 封装了 DogStatsD 客户端
 type DogStatsDClient struct {
 	client *statsd.Client
 }
 
-func NewDogStatsDClient(host string, port int) (*DogStatsDClient, error) {
-	client, err := statsd.New(fmt.Sprintf("%s:%d", host, port), statsd.WithTags([]string{"mode:proxy"}))
+func NewDogStatsDClient(endpoint discovery.Endpoint) (*DogStatsDClient, error) {
+	client, err := statsd.New(fmt.Sprintf("%s:%d", endpoint.Host, &endpoint.Port), statsd.WithTags([]string{"mode:proxy"}))
 	if err != nil {
 		return nil, err
 	}

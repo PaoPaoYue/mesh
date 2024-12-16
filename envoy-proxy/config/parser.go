@@ -4,6 +4,7 @@ import (
 	"errors"
 	xds "github.com/cncf/xds/go/xds/type/v3"
 	"github.com/go-playground/validator/v10"
+	"github.com/paopaoyue/mesh/envoy-proxy/discovery"
 	"google.golang.org/protobuf/types/known/anypb"
 	"log/slog"
 )
@@ -28,20 +29,34 @@ func (p *Parser) ParseConfig(raw *anypb.Any) any {
 	prop.DiscoveryType = getStringFromMap(m, "mesh.rpc.DiscoveryType", prop.DiscoveryType)
 	prop.MetricsType = getStringFromMap(m, "mesh.rpc.MetricsType", prop.MetricsType)
 
-	if staticServices, ok := m["mesh.rpc.static_services"].([]any); ok {
-		prop.StaticServices = staticServices
-	}
-
 	// discoveryType must be one of "Static" or "K8s"
 	if prop.DiscoveryType != StaticDiscovery && prop.DiscoveryType != K8sDiscovery {
 		slog.Error("Invalid discovery type", "type", prop.DiscoveryType)
 		return errors.New("invalid discovery type")
 	}
 
-	// metricsType must be one of "None" or "Auto"
-	if prop.MetricsType != NoneMetric && prop.MetricsType != AutoMetric {
+	// metricsType must be one of "None" or "dogstatsd"
+	if prop.MetricsType != NoneMetric && prop.MetricsType != DogStatsDMetric {
 		slog.Error("Invalid metrics type", "type", prop.MetricsType)
 		return errors.New("invalid metrics type")
+	}
+
+	if prop.DiscoveryType == StaticDiscovery {
+		if staticServices, ok := m["mesh.rpc.static_services"].([]discovery.StaticService); ok {
+			prop.StaticServices = staticServices
+		} else {
+			slog.Error("Invalid static services configuration", "services", prop.StaticServices)
+			return errors.New("invalid static services")
+		}
+	}
+
+	if prop.MetricsType == DogStatsDMetric {
+		if metricsEndpoint, ok := m["mesh.rpc.metrics_endpoint"].(discovery.Endpoint); ok {
+			prop.MetricsEndpoint = metricsEndpoint
+		} else {
+			slog.Error("Invalid metrics endpoint", "endpoint", prop.MetricsEndpoint)
+			return errors.New("invalid metrics endpoint")
+		}
 	}
 
 	validate := validator.New()
