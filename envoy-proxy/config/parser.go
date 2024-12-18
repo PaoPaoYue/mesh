@@ -29,13 +29,13 @@ func (p *Parser) ParseConfig(raw *anypb.Any) any {
 	prop.DiscoveryType = getStringFromMap(m, "mesh.rpc.DiscoveryType", prop.DiscoveryType)
 	prop.MetricsType = getStringFromMap(m, "mesh.rpc.MetricsType", prop.MetricsType)
 
-	// discoveryType must be one of "Static" or "K8s"
+	// discoveryType must be one of "static" or "k8s"
 	if prop.DiscoveryType != StaticDiscovery && prop.DiscoveryType != K8sDiscovery {
 		slog.Error("Invalid discovery type", "type", prop.DiscoveryType)
 		return errors.New("invalid discovery type")
 	}
 
-	// metricsType must be one of "None" or "dogstatsd"
+	// metricsType must be one of "none" or "dogstatsd"
 	if prop.MetricsType != NoneMetric && prop.MetricsType != DogStatsDMetric {
 		slog.Error("Invalid metrics type", "type", prop.MetricsType)
 		return errors.New("invalid metrics type")
