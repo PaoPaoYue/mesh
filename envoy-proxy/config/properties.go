@@ -1,8 +1,8 @@
 package config
 
 const (
-	NoneMetric = "none"
-	AutoMetric = "auto"
+	NoneMetric      = "none"
+	DogStatsDMetric = "dogstatsd"
 )
 
 const (
@@ -21,9 +21,10 @@ type Properties struct {
 	BlockListSize             int `validate:"min=0"`             // size
 	BlockExpireTime           int `validate:"min=0"`             // seconds
 
-	MetricsType    string
-	DiscoveryType  string
-	StaticServices []any
+	MetricsType     string
+	DiscoveryType   string
+	MetricsEndpoint any
+	StaticServices  any
 }
 
 func NewProperties() *Properties {
@@ -39,6 +40,7 @@ func NewProperties() *Properties {
 		BlockExpireTime:           600,         // Default: 600
 		MetricsType:               NoneMetric,
 		DiscoveryType:             StaticDiscovery,
-		StaticServices:            []any{},
+		MetricsEndpoint:           nil,
+		StaticServices:            nil,
 	}
 }

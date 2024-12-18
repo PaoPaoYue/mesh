@@ -60,13 +60,23 @@ func (ff *StreamFilterFactory) RegisterDiscovery() {
 		sd.Watch(context.Background())
 		ff.Discovery = sd
 	} else {
-		ff.Discovery = discovery.NewStaticServiceDiscovery(ff.Prop.StaticServices)
+		staticServices, ok := ff.Prop.StaticServices.([]discovery.StaticService)
+		if !ok {
+			slog.Error("Invalid static services config", "services", ff.Prop.StaticServices)
+			return
+		}
+		ff.Discovery = discovery.NewStaticServiceDiscovery(staticServices)
 	}
 }
 
 func (ff *StreamFilterFactory) RegisterMetrics() {
-	if ff.Prop.MetricsType == config.AutoMetric {
-		ff.MetricsClient, _ = metrics.AutoDiscoverMetrics()
+	if ff.Prop.MetricsType == config.DogStatsDMetric {
+		metricsEndpoint, ok := ff.Prop.MetricsEndpoint.(discovery.Endpoint)
+		if !ok {
+			slog.Error("Invalid metrics endpoint config", "endpoint", ff.Prop.MetricsEndpoint)
+			return
+		}
+		ff.MetricsClient, _ = metrics.NewDogStatsDClient(metricsEndpoint)
 	} else {
 		ff.MetricsClient = &metrics.DummyMetricsClient{}
 	}

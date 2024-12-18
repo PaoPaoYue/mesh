@@ -27,8 +27,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' | tee /etc/apt/apt.conf.d/keep-cache \
     && apt-get -qq update -y \
     && apt-get -qq install --no-install-recommends -y curl
-COPY --chmod=777 "${ENVOY_CONFIG}" /etc/envoy.yaml
-CMD ["/usr/local/bin/envoy", "-c", "/etc/envoy.yaml"]
+COPY --chmod=777 "${ENVOY_CONFIG}" /etc/envoy/envoy.yaml
+CMD ["/usr/local/bin/envoy", "-c", "/etc/envoy/envoy.yaml"]
 
 # Set environment variable to disable cgo checks
 ENV GODEBUG="cgocheck=0"

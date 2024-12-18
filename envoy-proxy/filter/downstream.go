@@ -114,7 +114,7 @@ func (f *DownFilter) CheckAlive(duration time.Duration) {
 
 func (f *DownFilter) OnNewConnection() api.FilterStatus {
 	slog.Debug("downFilter OnNewConnection", "downFilter", f.ep)
-	if DownstreamBlockList.Contains(f.ep.Addr) {
+	if DownstreamBlockList.Contains(f.ep.Host) {
 		slog.Warn("downFilter OnNewConnection, remote address in blacklist, closing connection", "downFilter", f.ep)
 		f.cb.Close(api.NoFlush)
 		return api.NetworkFilterStopIteration
@@ -126,7 +126,7 @@ func (f *DownFilter) OnData(buffer []byte, endOfStream bool) api.FilterStatus {
 	packets, err := f.parser.Parse(buffer)
 	if err != nil {
 		slog.Error("downFilter parse stream data error, closing connection and add to block list", "downFilter", f.ep, "error", err.Error())
-		DownstreamBlockList.Add(f.ep.Addr, nil)
+		DownstreamBlockList.Add(f.ep.Host, nil)
 		f.cb.Close(api.NoFlush)
 		return api.NetworkFilterStopIteration
 	}

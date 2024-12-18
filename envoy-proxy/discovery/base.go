@@ -11,8 +11,8 @@ import (
 )
 
 type Endpoint struct {
-	Addr string
-	Port int32
+	Host string
+	Port int
 }
 
 func NewEndpoint(addr string) (Endpoint, bool) {
@@ -26,14 +26,14 @@ func NewEndpoint(addr string) (Endpoint, bool) {
 		return Endpoint{}, false
 	} else {
 		return Endpoint{
-			Addr: split[0],
-			Port: int32(port),
+			Host: split[0],
+			Port: port,
 		}, true
 	}
 }
 
 func (e *Endpoint) String() string {
-	return fmt.Sprintf("%s:%d", e.Addr, e.Port)
+	return fmt.Sprintf("%s:%d", e.Host, e.Port)
 }
 
 type EndpointGroup struct {
@@ -57,7 +57,7 @@ func (eg *EndpointGroup) next() (Endpoint, bool) {
 
 func (eg *EndpointGroup) addEndpoint(endpoint Endpoint) {
 	for _, e := range eg.endpoints {
-		if e.Addr == endpoint.Addr && e.Port == endpoint.Port {
+		if e.Host == endpoint.Host && e.Port == endpoint.Port {
 			return
 		}
 	}
@@ -66,7 +66,7 @@ func (eg *EndpointGroup) addEndpoint(endpoint Endpoint) {
 
 func (eg *EndpointGroup) removeEndpoint(endpoint Endpoint) {
 	for i, e := range eg.endpoints {
-		if e.Addr == endpoint.Addr && e.Port == endpoint.Port {
+		if e.Host == endpoint.Host && e.Port == endpoint.Port {
 			eg.endpoints = append(eg.endpoints[:i], eg.endpoints[i+1:]...)
 			break
 		}

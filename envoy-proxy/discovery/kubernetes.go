@@ -53,7 +53,7 @@ func (sd *K8sServiceDiscovery) listEndpoints(ctx context.Context, serviceName, e
 	for _, pod := range pods.Items {
 		if isPodReady(&pod) {
 			if ep, ok := getEndpointFromPodSpec(&pod); ok {
-				slog.Info("Adding pod Endpoint", "name", pod.Name, "host", ep.Addr, "port", ep.Port, "service", serviceName, "env", env)
+				slog.Info("Adding pod Endpoint", "name", pod.Name, "host", ep.Host, "port", ep.Port, "service", serviceName, "env", env)
 				sd.BaseServiceDiscovery.addEndpoint(ctx, serviceName, env, ep)
 			}
 		}
@@ -113,7 +113,7 @@ func (sd *K8sServiceDiscovery) Watch(ctx context.Context) {
 			if !isPodReady(oldState) && isPodReady(newState) {
 				if ep, ok := getEndpointFromPodSpec(newState); ok {
 					slog.Info("Adding pod Endpoint",
-						"name", newState.Name, "host", ep.Addr, "port", ep.Port, "service", serviceName, "env", env)
+						"name", newState.Name, "host", ep.Host, "port", ep.Port, "service", serviceName, "env", env)
 					sd.BaseServiceDiscovery.addEndpoint(ctx, serviceName, env, ep)
 				}
 			}
@@ -121,7 +121,7 @@ func (sd *K8sServiceDiscovery) Watch(ctx context.Context) {
 			if !isPodTerminating(oldState) && isPodTerminating(newState) {
 				if ep, ok := getEndpointFromPodSpec(newState); ok {
 					slog.Info("Deleting pod Endpoint",
-						"name", newState.Name, "host", ep.Addr, "port", ep.Port, "service", serviceName, "env", env)
+						"name", newState.Name, "host", ep.Host, "port", ep.Port, "service", serviceName, "env", env)
 					sd.BaseServiceDiscovery.removeEndpoint(ctx, serviceName, env, ep)
 				}
 			}
@@ -145,7 +145,7 @@ func (sd *K8sServiceDiscovery) Watch(ctx context.Context) {
 
 			if ep, ok := getEndpointFromPodSpec(state); ok {
 				slog.Info("Deleting pod Endpoint",
-					"name", state.Name, "host", ep.Addr, "port", ep.Port, "service", serviceName, "env", env)
+					"name", state.Name, "host", ep.Host, "port", ep.Port, "service", serviceName, "env", env)
 				sd.BaseServiceDiscovery.removeEndpoint(ctx, serviceName, env, ep)
 			}
 		},
@@ -176,8 +176,8 @@ func getEndpointFromPodSpec(pod *v1.Pod) (Endpoint, bool) {
 	for _, container := range pod.Spec.Containers {
 		for _, port := range container.Ports {
 			return Endpoint{
-				Addr: pod.Status.PodIP,
-				Port: port.ContainerPort,
+				Host: pod.Status.PodIP,
+				Port: int(port.ContainerPort),
 			}, true
 		}
 	}
