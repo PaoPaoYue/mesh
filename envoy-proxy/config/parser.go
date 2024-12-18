@@ -16,10 +16,6 @@ func (p *Parser) ParseConfig(raw *anypb.Any) any {
 	_ = raw.UnmarshalTo(config)
 	m := config.Value.AsMap()
 
-	for k, v := range m {
-		slog.Info("Config key", "key", k, "value", v)
-	}
-
 	prop := NewProperties()
 	prop.LogLevel = getStringFromMap(m, "log.level", prop.LogLevel)
 	prop.PacketMaxSize = getIntFromMap(m, "mesh.rpc.packet_max_size", prop.PacketMaxSize)
