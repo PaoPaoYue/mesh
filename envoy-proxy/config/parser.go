@@ -16,6 +16,10 @@ func (p *Parser) ParseConfig(raw *anypb.Any) any {
 	_ = raw.UnmarshalTo(config)
 	m := config.Value.AsMap()
 
+	for k, v := range m {
+		slog.Info("Config key", "key", k, "value", v)
+	}
+
 	prop := NewProperties()
 	prop.LogLevel = getStringFromMap(m, "log.level", prop.LogLevel)
 	prop.PacketMaxSize = getIntFromMap(m, "mesh.rpc.packet_max_size", prop.PacketMaxSize)
@@ -45,7 +49,7 @@ func (p *Parser) ParseConfig(raw *anypb.Any) any {
 		if staticServices, ok := m["mesh.rpc.static_services"].([]discovery.StaticService); ok {
 			prop.StaticServices = staticServices
 		} else {
-			slog.Error("Invalid static services configuration", "services", prop.StaticServices)
+			slog.Error("Invalid static services", "services", prop.StaticServices)
 			return errors.New("invalid static services")
 		}
 	}
