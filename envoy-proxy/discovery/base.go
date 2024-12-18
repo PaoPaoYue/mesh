@@ -12,7 +12,7 @@ import (
 
 type Endpoint struct {
 	Host string
-	Port int
+	Port int32
 }
 
 func NewEndpoint(addr string) (Endpoint, bool) {
@@ -22,12 +22,12 @@ func NewEndpoint(addr string) (Endpoint, bool) {
 		return Endpoint{}, false
 	}
 	if port, err := strconv.Atoi(split[1]); err != nil || port < 0 || port > 65535 {
-		slog.Error("Invalid endpoint port", "port", split[1])
+		slog.Error("Invalid endpoint Port", "Port", split[1])
 		return Endpoint{}, false
 	} else {
 		return Endpoint{
 			Host: split[0],
-			Port: port,
+			Port: int32(port),
 		}, true
 	}
 }

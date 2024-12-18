@@ -53,7 +53,7 @@ func (sd *K8sServiceDiscovery) listEndpoints(ctx context.Context, serviceName, e
 	for _, pod := range pods.Items {
 		if isPodReady(&pod) {
 			if ep, ok := getEndpointFromPodSpec(&pod); ok {
-				slog.Info("Adding pod Endpoint", "name", pod.Name, "host", ep.Host, "port", ep.Port, "service", serviceName, "env", env)
+				slog.Info("Adding pod Endpoint", "Name", pod.Name, "Host", ep.Host, "Port", ep.Port, "service", serviceName, "Env", env)
 				sd.BaseServiceDiscovery.addEndpoint(ctx, serviceName, env, ep)
 			}
 		}
@@ -64,7 +64,7 @@ func (sd *K8sServiceDiscovery) listEndpoints(ctx context.Context, serviceName, e
 func (sd *K8sServiceDiscovery) SelectEndpoint(ctx context.Context, serviceName, env string) (Endpoint, bool) {
 	key := getEndpointGroupKey(serviceName, env)
 	if eg, ok := sd.serviceMap[key]; !ok {
-		slog.Debug("Service not found in cache, listing endpoints", "service", serviceName, "env", env)
+		slog.Debug("Service not found in cache, listing endpoints", "service", serviceName, "Env", env)
 		endpoints := sd.listEndpoints(ctx, serviceName, env)
 		if len(endpoints) == 0 {
 			return Endpoint{}, false
@@ -113,7 +113,7 @@ func (sd *K8sServiceDiscovery) Watch(ctx context.Context) {
 			if !isPodReady(oldState) && isPodReady(newState) {
 				if ep, ok := getEndpointFromPodSpec(newState); ok {
 					slog.Info("Adding pod Endpoint",
-						"name", newState.Name, "host", ep.Host, "port", ep.Port, "service", serviceName, "env", env)
+						"Name", newState.Name, "Host", ep.Host, "Port", ep.Port, "service", serviceName, "Env", env)
 					sd.BaseServiceDiscovery.addEndpoint(ctx, serviceName, env, ep)
 				}
 			}
@@ -121,7 +121,7 @@ func (sd *K8sServiceDiscovery) Watch(ctx context.Context) {
 			if !isPodTerminating(oldState) && isPodTerminating(newState) {
 				if ep, ok := getEndpointFromPodSpec(newState); ok {
 					slog.Info("Deleting pod Endpoint",
-						"name", newState.Name, "host", ep.Host, "port", ep.Port, "service", serviceName, "env", env)
+						"Name", newState.Name, "Host", ep.Host, "Port", ep.Port, "service", serviceName, "Env", env)
 					sd.BaseServiceDiscovery.removeEndpoint(ctx, serviceName, env, ep)
 				}
 			}
@@ -145,7 +145,7 @@ func (sd *K8sServiceDiscovery) Watch(ctx context.Context) {
 
 			if ep, ok := getEndpointFromPodSpec(state); ok {
 				slog.Info("Deleting pod Endpoint",
-					"name", state.Name, "host", ep.Host, "port", ep.Port, "service", serviceName, "env", env)
+					"Name", state.Name, "Host", ep.Host, "Port", ep.Port, "service", serviceName, "Env", env)
 				sd.BaseServiceDiscovery.removeEndpoint(ctx, serviceName, env, ep)
 			}
 		},
@@ -177,7 +177,7 @@ func getEndpointFromPodSpec(pod *v1.Pod) (Endpoint, bool) {
 		for _, port := range container.Ports {
 			return Endpoint{
 				Host: pod.Status.PodIP,
-				Port: int(port.ContainerPort),
+				Port: port.ContainerPort,
 			}, true
 		}
 	}

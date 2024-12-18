@@ -46,7 +46,7 @@ func AutoDiscoverMetrics() (Client, error) {
 				port = int(service.Spec.Ports[0].Port)
 			}
 			slog.Info("Auto discovered datadog agent, using dogStatD metrics", "host", host, "port", port)
-			return NewDogStatsDClient(discovery.Endpoint{Host: host, Port: port})
+			return NewDogStatsDClient(discovery.Endpoint{Host: host, Port: int32(port)})
 		}
 
 	}

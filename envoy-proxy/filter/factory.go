@@ -60,25 +60,20 @@ func (ff *StreamFilterFactory) RegisterDiscovery() {
 		sd.Watch(context.Background())
 		ff.Discovery = sd
 	} else {
-		staticServices, ok := ff.Prop.StaticServices.([]discovery.StaticService)
-		if !ok {
-			slog.Error("Invalid static services config", "services", ff.Prop.StaticServices)
-			return
-		}
-		ff.Discovery = discovery.NewStaticServiceDiscovery(staticServices)
+		ff.Discovery = discovery.NewStaticServiceDiscovery(ff.Prop.StaticServices)
 	}
 }
 
 func (ff *StreamFilterFactory) RegisterMetrics() {
 	if ff.Prop.MetricsType == config.DogStatsDMetric {
-		metricsEndpoint, ok := ff.Prop.MetricsEndpoint.(discovery.Endpoint)
-		if !ok {
-			slog.Error("Invalid metrics endpoint config", "endpoint", ff.Prop.MetricsEndpoint)
-			return
+		var err error
+		ff.MetricsClient, err = metrics.NewDogStatsDClient(ff.Prop.MetricsEndpoint)
+		if err != nil {
+			slog.Error("Failed to create DogStatsD client, use dummy client instead", "err", err.Error())
+			ff.MetricsClient = metrics.NewDummyMetricsClient()
 		}
-		ff.MetricsClient, _ = metrics.NewDogStatsDClient(metricsEndpoint)
 	} else {
-		ff.MetricsClient = &metrics.DummyMetricsClient{}
+		ff.MetricsClient = metrics.NewDummyMetricsClient()
 	}
 }
 
