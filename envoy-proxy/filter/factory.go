@@ -66,9 +66,14 @@ func (ff *StreamFilterFactory) RegisterDiscovery() {
 
 func (ff *StreamFilterFactory) RegisterMetrics() {
 	if ff.Prop.MetricsType == config.DogStatsDMetric {
-		ff.MetricsClient, _ = metrics.NewDogStatsDClient(ff.Prop.MetricsEndpoint)
+		var err error
+		ff.MetricsClient, err = metrics.NewDogStatsDClient(ff.Prop.MetricsEndpoint)
+		if err != nil {
+			slog.Error("Failed to create DogStatsD client, use dummy client instead", "err", err.Error())
+			ff.MetricsClient = metrics.NewDummyMetricsClient()
+		}
 	} else {
-		ff.MetricsClient = &metrics.DummyMetricsClient{}
+		ff.MetricsClient = metrics.NewDummyMetricsClient()
 	}
 }
 
