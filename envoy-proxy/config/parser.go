@@ -46,8 +46,8 @@ func (p *Parser) ParseConfig(raw *anypb.Any) any {
 			slog.Error("Invalid static services configuration", "services", m["mesh.rpc.static_services"])
 			return errors.New("invalid static services")
 		}
-		for _, service := range m["mesh.rpc.static_services"].([]any) {
-			if service, ok := service.(map[string]any); !ok {
+		for _, item := range m["mesh.rpc.static_services"].([]any) {
+			if service, ok := item.(map[string]any); !ok {
 				slog.Error("Invalid static services configuration", "services", m["mesh.rpc.static_services"])
 				return errors.New("invalid static service")
 			} else {
@@ -61,7 +61,7 @@ func (p *Parser) ParseConfig(raw *anypb.Any) any {
 					staticService.Env == "" ||
 					staticService.Host == "" ||
 					staticService.Port == 0 {
-					slog.Error("Invalid static service configuration", "service", m["mesh.rpc.static_services"])
+					slog.Error("Invalid static service configuration", "service", staticService, "raw", item)
 					return errors.New("invalid static service")
 				}
 				prop.StaticServices = append(prop.StaticServices, staticService)
