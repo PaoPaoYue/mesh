@@ -18,16 +18,16 @@ func (p *Parser) ParseConfig(raw *anypb.Any) any {
 
 	prop := NewProperties()
 	prop.LogLevel = getStringFromMap(m, "log.level", prop.LogLevel)
-	prop.PacketMaxSize = getIntFromMap(m, "mesh.rpc.PacketMaxSize", prop.PacketMaxSize)
-	prop.KeepAliveTimeout = getIntFromMap(m, "mesh.rpc.KeepAliveTimeout", prop.KeepAliveTimeout)
-	prop.KeepAliveInterval = getIntFromMap(m, "mesh.rpc.KeepAliveInterval", prop.KeepAliveInterval)
-	prop.KeepAliveIdleTimeout = getIntFromMap(m, "mesh.rpc.KeepAliveIdleTimeout", prop.KeepAliveIdleTimeout)
-	prop.UpstreamMaxResend = getIntFromMap(m, "mesh.rpc.UpstreamMaxResend", prop.UpstreamMaxResend)
-	prop.UpstreamConnectionTimeout = getIntFromMap(m, "mesh.rpc.UpstreamConnectionTimeout", prop.UpstreamConnectionTimeout)
-	prop.BlockListSize = getIntFromMap(m, "mesh.rpc.BlockListSize", prop.BlockListSize)
-	prop.BlockExpireTime = getIntFromMap(m, "mesh.rpc.BlockExpireTime", prop.BlockExpireTime)
-	prop.DiscoveryType = getStringFromMap(m, "mesh.rpc.DiscoveryType", prop.DiscoveryType)
-	prop.MetricsType = getStringFromMap(m, "mesh.rpc.MetricsType", prop.MetricsType)
+	prop.PacketMaxSize = getIntFromMap(m, "mesh.rpc.packet_max_size", prop.PacketMaxSize)
+	prop.KeepAliveTimeout = getIntFromMap(m, "mesh.rpc.keep_alive_timeout", prop.KeepAliveTimeout)
+	prop.KeepAliveInterval = getIntFromMap(m, "mesh.rpc.keep_alive_interval", prop.KeepAliveInterval)
+	prop.KeepAliveIdleTimeout = getIntFromMap(m, "mesh.rpc.keep_alive_idle_timeout", prop.KeepAliveIdleTimeout)
+	prop.UpstreamMaxResend = getIntFromMap(m, "mesh.rpc.upstream_max_resend", prop.UpstreamMaxResend)
+	prop.UpstreamConnectionTimeout = getIntFromMap(m, "mesh.rpc.upstream_connection_timeout", prop.UpstreamConnectionTimeout)
+	prop.BlockListSize = getIntFromMap(m, "mesh.rpc.block_list_size", prop.BlockListSize)
+	prop.BlockExpireTime = getIntFromMap(m, "mesh.rpc.block_expire_time", prop.BlockExpireTime)
+	prop.DiscoveryType = getStringFromMap(m, "mesh.rpc.discovery_type", prop.DiscoveryType)
+	prop.MetricsType = getStringFromMap(m, "mesh.rpc.metrics_type", prop.MetricsType)
 
 	// discoveryType must be one of "static" or "k8s"
 	if prop.DiscoveryType != StaticDiscovery && prop.DiscoveryType != K8sDiscovery {
