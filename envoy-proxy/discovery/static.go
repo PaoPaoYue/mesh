@@ -5,10 +5,10 @@ import (
 )
 
 type StaticService struct {
-	name string
-	env  string
-	host string
-	port int32
+	Name string
+	Env  string
+	Host string
+	Port int32
 }
 
 type StaticServiceDiscovery struct {
@@ -20,9 +20,9 @@ func NewStaticServiceDiscovery(services []StaticService) *StaticServiceDiscovery
 		BaseServiceDiscovery: NewBaseServiceDiscovery(),
 	}
 	for _, service := range services {
-		sd.addEndpoint(context.Background(), service.name, service.env, Endpoint{
-			Host: service.host,
-			Port: int(service.port),
+		sd.addEndpoint(context.Background(), service.Name, service.Env, Endpoint{
+			Host: service.Host,
+			Port: service.Port,
 		})
 	}
 	return sd

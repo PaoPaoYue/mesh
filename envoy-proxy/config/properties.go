@@ -1,5 +1,7 @@
 package config
 
+import "github.com/paopaoyue/mesh/envoy-proxy/discovery"
+
 const (
 	NoneMetric      = "none"
 	DogStatsDMetric = "dogstatsd"
@@ -23,8 +25,8 @@ type Properties struct {
 
 	MetricsType     string
 	DiscoveryType   string
-	MetricsEndpoint any
-	StaticServices  any
+	MetricsEndpoint discovery.Endpoint
+	StaticServices  []discovery.StaticService
 }
 
 func NewProperties() *Properties {
@@ -40,7 +42,7 @@ func NewProperties() *Properties {
 		BlockExpireTime:           600,         // Default: 600
 		MetricsType:               NoneMetric,
 		DiscoveryType:             StaticDiscovery,
-		MetricsEndpoint:           nil,
-		StaticServices:            []any{},
+		MetricsEndpoint:           discovery.Endpoint{},
+		StaticServices:            []discovery.StaticService{},
 	}
 }

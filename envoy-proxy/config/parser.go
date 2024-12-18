@@ -46,19 +46,43 @@ func (p *Parser) ParseConfig(raw *anypb.Any) any {
 	}
 
 	if prop.DiscoveryType == StaticDiscovery {
-		if staticServices, ok := m["mesh.rpc.static_services"].([]discovery.StaticService); ok {
-			prop.StaticServices = staticServices
-		} else {
-			slog.Error("Invalid static services", "services", prop.StaticServices)
+		if _, ok := m["mesh.rpc.static_services"].([]any); !ok {
+			slog.Error("Invalid static services configuration", "services", m["mesh.rpc.static_services"])
 			return errors.New("invalid static services")
+		}
+		for _, service := range m["mesh.rpc.static_services"].([]any) {
+			if service, ok := service.(map[string]any); !ok {
+				slog.Error("Invalid static services configuration", "services", m["mesh.rpc.static_services"])
+				return errors.New("invalid static service")
+			} else {
+				staticService := discovery.StaticService{
+					Name: getStringFromMap(service, "name", ""),
+					Env:  getStringFromMap(service, "env", ""),
+					Host: getStringFromMap(service, "host", ""),
+					Port: int32(getIntFromMap(service, "port", 0)),
+				}
+				if staticService.Name == "" ||
+					staticService.Env == "" ||
+					staticService.Host == "" ||
+					staticService.Port == 0 {
+					slog.Error("Invalid static service configuration", "service", m["mesh.rpc.static_services"])
+					return errors.New("invalid static service")
+				}
+				prop.StaticServices = append(prop.StaticServices, staticService)
+			}
 		}
 	}
 
 	if prop.MetricsType == DogStatsDMetric {
-		if metricsEndpoint, ok := m["mesh.rpc.metrics_endpoint"].(discovery.Endpoint); ok {
-			prop.MetricsEndpoint = metricsEndpoint
+		if metricsEndpoint, ok := m["mesh.rpc.metrics_endpoint"].(map[string]any); ok {
+			prop.MetricsEndpoint.Host = getStringFromMap(metricsEndpoint, "host", "")
+			prop.MetricsEndpoint.Port = int32(getIntFromMap(metricsEndpoint, "port", 0))
+			if prop.MetricsEndpoint.Host == "" || prop.MetricsEndpoint.Port == 0 {
+				slog.Error("Invalid metrics endpoint", "endpoint", m["mesh.rpc.metrics_endpoint"])
+				return errors.New("invalid metrics endpoint")
+			}
 		} else {
-			slog.Error("Invalid metrics endpoint", "endpoint", prop.MetricsEndpoint)
+			slog.Error("Invalid metrics endpoint", "endpoint", m["mesh.rpc.metrics_endpoint"])
 			return errors.New("invalid metrics endpoint")
 		}
 	}
