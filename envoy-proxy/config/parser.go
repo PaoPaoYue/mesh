@@ -104,8 +104,8 @@ func getStringFromMap(m map[string]any, name string, defaultValue string) string
 
 func getIntFromMap(m map[string]any, name string, defaultValue int) int {
 	if v, ok := m[name]; ok {
-		if value, ok := v.(int); ok {
-			return value
+		if value, ok := v.(float64); ok {
+			return int(value)
 		}
 	}
 	return defaultValue
