@@ -41,6 +41,6 @@ func NewProperties() *Properties {
 		MetricsType:               NoneMetric,
 		DiscoveryType:             StaticDiscovery,
 		MetricsEndpoint:           nil,
-		StaticServices:            nil,
+		StaticServices:            []any{},
 	}
 }

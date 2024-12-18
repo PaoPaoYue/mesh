@@ -19,7 +19,7 @@ static_resources:
             "@type": type.googleapis.com/xds.type.v3.TypedStruct
             value:
               log.level: info
-              mesh.rpc.DiscoveryType: static
+              mesh.rpc.discovery_type: static
               mesh.rpc.static_services: []
 
   clusters:

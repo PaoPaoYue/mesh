@@ -26,16 +26,16 @@ data:
                 "@type": type.googleapis.com/xds.type.v3.TypedStruct
                 value:
                   log.level: "{{ .Values.mesh.proxy.logLevel }}"
-                  mesh.rpc.PacketMaxSize: {{ .Values.mesh.proxy.PacketMaxSize }}
-                  mesh.rpc.KeepAliveTimeout: {{ .Values.mesh.proxy.KeepAliveTimeout }}
-                  mesh.rpc.KeepAliveInterval: {{ .Values.mesh.proxy.KeepAliveInterval }}
-                  mesh.rpc.KeepAliveIdleTimeout: {{ .Values.mesh.proxy.KeepAliveIdleTimeout }}
-                  mesh.rpc.UpstreamMaxResend: {{ .Values.mesh.proxy.UpstreamMaxResend }}
-                  mesh.rpc.UpstreamConnectionTimeout: {{ .Values.mesh.proxy.UpstreamConnectionTimeout }}
-                  mesh.rpc.BlockListSize: {{ .Values.mesh.proxy.BlockListSize }}
-                  mesh.rpc.BlockExpireTime: {{ .Values.mesh.proxy.BlockExpireTime }}
-                  mesh.rpc.DiscoveryType: "{{ .Values.mesh.proxy.DiscoveryType }}"
-                  mesh.rpc.MetricsType: "{{ .Values.mesh.proxy.MetricsType }}"
+                  mesh.rpc.packet_max_size: {{ .Values.mesh.proxy.PacketMaxSize }}
+                  mesh.rpc.keep_alive_timeout: {{ .Values.mesh.proxy.KeepAliveTimeout }}
+                  mesh.rpc.keep_alive_interval: {{ .Values.mesh.proxy.KeepAliveInterval }}
+                  mesh.rpc.keep_alive_idle_timeout: {{ .Values.mesh.proxy.KeepAliveIdleTimeout }}
+                  mesh.rpc.upstream_max_resend: {{ .Values.mesh.proxy.UpstreamMaxResend }}
+                  mesh.rpc.upstream_connection_timeout: {{ .Values.mesh.proxy.UpstreamConnectionTimeout }}
+                  mesh.rpc.block_list_size: {{ .Values.mesh.proxy.BlockListSize }}
+                  mesh.rpc.block_expire_time: {{ .Values.mesh.proxy.BlockExpireTime }}
+                  mesh.rpc.discovery_type: "{{ .Values.mesh.proxy.DiscoveryType }}"
+                  mesh.rpc.metrics_type: "{{ .Values.mesh.proxy.MetricsType }}"
                   mesh.rpc.static_services:
     {{ toYaml .Values.mesh.proxy.staticServices | indent 10 }}
                   mesh.rpc.metrics_endpoint:
