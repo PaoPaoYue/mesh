@@ -12,7 +12,7 @@ type DogStatsDClient struct {
 }
 
 func NewDogStatsDClient(endpoint discovery.Endpoint) (*DogStatsDClient, error) {
-	client, err := statsd.New(fmt.Sprintf("%s:%d", endpoint.Host, &endpoint.Port), statsd.WithTags([]string{"mode:proxy"}))
+	client, err := statsd.New(fmt.Sprintf("%s:%d", endpoint.Host, endpoint.Port), statsd.WithTags([]string{"mode:proxy"}))
 	if err != nil {
 		return nil, err
 	}
