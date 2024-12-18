@@ -26,17 +26,18 @@ jobs:
         echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v2
+      with:
+        buildkitd-flags: --debug
 
-    - name: Build Docker Image
+    - name: Create Buildx Builder Instance
+      run: |
+        docker buildx create --name multiarch-builder --use
+        docker buildx inspect --bootstrap
+
+    - name: Build and Push Multi-Arch Docker Image
       run: |
         DOCKER_REPO="${{ secrets.DOCKER_USERNAME }}/ypp-rpc-mesh-proxy"
         DOCKER_TAG="${{ github.event.inputs.version }}"
-        DOCKER_IMAGE="$DOCKER_REPO:$DOCKER_TAG"
-        docker build -t $DOCKER_IMAGE -f Dockerfile .
-        echo "image=$DOCKER_IMAGE" >> $GITHUB_ENV
+        docker buildx build --platform linux/amd64,linux/arm64 -t $DOCKER_REPO:$DOCKER_TAG -f Dockerfile --push .
       working-directory: envoy-proxy
-
-    - name: Push Docker Image to Docker Hub
-      run: |
-        docker push ${{ env.image }}
