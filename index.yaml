@@ -33,6 +33,16 @@ entries:
     version: 0.0.6
   mesh-proxy:
   - apiVersion: v2
+    appVersion: 0.0.25
+    created: "2024-12-23T08:24:50.688885057Z"
+    description: A Helm chart for Kubernetes
+    digest: 8e9419a046894abc7607cbb8d15ef38c2020b18109ff2fd2e0d1d89141df853c
+    name: mesh-proxy
+    type: application
+    urls:
+    - https://github.com/PaoPaoYue/mesh/releases/download/mesh-proxy-0.0.25/mesh-proxy-0.0.25.tgz
+    version: 0.0.25
+  - apiVersion: v2
     appVersion: 0.0.24
     created: "2024-12-18T16:02:32.169118991Z"
     description: A Helm chart for Kubernetes
@@ -152,4 +162,4 @@ entries:
     urls:
     - https://github.com/PaoPaoYue/mesh/releases/download/mesh-proxy-0.0.7/mesh-proxy-0.0.7.tgz
     version: 0.0.7
-generated: "2024-12-18T16:02:32.169177841Z"
+generated: "2024-12-23T08:24:50.689107022Z"
