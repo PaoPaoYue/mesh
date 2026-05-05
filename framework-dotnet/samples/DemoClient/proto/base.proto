@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package rpc;
+
+option csharp_namespace = "DemoClient.Proto";
+
+message RespBase {
+  int32 code = 1;
+  string message = 2;
+}
+

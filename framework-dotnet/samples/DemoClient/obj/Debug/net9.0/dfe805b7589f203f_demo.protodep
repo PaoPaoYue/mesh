@@ -1,0 +1,2 @@
+obj\Debug\net9.0/Demo.cs: proto/base.proto\
+ proto/demo.proto

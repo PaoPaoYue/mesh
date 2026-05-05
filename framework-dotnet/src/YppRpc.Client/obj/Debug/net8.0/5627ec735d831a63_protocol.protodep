@@ -1,0 +1,2 @@
+obj\Debug\net8.0\rpc/Protocol.cs: C:/Users/LENOVO/.nuget/packages/grpc.tools/2.65.0/build/native/include/google/protobuf/any.proto\
+ ../../proto/rpc/protocol.proto

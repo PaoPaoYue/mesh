@@ -1,0 +1,15 @@
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\tools\YppRpc.IdlScaffolder\bin\Debug\net8.0\YppRpc.IdlScaffolder.exe
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\tools\YppRpc.IdlScaffolder\bin\Debug\net8.0\YppRpc.IdlScaffolder.deps.json
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\tools\YppRpc.IdlScaffolder\bin\Debug\net8.0\YppRpc.IdlScaffolder.runtimeconfig.json
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\tools\YppRpc.IdlScaffolder\bin\Debug\net8.0\YppRpc.IdlScaffolder.dll
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\tools\YppRpc.IdlScaffolder\bin\Debug\net8.0\YppRpc.IdlScaffolder.pdb
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\tools\YppRpc.IdlScaffolder\obj\Debug\net8.0\YppRpc.IdlScaffolder.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\tools\YppRpc.IdlScaffolder\obj\Debug\net8.0\YppRpc.IdlScaffolder.AssemblyInfoInputs.cache
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\tools\YppRpc.IdlScaffolder\obj\Debug\net8.0\YppRpc.IdlScaffolder.AssemblyInfo.cs
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\tools\YppRpc.IdlScaffolder\obj\Debug\net8.0\YppRpc.IdlScaffolder.csproj.CoreCompileInputs.cache
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\tools\YppRpc.IdlScaffolder\obj\Debug\net8.0\YppRpc.IdlScaffolder.sourcelink.json
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\tools\YppRpc.IdlScaffolder\obj\Debug\net8.0\YppRpc.IdlScaffolder.dll
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\tools\YppRpc.IdlScaffolder\obj\Debug\net8.0\refint\YppRpc.IdlScaffolder.dll
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\tools\YppRpc.IdlScaffolder\obj\Debug\net8.0\YppRpc.IdlScaffolder.pdb
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\tools\YppRpc.IdlScaffolder\obj\Debug\net8.0\YppRpc.IdlScaffolder.genruntimeconfig.cache
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\tools\YppRpc.IdlScaffolder\obj\Debug\net8.0\ref\YppRpc.IdlScaffolder.dll

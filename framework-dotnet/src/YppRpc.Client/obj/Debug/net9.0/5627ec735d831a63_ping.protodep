@@ -1,0 +1,2 @@
+obj\Debug\net9.0\rpc/Ping.cs: ../../proto/rpc/base.proto\
+ ../../proto/rpc/ping.proto

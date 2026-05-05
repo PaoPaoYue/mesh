@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package rpc;
+
+option csharp_namespace = "DemoClient.Proto";
+
+import "base.proto";
+
+message EchoRequest {
+  string text = 1;
+}
+
+message EchoResponse {
+  string text = 1;
+  RespBase base = 255;
+}
+
+service Demo {
+  rpc echo(EchoRequest) returns (EchoResponse);
+}
+

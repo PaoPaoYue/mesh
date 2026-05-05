@@ -1,0 +1,13 @@
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\src\YppRpc.Client\bin\Debug\net8.0\YppRpc.Client.deps.json
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\src\YppRpc.Client\bin\Debug\net8.0\YppRpc.Client.dll
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\src\YppRpc.Client\bin\Debug\net8.0\YppRpc.Client.pdb
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\src\YppRpc.Client\obj\Debug\net8.0\YppRpc.Client.csproj.AssemblyReference.cache
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\src\YppRpc.Client\obj\Debug\net8.0\YppRpc.Client.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\src\YppRpc.Client\obj\Debug\net8.0\YppRpc.Client.AssemblyInfoInputs.cache
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\src\YppRpc.Client\obj\Debug\net8.0\YppRpc.Client.AssemblyInfo.cs
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\src\YppRpc.Client\obj\Debug\net8.0\YppRpc.Client.csproj.CoreCompileInputs.cache
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\src\YppRpc.Client\obj\Debug\net8.0\YppRpc.Client.sourcelink.json
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\src\YppRpc.Client\obj\Debug\net8.0\YppRpc.Client.dll
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\src\YppRpc.Client\obj\Debug\net8.0\refint\YppRpc.Client.dll
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\src\YppRpc.Client\obj\Debug\net8.0\YppRpc.Client.pdb
+C:\Users\LENOVO\Desktop\projects\mesh\framework-dotnet\src\YppRpc.Client\obj\Debug\net8.0\ref\YppRpc.Client.dll

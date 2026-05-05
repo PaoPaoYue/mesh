@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "N/NIcpqxRzk=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\LENOVO\\Desktop\\projects\\mesh\\framework-dotnet\\src\\YppRpc.Client\\YppRpc.Client.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\LENOVO\\.nuget\\packages\\google.protobuf\\3.27.2\\google.protobuf.3.27.2.nupkg.sha512",
+    "C:\\Users\\LENOVO\\.nuget\\packages\\grpc.tools\\2.65.0\\grpc.tools.2.65.0.nupkg.sha512"
+  ],
+  "logs": []
+}
